@@ -179,6 +179,36 @@ $("#letterOpen").addEventListener("click", () => {
   $("#letterInside").scrollIntoView({ behavior: "smooth", block: "center" });
 });
 
+const finaleSection = $("#finale");
+const finaleWishButton = $("#finaleWishButton");
+
+function awakenFinale(particleCount = 36) {
+  finaleSection.classList.remove("is-celebrating");
+  void finaleSection.offsetWidth;
+  finaleSection.classList.add("is-celebrating");
+  if (!prefersReducedMotion) burstFromElement($("#finaleVisual"), particleCount);
+}
+
+finaleWishButton.addEventListener("click", () => {
+  finaleWishButton.classList.add("is-complete");
+  $("#finaleWishText").textContent = "愿望已收好";
+  finaleWishButton.querySelector("small").textContent = "願いを大切にしまった";
+  finaleWishButton.setAttribute("aria-label", "生日愿望已收好，再次播放庆祝特效");
+  awakenFinale(54);
+  runGrandCelebration(false);
+});
+
+if ("IntersectionObserver" in window) {
+  const finaleObserver = new IntersectionObserver((entries, observer) => {
+    if (!entries.some((entry) => entry.isIntersecting)) return;
+    awakenFinale(28);
+    observer.disconnect();
+  }, { threshold: .38 });
+  finaleObserver.observe(finaleSection);
+} else {
+  finaleSection.classList.add("is-celebrating");
+}
+
 const soundControl = $("#soundControl");
 const soundLabel = $("#soundLabel");
 const backgroundMusic = $("#backgroundMusic");
@@ -310,7 +340,7 @@ function updateReadingProgress() {
 
 function updateHeaderTheme() {
   const checkpoint = window.scrollY + 48;
-  const darkSections = [$("#cover"), $("#pageTurn"), $("#confession"), $("#future")];
+  const darkSections = [$("#cover"), $("#pageTurn"), $("#confession"), $("#future"), $("#finale")];
   const isDark = darkSections.some((section) => checkpoint >= section.offsetTop && checkpoint < section.offsetTop + section.offsetHeight);
   $(".site-header").classList.toggle("on-dark", isDark);
 }
@@ -702,7 +732,7 @@ resizeConstellation();
 window.addEventListener("resize", resizeConstellation);
 
 const revealTargets = $$(
-  ".birthday-opening-mark, .birthday-art, .birthday-opening-copy > *, .favorite-page-head > *, .favorite-universe, .page-turn-copy > *, .portrait-edition-meta, .manifesto-grid > *, .portrait-stage .image-card, .conversation-intro > *, .chat-frame, .confession-rail > *, .confession-promise > *, .confession-side > *, .confession-foot > *, .future > h2, .future-lead, .constellation-shell, .letter-cover > *"
+  ".birthday-opening-mark, .birthday-art, .birthday-opening-copy > *, .favorite-page-head > *, .favorite-universe, .page-turn-copy > *, .portrait-edition-meta, .manifesto-grid > *, .portrait-stage .image-card, .conversation-intro > *, .chat-frame, .confession-rail > *, .confession-promise > *, .confession-side > *, .confession-foot > *, .future > h2, .future-lead, .constellation-shell, .letter-cover > *, .finale-copy > *, .finale-visual, .finale-end"
 );
 revealTargets.forEach((target, index) => {
   target.classList.add("reveal-on-scroll");
