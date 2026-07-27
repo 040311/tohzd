@@ -310,7 +310,7 @@ function updateReadingProgress() {
 
 function updateHeaderTheme() {
   const checkpoint = window.scrollY + 48;
-  const darkSections = [$("#cover"), $("#pageTurn"), $("#future")];
+  const darkSections = [$("#cover"), $("#pageTurn"), $("#confession"), $("#future")];
   const isDark = darkSections.some((section) => checkpoint >= section.offsetTop && checkpoint < section.offsetTop + section.offsetHeight);
   $(".site-header").classList.toggle("on-dark", isDark);
 }
@@ -702,7 +702,7 @@ resizeConstellation();
 window.addEventListener("resize", resizeConstellation);
 
 const revealTargets = $$(
-  ".birthday-opening-mark, .birthday-art, .birthday-opening-copy > *, .favorite-page-head > *, .favorite-universe, .page-turn-copy > *, .portrait-edition-meta, .manifesto-grid > *, .portrait-stage .image-card, .conversation-intro > *, .chat-frame, .future > h2, .future-lead, .constellation-shell, .letter-cover > *"
+  ".birthday-opening-mark, .birthday-art, .birthday-opening-copy > *, .favorite-page-head > *, .favorite-universe, .page-turn-copy > *, .portrait-edition-meta, .manifesto-grid > *, .portrait-stage .image-card, .conversation-intro > *, .chat-frame, .confession-rail > *, .confession-promise > *, .confession-side > *, .confession-foot > *, .future > h2, .future-lead, .constellation-shell, .letter-cover > *"
 );
 revealTargets.forEach((target, index) => {
   target.classList.add("reveal-on-scroll");
