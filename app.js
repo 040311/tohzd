@@ -36,7 +36,7 @@ function syncLightbox() {
   if (isChatCard) {
     lightboxChat.replaceChildren(item.cloneNode(true));
   } else {
-    lightboxImage.src = image?.src || "";
+    lightboxImage.src = item.dataset.fullSrc || image?.src || "";
     lightboxImage.alt = image?.alt || "摄影集照片";
   }
 
@@ -120,14 +120,6 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-$("#revealNow").addEventListener("click", () => {
-  const reveal = $("#nowReveal");
-  const isOpen = !reveal.hidden;
-  reveal.hidden = isOpen;
-  $("#revealNow").firstChild.textContent = isOpen ? "打开这一页 " : "合上这一页 ";
-  if (!isOpen) burstFromElement($("#revealNow"), 18);
-});
-
 $("#birthdayWish").addEventListener("click", () => {
   const cake = $("#birthdayCake");
   const note = $("#birthdayWishNote");
@@ -136,6 +128,7 @@ $("#birthdayWish").addEventListener("click", () => {
   $("#birthdayWish").classList.toggle("is-lit", isLit);
   $("#birthdayWish").firstChild.textContent = isLit ? "华紫蝶，这一岁已经点亮 " : "点这里，点亮这一岁 ";
   if (isLit) {
+    void playBirthdayRecording();
     burstFromElement($("#birthdayCake"), 54);
     runGrandCelebration(true);
   } else {
@@ -144,6 +137,32 @@ $("#birthdayWish").addEventListener("click", () => {
 });
 
 $(".cover-cta").addEventListener("click", () => runGrandCelebration(false));
+
+const pageTurn = $("#pageTurn");
+const pageTurnButton = $("#pageTurnButton");
+let pageTurnInProgress = false;
+
+pageTurnButton.addEventListener("click", () => {
+  if (pageTurnInProgress) return;
+  if (prefersReducedMotion) {
+    $("#her").scrollIntoView({ behavior: "auto", block: "start" });
+    return;
+  }
+
+  pageTurnInProgress = true;
+  pageTurnButton.disabled = true;
+  pageTurn.classList.add("is-turning");
+  burstFromElement(pageTurnButton, 48);
+
+  window.setTimeout(() => {
+    $("#her").scrollIntoView({ behavior: "auto", block: "start" });
+  }, 520);
+  window.setTimeout(() => {
+    pageTurn.classList.remove("is-turning");
+    pageTurnButton.disabled = false;
+    pageTurnInProgress = false;
+  }, 1120);
+});
 
 $("#futureButton").addEventListener("click", () => {
   const note = $("#futureNote");
@@ -163,10 +182,18 @@ $("#letterOpen").addEventListener("click", () => {
 const soundControl = $("#soundControl");
 const soundLabel = $("#soundLabel");
 const backgroundMusic = $("#backgroundMusic");
+const birthdayRecording = $("#birthdayRecording");
+let birthdayRecordingActive = false;
 backgroundMusic.volume = .46;
+birthdayRecording.volume = .92;
 
 function updateSoundState(isPlaying) {
   soundControl.classList.toggle("is-playing", isPlaying);
+  if (birthdayRecordingActive) {
+    soundLabel.textContent = isPlaying ? "暂停录音" : "继续录音";
+    soundControl.setAttribute("aria-label", isPlaying ? "暂停生日录音" : "继续播放生日录音");
+    return;
+  }
   soundLabel.textContent = isPlaying ? "暂停音乐" : "播放音乐";
   soundControl.setAttribute("aria-label", isPlaying ? "暂停背景音乐" : "播放背景音乐");
 }
@@ -182,18 +209,65 @@ async function startBackgroundMusic() {
   }
 }
 
-function pauseBackgroundMusic() {
-  backgroundMusic.pause();
+function activeSoundtrack() {
+  return birthdayRecordingActive ? birthdayRecording : backgroundMusic;
+}
+
+async function startActiveSoundtrack() {
+  const soundtrack = activeSoundtrack();
+  try {
+    await soundtrack.play();
+    updateSoundState(true);
+  } catch {
+    updateSoundState(false);
+  }
+}
+
+function finishBirthdayRecording() {
+  if (!birthdayRecordingActive) return;
+  birthdayRecordingActive = false;
+  birthdayRecording.currentTime = 0;
   updateSoundState(false);
+  void startBackgroundMusic();
+}
+
+async function playBirthdayRecording() {
+  if (birthdayRecordingActive) return;
+  birthdayRecordingActive = true;
+  backgroundMusic.pause();
+  birthdayRecording.currentTime = 0;
+  updateSoundState(false);
+  try {
+    await birthdayRecording.play();
+    updateSoundState(true);
+  } catch {
+    finishBirthdayRecording();
+  }
 }
 
 soundControl.addEventListener("click", async () => {
-  if (backgroundMusic.paused) await startBackgroundMusic();
-  else pauseBackgroundMusic();
+  const soundtrack = activeSoundtrack();
+  if (soundtrack.paused) await startActiveSoundtrack();
+  else {
+    soundtrack.pause();
+    updateSoundState(false);
+  }
 });
 
-backgroundMusic.addEventListener("play", () => updateSoundState(true));
-backgroundMusic.addEventListener("pause", () => updateSoundState(false));
+backgroundMusic.addEventListener("play", () => {
+  if (!birthdayRecordingActive) updateSoundState(true);
+});
+backgroundMusic.addEventListener("pause", () => {
+  if (!birthdayRecordingActive) updateSoundState(false);
+});
+birthdayRecording.addEventListener("play", () => {
+  if (birthdayRecordingActive) updateSoundState(true);
+});
+birthdayRecording.addEventListener("pause", () => {
+  if (birthdayRecordingActive && !birthdayRecording.ended) updateSoundState(false);
+});
+birthdayRecording.addEventListener("ended", finishBirthdayRecording);
+birthdayRecording.addEventListener("error", finishBirthdayRecording);
 void startBackgroundMusic();
 
 const openingCeremony = $("#openingCeremony");
@@ -236,7 +310,7 @@ function updateReadingProgress() {
 
 function updateHeaderTheme() {
   const checkpoint = window.scrollY + 48;
-  const darkSections = [$("#cover"), $("#future")];
+  const darkSections = [$("#cover"), $("#pageTurn"), $("#future")];
   const isDark = darkSections.some((section) => checkpoint >= section.offsetTop && checkpoint < section.offsetTop + section.offsetHeight);
   $(".site-header").classList.toggle("on-dark", isDark);
 }
@@ -628,7 +702,7 @@ resizeConstellation();
 window.addEventListener("resize", resizeConstellation);
 
 const revealTargets = $$(
-  ".birthday-opening-mark, .birthday-art, .birthday-opening-copy > *, .manifesto-grid > *, .favorite-universe, .portrait-stage .image-card, .section-heading-row > *, .now-layout > *, .conversation-intro > *, .chat-frame, .future > h2, .future-lead, .constellation-shell, .letter-cover > *"
+  ".birthday-opening-mark, .birthday-art, .birthday-opening-copy > *, .favorite-page-head > *, .favorite-universe, .page-turn-copy > *, .portrait-edition-meta, .manifesto-grid > *, .portrait-stage .image-card, .conversation-intro > *, .chat-frame, .future > h2, .future-lead, .constellation-shell, .letter-cover > *"
 );
 revealTargets.forEach((target, index) => {
   target.classList.add("reveal-on-scroll");
