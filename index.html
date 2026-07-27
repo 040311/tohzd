@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f3efe7" />
+    <meta name="description" content="一整本写给华紫蝶的未出版生日摄影集" />
+    <title>华紫蝶的未出版摄影集 · 生日号</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Serif+JP:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700;900&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css?v=20260727-real-chats" />
+  </head>
+  <body class="ceremony-pending">
+    <div class="noise" aria-hidden="true"></div>
+    <canvas class="particle-canvas" id="particleCanvas" aria-hidden="true"></canvas>
+    <audio id="backgroundMusic" src="assets/audio/huazidie-birthday-bgm.mp3" preload="auto" autoplay loop playsinline aria-hidden="true"></audio>
+    <section class="opening-ceremony" id="openingCeremony" role="dialog" aria-modal="true" aria-labelledby="ceremonyTitle">
+      <picture class="ceremony-media" aria-hidden="true">
+        <source media="(max-width: 820px)" srcset="assets/hero/birthday-portrait-mobile.jpg" />
+        <img src="assets/hero/birthday-hero-landscape-v2.jpg" alt="" />
+      </picture>
+      <div class="ceremony-shade" aria-hidden="true"></div>
+      <div class="ceremony-orbit" aria-hidden="true"><i></i><i></i><i></i></div>
+
+      <header class="ceremony-header">
+        <span class="mono">BIRTHDAY GIFT / 2026.08.07</span>
+        <span lang="ja">華紫蝶さんへ</span>
+      </header>
+
+      <div class="ceremony-copy">
+        <div class="ceremony-seal" aria-hidden="true"><span>蝶</span><small>07</small></div>
+        <p class="ceremony-kicker" lang="ja">今日の光を、すべてあなたへ。</p>
+        <h1 id="ceremonyTitle">华紫蝶，<br /><span>请收下今天</span><br /><em>所有的光。</em></h1>
+        <p class="ceremony-lead">愿新的一岁，有热烈的喜欢，<br />也有安静而长久的幸福。</p>
+        <button class="ceremony-enter" id="enterCeremony" type="button">
+          <span><b>开启生日礼物</b><small lang="ja">誕生日の贈り物をひらく</small></span>
+          <i aria-hidden="true">↗</i>
+        </button>
+      </div>
+
+      <footer class="ceremony-footer">
+        <span>二〇二六年八月七日</span>
+        <span lang="ja">誕生日特別号</span>
+      </footer>
+    </section>
+    <div class="grand-celebration" id="grandCelebration" aria-hidden="true">
+      <div class="grand-ring ring-outer"></div>
+      <div class="grand-ring ring-inner"></div>
+      <p class="mono" lang="ja">華紫蝶の誕生日 / 今日という一日を、いつまでも</p>
+      <div class="grand-date"><span>07</span><i lang="ja">八月</i><span>2026</span></div>
+      <div class="grand-wish">
+        <strong>华紫蝶，生日快乐</strong>
+        <span lang="ja">華紫蝶さん、お誕生日おめでとう</span>
+      </div>
+    </div>
+    <div class="reading-progress" aria-hidden="true"><span id="readingProgress"></span></div>
+
+    <header class="site-header">
+      <a class="brand" href="#cover" aria-label="返回封面">
+        <span class="brand-mark">蝶</span>
+        <span class="brand-copy"><strong>华紫蝶</strong><em>2026 / 8月 / 07</em></span>
+      </a>
+      <nav class="section-nav" aria-label="章节导航">
+        <a href="#her"><span>她</span><small lang="ja">彼女</small></a>
+        <a href="#now"><span>现在</span><small lang="ja">いま</small></a>
+        <a href="#conversations"><span>我们说过</span><small lang="ja">ことば</small></a>
+        <a href="#future"><span>未来</span><small lang="ja">これから</small></a>
+      </nav>
+      <button class="sound-control" id="soundControl" type="button" title="播放或暂停背景音乐" aria-label="播放背景音乐">
+        <span class="sound-icon" aria-hidden="true"><i></i><i></i><i></i></span>
+        <span id="soundLabel">播放音乐</span>
+      </button>
+    </header>
+
+    <main>
+      <section class="cover" id="cover" aria-labelledby="coverTitle">
+        <picture class="cover-media">
+          <source media="(max-width: 820px)" srcset="assets/hero/birthday-portrait-mobile.jpg" />
+          <img class="cover-image" src="assets/hero/birthday-hero-landscape-v2.jpg" alt="她装扮成紫发角色，对着镜头比出可爱手势" />
+        </picture>
+        <div class="cover-shade" aria-hidden="true"></div>
+        <div class="cover-meta mono" lang="ja">2026年8月7日 <span>/</span> 誕生日特別号</div>
+        <div class="cover-date-seal" aria-label="生日日期：2026年8月7日"><span>07</span><i lang="ja">八月</i><b>2026</b></div>
+        <div class="cover-japanese" lang="ja" aria-hidden="true"><span>二〇二六年八月七日</span><i>華紫蝶さんに贈る、誕生日の一冊。</i></div>
+        <div class="cover-copy">
+          <p class="eyebrow" lang="ja">華紫蝶さん、お<ruby>誕生日<rt>たんじょうび</rt></ruby>おめでとう</p>
+          <h1 id="coverTitle">这是献给<br /><b class="cover-name">华紫蝶</b><br />的<i class="cover-gift">生日礼物。</i></h1>
+          <p class="cover-deck"><time datetime="2026-08-07">2026年8月7日</time>，所有页码都写着华紫蝶的名字，<br />这一册只为你打开。<small lang="ja">華紫蝶さんのためだけの一冊。</small></p>
+          <a class="cover-cta" href="#birthdayOpening"><span>翻开生日特刊 <small lang="ja">ひらく</small></span><b aria-hidden="true">↘</b></a>
+        </div>
+        <div class="cover-footer">
+          <span>献给今天的寿星 <strong>华紫蝶</strong></span>
+          <span class="scroll-hint"><b></b> 向下阅读</span>
+        </div>
+      </section>
+
+      <div class="kinetic-ribbon" aria-hidden="true">
+        <div class="kinetic-ribbon-track">
+          <span>华紫蝶，生日快乐 · 華紫蝶さん、お誕生日おめでとう · 今日の光は、全部あなたへ · </span>
+          <span>华紫蝶，生日快乐 · 華紫蝶さん、お誕生日おめでとう · 今日の光は、全部あなたへ · </span>
+          <span>华紫蝶，生日快乐 · 華紫蝶さん、お誕生日おめでとう · 今日の光は、全部あなたへ · </span>
+        </div>
+      </div>
+
+      <section class="birthday-opening section-pad" id="birthdayOpening" aria-labelledby="birthdayOpeningTitle">
+        <div class="birthday-date-monument" aria-hidden="true"><span>07</span><i>08</i><b>2026</b></div>
+        <div class="birthday-opening-mark mono" lang="ja">00 / 誕生日、はじまりの頁 / 2026.08.07</div>
+        <div class="birthday-opening-grid">
+          <div class="birthday-art" id="birthdayCake" aria-label="一只等待点亮的生日蜡烛">
+            <div class="art-panel-blue" aria-hidden="true"></div>
+            <div class="art-panel-coral" aria-hidden="true"></div>
+            <div class="art-sun" aria-hidden="true"></div>
+            <div class="art-ribbon ribbon-one" aria-hidden="true"></div>
+            <div class="art-ribbon ribbon-two" aria-hidden="true"></div>
+            <figure class="birthday-still-life">
+              <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=1200&q=88" alt="生日蛋糕静物" />
+              <figcaption class="mono" lang="ja">小さな誕生日の儀式 / あなたへ</figcaption>
+            </figure>
+            <div class="birthday-sculpture" aria-hidden="true">
+              <div class="birthday-candle"><span class="candle-flame"></span><i></i></div>
+              <div class="sculpture-top"></div>
+              <div class="sculpture-layer layer-one"></div>
+              <div class="sculpture-layer layer-two"></div>
+              <div class="sculpture-plinth"></div>
+            </div>
+            <div class="paper-flower" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></div>
+            <div class="birthday-art-type" lang="ja" aria-hidden="true"><span>お誕生日</span><strong>おめでとう</strong></div>
+            <div class="birthday-art-stamp"><span>07</span><small lang="ja">八月 / 2026</small></div>
+            <span class="birthday-art-label mono" lang="ja">願いごと / 2026.08.07</span>
+          </div>
+          <div class="birthday-opening-copy">
+            <div class="section-kicker mono" lang="ja">新しい一年、あなたのために</div>
+            <h2 id="birthdayOpeningTitle">今天，<br /><em>世界为你<br />多亮一盏灯。</em></h2>
+            <p>愿你新的一岁，更加美丽、幸福、自由。</p>
+            <blockquote class="birthday-quote">
+              <p>愿好事找到你，<br />而我继续在你身边。</p>
+              <footer class="mono" lang="ja">すべての幸せが、あなたを見つけますように。</footer>
+            </blockquote>
+            <div class="birthday-indexes">
+              <span><b>01</b> 常欢喜</span>
+              <span><b>02</b> 有自由</span>
+              <span><b>03</b> 被偏爱</span>
+            </div>
+            <div class="wish-action-row">
+              <div class="wish-cta-copy">
+                <span class="wish-cta-kicker mono" lang="ja">あなたの瞬間 / 2026.08.07</span>
+                <button class="wish-button" id="birthdayWish" type="button"><span>点这里，点亮这一岁</span><b>✦</b></button>
+                <small>这一刻，交给你亲手开启。</small>
+              </div>
+              <p class="wish-note" id="birthdayWishNote" hidden>华紫蝶，眼里有光，身边有爱，脚下有想走的路。</p>
+            </div>
+            <div class="birthday-blessing-picker" aria-labelledby="blessingPickerTitle">
+              <p class="mono" id="blessingPickerTitle" lang="ja">新しい一年へ、ことばをひとつ</p>
+              <div class="blessing-options">
+                <button class="blessing-option" type="button" data-blessing="愿你的快乐不需要理由，也不必向谁解释。" aria-label="选择祝福：快乐">
+                  <span aria-hidden="true">✦</span><em>快乐</em><small lang="ja">よろこび</small>
+                </button>
+                <button class="blessing-option" type="button" data-blessing="愿你想走的路都有光，想停的时候也有拥抱。" aria-label="选择祝福：勇气">
+                  <span aria-hidden="true">↗</span><em>勇气</em><small lang="ja">ゆうき</small>
+                </button>
+                <button class="blessing-option" type="button" data-blessing="愿命运偶尔偏心，把好消息一件件放到你手里。" aria-label="选择祝福：好运">
+                  <span aria-hidden="true">◎</span><em>好运</em><small lang="ja">こううん</small>
+                </button>
+                <button class="blessing-option" type="button" data-blessing="愿你一直被世界温柔接住，也一直被我明目张胆地偏爱。" aria-label="选择祝福：偏爱">
+                  <span aria-hidden="true">♡</span><em>偏爱</em><small lang="ja">とくべつ</small>
+                </button>
+              </div>
+              <p class="blessing-result" id="blessingResult" aria-live="polite">愿你拥有以上的所有。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="manifesto section-pad" id="her" aria-labelledby="herTitle">
+        <div class="section-kicker mono" lang="ja">01 / 彼女のポートレート</div>
+        <div class="manifesto-grid">
+          <div>
+            <h2 id="herTitle"><b class="section-name">华紫蝶</b>的每一个<br /><span>不经意。</span></h2>
+          </div>
+          <div class="manifesto-note">
+            <p>有些人不需要被安排进镜头。她只要站在那里，光就自己找到了方向。</p>
+            <span class="rule"></span>
+            <p class="mono note-index" lang="ja">選ばれた肖像 · 001—∞</p>
+          </div>
+        </div>
+        <div class="portrait-exhibit">
+          <div class="favorite-universe" id="favoriteUniverse" aria-labelledby="favoriteUniverseTitle">
+            <div class="universe-heading">
+              <div>
+                <div class="universe-label mono" lang="ja">彼女の好きな世界 / 誕生日のゲスト</div>
+                <h3 id="favoriteUniverseTitle">华紫蝶喜欢的世界，<br /><em>也来参加生日。</em></h3>
+              </div>
+              <div class="universe-intro">
+                <span class="mono" lang="ja">好きなものを集めた、特別展示 / 2026.08.07</span>
+                <p>把华紫蝶喜欢的可爱、勇敢和奇思妙想，装订成摄影集里一面会显影的收藏墙。</p>
+              </div>
+            </div>
+            <div class="character-wall" aria-label="角色收藏展墙">
+              <button class="character-card character-card-shinchan" type="button" data-gallery="favorites" data-index="0" data-title="蜡笔小新 · 永远保留一点天真" data-parallax-speed="22" aria-label="放大查看蜡笔小新">
+                <img src="assets/characters/shinchan.jpg" alt="蜡笔小新和朋友们" loading="lazy" decoding="async" />
+                <span class="character-meta"><b>01</b><em>蜡笔小新</em><small lang="ja">ずっと、子どもの心を</small></span>
+              </button>
+              <button class="character-card character-card-shaosiyuan" type="button" data-gallery="favorites" data-index="1" data-title="少司缘 · 好的缘分会走向彼此" data-parallax-speed="-17" aria-label="放大查看少司缘">
+                <img src="assets/characters/shaosiyuan.jpg" alt="王者荣耀少司缘" loading="lazy" decoding="async" />
+                <span class="character-meta"><b>02</b><em>少司缘</em><small lang="ja">ご縁は、きっと巡り合う</small></span>
+              </button>
+              <button class="character-card character-card-yao" type="button" data-gallery="favorites" data-index="2" data-title="瑶 · 去接住每一次闪闪发光" data-parallax-speed="14" aria-label="放大查看瑶">
+                <img src="assets/characters/yao.jpg" alt="王者荣耀瑶" loading="lazy" decoding="async" />
+                <span class="character-meta"><b>03</b><em>瑶</em><small lang="ja">光のほうへ</small></span>
+              </button>
+              <button class="character-card character-card-chiikawa" type="button" data-gallery="favorites" data-index="3" data-title="小八、乌萨奇与吉伊 · 今天只负责开心" data-parallax-speed="-12" aria-label="放大查看小八、乌萨奇与吉伊">
+                <img src="assets/characters/chiikawa.jpg" alt="花丛里的小八、乌萨奇与吉伊" loading="lazy" decoding="async" />
+                <span class="character-meta"><b>04</b><em>小八 · 乌萨奇 · 吉伊</em><small lang="ja">今日も、しあわせに</small></span>
+              </button>
+              <button class="character-card character-card-sanrio" type="button" data-gallery="favorites" data-index="4" data-title="三丽鸥 · 可爱是认真生活的方式" data-parallax-speed="18" aria-label="放大查看三丽鸥角色">
+                <img src="assets/characters/sanrio.jpg" alt="三丽鸥角色集合" loading="lazy" decoding="async" />
+                <span class="character-meta"><b>05</b><em>三丽鸥</em><small lang="ja">かわいいは、ちから</small></span>
+              </button>
+              <button class="character-card character-card-klee" type="button" data-gallery="favorites" data-index="5" data-title="可莉 · 把新的一岁炸成盛大的花火" data-parallax-speed="-21" aria-label="放大查看可莉">
+                <img src="assets/characters/klee.jpg" alt="原神可莉" loading="lazy" decoding="async" />
+                <span class="character-meta"><b>06</b><em>可莉</em><small lang="ja">新しい一年に、花火を</small></span>
+              </button>
+              <div class="character-wall-seal" aria-hidden="true"><span>07</span><i lang="ja">八月</i><b>2026</b></div>
+            </div>
+            <div class="universe-foot">
+              <span class="mono" lang="ja">近づいて、写真をひらく</span>
+              <p>靠近一点，每一个她喜欢的角色都会从纸上醒来。</p>
+            </div>
+          </div>
+          <div class="portrait-stage">
+            <div class="portrait-main image-card" data-gallery="portraits" data-index="0" tabindex="0" role="button" aria-label="查看照片：光落在她的肩上">
+              <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1200&q=88" alt="光落在她的肩上" />
+              <span class="image-caption">光落在她的肩上 <i>01</i></span>
+            </div>
+            <div class="portrait-side">
+              <div class="image-card portrait-small" data-gallery="portraits" data-index="1" tabindex="0" role="button" aria-label="查看照片：她笑起来的时候">
+                <img src="https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=900&q=88" alt="她笑起来的时候" />
+                <span class="image-caption">她笑起来的时候 <i>02</i></span>
+              </div>
+              <div class="image-card portrait-tall" data-gallery="portraits" data-index="2" tabindex="0" role="button" aria-label="查看照片：安静的下午">
+                <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=88" alt="安静的下午" />
+                <span class="image-caption">安静的下午 <i>03</i></span>
+              </div>
+            </div>
+            <div class="stage-stamp mono">N / 03<br /><span lang="ja">肖像</span></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="interlude" aria-label="章节间隙">
+        <div class="interlude-line"></div>
+        <p class="mono" lang="ja">写真と記憶のあいだ</p>
+        <div class="interlude-line"></div>
+      </section>
+
+      <section class="now section-pad" id="now" aria-labelledby="nowTitle">
+        <div class="section-heading-row">
+          <div>
+            <div class="section-kicker mono" lang="ja">02 / 誕生日の「いま」</div>
+            <h2 id="nowTitle">现在，<br /><em>正在发生。</em></h2>
+          </div>
+          <p class="heading-aside">认识的时间不长，<br />却已经有了好多<br />只属于我们的现在。</p>
+        </div>
+        <div class="now-layout">
+          <div class="now-copy">
+            <div class="quote-mark">“</div>
+            <p>我们不急着把故事讲完。现在的每一秒，都是这一册里最鲜活的纸张。</p>
+            <button class="text-button" id="revealNow" type="button">打开这一页 <span>↗</span></button>
+            <div class="now-reveal" id="nowReveal" hidden>
+              <p>今天先把这句话放在这里：和你在一起的时候，我总觉得时间变得很有质感。</p>
+            </div>
+          </div>
+          <div class="now-photo image-card" data-gallery="portraits" data-index="3" tabindex="0" role="button" aria-label="查看照片：我们的现在">
+            <img src="https://images.unsplash.com/photo-1529333166437-7750a6dd5a70?auto=format&fit=crop&w=1200&q=88" alt="两个人并肩走在阳光里" />
+            <span class="image-caption">同一阵风里 <i lang="ja">いま</i></span>
+          </div>
+        </div>
+        <div class="now-details">
+          <span class="mono" lang="ja">いま / たいせつにしたいこと</span>
+          <span>一起散步</span><span>没说完的话</span><span>下一个周末</span>
+        </div>
+      </section>
+
+      <section class="conversations section-pad" id="conversations" aria-labelledby="conversationTitle">
+        <div class="conversation-intro">
+          <div class="section-kicker mono" lang="ja">03 / ことばの記録</div>
+          <h2 id="conversationTitle">我们说过的，<br /><em>比时间更早。</em></h2>
+          <p>把聊天截图单独留一间展厅。因为有些心动，只有对话框知道。</p>
+        </div>
+        <div class="chat-gallery" id="chatGallery">
+          <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="0" data-title="如果可以的话 · 聊天存档 01" aria-label="查看真实聊天截图：如果可以的话">
+            <span class="chat-photo-head"><b class="mono">CHAT / 001</b><small lang="ja">ことばの記録</small></span>
+            <span class="chat-photo-mat"><img src="assets/chats/chat-01.jpg" width="1080" height="764" alt="真实聊天截图第一张：如果可以的话" loading="lazy" decoding="async" /></span>
+            <span class="chat-photo-foot"><em>如果可以的话</em></span>
+          </button>
+          <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="1" data-title="慢慢了解你 · 聊天存档 02" aria-label="查看真实聊天截图：慢慢了解你">
+            <span class="chat-photo-head"><b class="mono">CHAT / 002</b><small lang="ja">ふたりの会話</small></span>
+            <span class="chat-photo-mat"><img src="assets/chats/chat-02.jpg" width="1079" height="1495" alt="真实聊天截图第二张：慢慢了解你" loading="lazy" decoding="async" /></span>
+            <span class="chat-photo-foot"><em>慢慢了解你</em></span>
+          </button>
+          <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="2" data-title="生日礼物的认真 · 聊天存档 03" aria-label="查看真实聊天截图：生日礼物的认真">
+            <span class="chat-photo-head"><b class="mono">CHAT / 003</b><small lang="ja">大切なことば</small></span>
+            <span class="chat-photo-mat"><img src="assets/chats/chat-03.jpg" width="1080" height="1633" alt="真实聊天截图第三张：生日礼物的认真" loading="lazy" decoding="async" /></span>
+            <span class="chat-photo-foot"><em>生日礼物的认真</em></span>
+          </button>
+          <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="3" data-title="只是想多说说话 · 聊天存档 04" aria-label="查看真实聊天截图：只是想多说说话">
+            <span class="chat-photo-head"><b class="mono">CHAT / 004</b><small lang="ja">もっと話したい</small></span>
+            <span class="chat-photo-mat"><img src="assets/chats/chat-04.jpg" width="1080" height="850" alt="真实聊天截图第四张：只是想多说说话" loading="lazy" decoding="async" /></span>
+            <span class="chat-photo-foot"><em>只是想多说说话</em></span>
+          </button>
+          <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="4" data-title="我想给你的更多 · 聊天存档 05" aria-label="查看真实聊天截图：我想给你的更多">
+            <span class="chat-photo-head"><b class="mono">CHAT / 005</b><small lang="ja">贈りたい気持ち</small></span>
+            <span class="chat-photo-mat"><img src="assets/chats/chat-05.jpg" width="1080" height="1716" alt="真实聊天截图第五张：我想给你的更多" loading="lazy" decoding="async" /></span>
+            <span class="chat-photo-foot"><em>我想给你的更多</em></span>
+          </button>
+          <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="5" data-title="喜欢的角色 · 聊天存档 06" aria-label="查看真实聊天截图：喜欢的角色">
+            <span class="chat-photo-head"><b class="mono">CHAT / 006</b><small lang="ja">好きなもの</small></span>
+            <span class="chat-photo-mat"><img src="assets/chats/chat-06.jpg" width="1080" height="1148" alt="真实聊天截图第六张：喜欢的角色" loading="lazy" decoding="async" /></span>
+            <span class="chat-photo-foot"><em>喜欢的角色</em></span>
+          </button>
+          <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="6" data-title="有缘自会相见 · 聊天存档 07" aria-label="查看真实聊天截图：有缘自会相见">
+            <span class="chat-photo-head"><b class="mono">CHAT / 007</b><small lang="ja">また会える日まで</small></span>
+            <span class="chat-photo-mat"><img src="assets/chats/chat-07.jpg" width="1079" height="1484" alt="真实聊天截图第七张：有缘自会相见" loading="lazy" decoding="async" /></span>
+            <span class="chat-photo-foot"><em>有缘自会相见</em></span>
+          </button>
+        </div>
+      </section>
+
+      <section class="future section-pad" id="future" aria-labelledby="futureTitle">
+        <div class="future-orbit" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div class="section-kicker mono" lang="ja">04 / 2026年8月7日の、その先へ</div>
+        <h2 id="futureTitle">生日之后，<br /><em>还有很多页。</em></h2>
+        <p class="future-lead">我们认识的时间不长，所以这本摄影集最珍贵的地方，<br />是它还有很多空白，等我们一起把它变成照片。</p>
+        <div class="constellation-shell" id="constellationShell">
+          <div class="constellation-head">
+            <span class="mono" lang="ja">これからを灯す / 点亮未来星图</span>
+            <span class="mono" id="constellationCount">00 / 05</span>
+          </div>
+          <div class="constellation-stage" id="constellationStage">
+            <canvas id="constellationCanvas" aria-hidden="true"></canvas>
+            <button class="constellation-node node-one" type="button" data-word="一起散步" aria-label="点亮星星：一起散步"><span>✦</span><em>散步</em></button>
+            <button class="constellation-node node-two" type="button" data-word="一起旅行" aria-label="点亮星星：一起旅行"><span>✦</span><em>旅行</em></button>
+            <button class="constellation-node node-three" type="button" data-word="一起看海" aria-label="点亮星星：一起看海"><span>✦</span><em>看海</em></button>
+            <button class="constellation-node node-four" type="button" data-word="一起过生日" aria-label="点亮星星：一起过生日"><span>✦</span><em>生日</em></button>
+            <button class="constellation-node node-five" type="button" data-word="一直有我们" aria-label="点亮星星：一直有我们"><span>✦</span><em>我们</em></button>
+          </div>
+          <p class="constellation-message" id="constellationMessage" aria-live="polite">点亮五颗星，把想去的未来连成一条线。</p>
+        </div>
+        <button class="future-button" id="futureButton" type="button"><span class="button-seal">✦</span><span id="futureButtonText">拆开这份预告</span><b>↗</b></button>
+        <div class="future-note" id="futureNote" hidden>
+          <div class="future-note-top mono" lang="ja">次の一枚 / まだ撮られていない</div>
+          <p>下一页想拍：你笑着回头，而我刚好在按下快门。</p>
+          <span>— 你的摄影师</span>
+        </div>
+      </section>
+
+      <section class="letter section-pad" id="letter" aria-labelledby="letterTitle">
+        <div class="letter-cover" id="letterCover">
+          <span class="letter-label mono" lang="ja">誕生日の手紙 / 封をした言葉</span>
+          <div class="seal">给<br /><small>紫蝶</small></div>
+          <p>还有一页，<br />只写给你。</p>
+          <button class="letter-open" id="letterOpen" type="button">打开信件 <span>↗</span></button>
+        </div>
+        <div class="letter-inside" id="letterInside" hidden>
+          <div class="letter-inside-meta mono" lang="ja">あなたへ / 2026.08.07</div>
+          <h2 id="letterTitle">亲爱的紫蝶，</h2>
+          <div class="letter-body">
+            <p>这是一本还没有出版的摄影集。没有时间线，也没有标准答案，只有我忍不住想留下的每一次心动。</p>
+            <p>谢谢你出现在我的取景框里。愿以后每一页都有你的名字，也愿我们总能在平凡的日子里，拍到很好的光。</p>
+            <p>生日快乐。今天的主角是你，未来的合照里也一直会有我。</p>
+          </div>
+          <div class="letter-sign">爱你的<br /><strong>摄影师</strong></div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span class="mono" lang="ja">2026年8月7日 / 誕生日特別号</span>
+      <span>华紫蝶，生日快乐。下一页等你来一起拍。</span>
+      <a href="#cover" aria-label="回到封面">↑</a>
+    </footer>
+
+    <div class="lightbox" id="lightbox" hidden aria-modal="true" role="dialog" aria-label="照片预览">
+      <button class="lightbox-close" id="lightboxClose" type="button" aria-label="关闭预览">×</button>
+      <button class="lightbox-arrow lightbox-prev" id="lightboxPrev" type="button" aria-label="上一张">←</button>
+      <figure>
+        <img id="lightboxImage" alt="" />
+        <figcaption><span id="lightboxCaption"></span><span class="mono" id="lightboxCounter"></span></figcaption>
+      </figure>
+      <button class="lightbox-arrow lightbox-next" id="lightboxNext" type="button" aria-label="下一张">→</button>
+    </div>
+
+    <script src="app.js?v=20260727-real-chats-v3"></script>
+  </body>
+</html>
