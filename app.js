@@ -215,21 +215,151 @@ $("#futureButton").addEventListener("click", () => {
   if (!isOpen) burstFromElement($("#futureButton"), 22);
 });
 
+const letterOpen = $("#letterOpen");
+const letterCover = $("#letterCover");
+const letterInside = $("#letterInside");
+const letterTitle = $("#letterTitle");
+const letterBody = $(".letter-body");
+const letterSign = $(".letter-sign");
+const letterRevealAll = $("#letterRevealAll");
 let letterOpening = false;
-$("#letterOpen").addEventListener("click", () => {
+let letterWritingTimer = 0;
+let letterWritingIndex = 0;
+let letterWritingActive = false;
+let letterAutoFollow = true;
+let letterLastFollowAt = 0;
+const letterGlyphs = [];
+
+function splitLetterText(element, paragraphPause = 0) {
+  const text = element.textContent;
+  const segmenter = typeof Intl.Segmenter === "function" ? new Intl.Segmenter("zh-CN", { granularity: "grapheme" }) : null;
+  const characters = segmenter ? [...segmenter.segment(text)].map((part) => part.segment) : Array.from(text);
+  const fragment = document.createDocumentFragment();
+  element.setAttribute("aria-label", text);
+
+  characters.forEach((character, index) => {
+    const glyph = document.createElement("span");
+    glyph.className = "letter-glyph";
+    glyph.setAttribute("aria-hidden", "true");
+    glyph.textContent = character;
+    glyph.style.setProperty("--ink-turn", `${((Math.random() - .5) * .7).toFixed(2)}deg`);
+    glyph.style.setProperty("--ink-rise", `${((Math.random() - .5) * .8).toFixed(2)}px`);
+    fragment.append(glyph);
+    letterGlyphs.push({
+      element: glyph,
+      character,
+      pause: index === characters.length - 1 ? paragraphPause : 0,
+    });
+  });
+
+  element.replaceChildren(fragment);
+}
+
+function prepareLetterWriting() {
+  splitLetterText(letterTitle, 520);
+  $$(".letter-body p").forEach((paragraph) => splitLetterText(paragraph, 620));
+  letterInside.classList.add("is-writing");
+}
+
+function letterDelayFor({ character, pause }) {
+  let delay = 82 + Math.random() * 38;
+  if (/[，、；：,;:]/.test(character)) delay += 125;
+  if (/[。！？!?]/.test(character)) delay += 300;
+  return delay + pause;
+}
+
+function followWritingPosition(glyph) {
+  if (!letterAutoFollow || letterWritingIndex % 4 !== 0) return;
+  const now = performance.now();
+  if (now - letterLastFollowAt < 780) return;
+  const rect = glyph.getBoundingClientRect();
+  const readingLine = window.innerHeight * .66;
+  if (rect.bottom <= readingLine) return;
+  letterLastFollowAt = now;
+  const needsImmediateCatchUp = rect.bottom > window.innerHeight - 54;
+  const distance = rect.bottom - window.innerHeight * .54;
+  if (needsImmediateCatchUp) {
+    const root = document.documentElement;
+    const previousBehavior = root.style.scrollBehavior;
+    root.style.scrollBehavior = "auto";
+    window.scrollBy(0, distance);
+    root.style.scrollBehavior = previousBehavior;
+    return;
+  }
+  window.scrollBy({ top: distance, behavior: "smooth" });
+}
+
+function finishLetterWriting(withFlourish = false) {
+  window.clearTimeout(letterWritingTimer);
+  letterWritingActive = false;
+  letterGlyphs.forEach(({ element }) => element.classList.add("is-visible"));
+  letterGlyphs.forEach(({ element }) => element.classList.remove("is-writing-tip"));
+  letterInside.classList.remove("is-writing");
+  letterInside.classList.add("is-written");
+  letterSign.classList.add("is-visible");
+  letterRevealAll.hidden = true;
+  if (withFlourish) {
+    createButterflyCluster(letterSign, 4);
+    playWishChime(2);
+  }
+}
+
+function writeNextLetterGlyph() {
+  if (!letterWritingActive) return;
+  const previous = letterGlyphs[letterWritingIndex - 1]?.element;
+  previous?.classList.remove("is-writing-tip");
+
+  const glyph = letterGlyphs[letterWritingIndex];
+  if (!glyph) {
+    finishLetterWriting(true);
+    return;
+  }
+
+  glyph.element.classList.add("is-visible", "is-writing-tip");
+  letterWritingIndex += 1;
+  followWritingPosition(glyph.element);
+  letterWritingTimer = window.setTimeout(writeNextLetterGlyph, letterDelayFor(glyph));
+}
+
+function startLetterWriting() {
+  if (prefersReducedMotion) {
+    finishLetterWriting(false);
+    return;
+  }
+  letterWritingIndex = 0;
+  letterWritingActive = true;
+  letterAutoFollow = true;
+  letterLastFollowAt = 0;
+  letterRevealAll.hidden = false;
+  writeNextLetterGlyph();
+}
+
+function stopLetterAutoFollow() {
+  if (letterWritingActive) letterAutoFollow = false;
+}
+
+prepareLetterWriting();
+letterRevealAll.addEventListener("click", () => finishLetterWriting(true));
+window.addEventListener("pointerdown", stopLetterAutoFollow, { passive: true });
+window.addEventListener("wheel", stopLetterAutoFollow, { passive: true });
+window.addEventListener("touchstart", stopLetterAutoFollow, { passive: true });
+document.addEventListener("keydown", (event) => {
+  if (["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(event.key)) stopLetterAutoFollow();
+});
+
+letterOpen.addEventListener("click", () => {
   if (letterOpening) return;
   letterOpening = true;
-  const letterCover = $("#letterCover");
-  const letterInside = $("#letterInside");
   letterCover.classList.add("is-unsealing");
-  burstFromElement($("#letterOpen"), 26);
-  createButterflyCluster($("#letterOpen"), 7);
+  burstFromElement(letterOpen, 26);
+  createButterflyCluster(letterOpen, 7);
   playWishChime(4);
   window.setTimeout(() => {
     letterCover.hidden = true;
     letterInside.hidden = false;
     burstFromElement(letterInside, 32);
-    letterInside.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth", block: "center" });
+    letterInside.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth", block: "start" });
+    window.setTimeout(startLetterWriting, prefersReducedMotion ? 0 : 520);
   }, prefersReducedMotion ? 10 : 690);
 });
 

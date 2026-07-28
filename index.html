@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Ma+Shan+Zheng&family=Noto+Serif+JP:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700;900&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=20260728-living-album" />
+    <link rel="stylesheet" href="styles.css?v=20260728-handwritten-letter" />
   </head>
   <body class="ceremony-pending">
     <div class="noise" aria-hidden="true"></div>
@@ -422,7 +422,12 @@
           <button class="letter-open" id="letterOpen" type="button">打开信件 <span>↗</span></button>
         </div>
         <div class="letter-inside" id="letterInside" hidden>
-          <div class="letter-inside-meta mono" lang="ja">あなたへ / 2026.08.07</div>
+          <div class="letter-inside-head">
+            <div class="letter-inside-meta mono" lang="ja">あなたへ / 2026.08.07</div>
+            <button class="letter-reveal-all" id="letterRevealAll" type="button" aria-label="直接展开完整信件" hidden>
+              <span>展开全文</span><small lang="ja">全文をひらく</small>
+            </button>
+          </div>
           <h2 id="letterTitle">亲爱的紫蝶，</h2>
           <div class="letter-body">
             <p>这是一本专属于你的摄影集。没有时间线，也没有标准答案，只有我忍不住想留下的每一次心动。</p>
@@ -474,6 +479,6 @@
       <button class="lightbox-arrow lightbox-next" id="lightboxNext" type="button" aria-label="下一张">→</button>
     </div>
 
-    <script src="app.js?v=20260728-living-album"></script>
+    <script src="app.js?v=20260728-handwritten-letter"></script>
   </body>
 </html>
