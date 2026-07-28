@@ -128,7 +128,6 @@ $("#birthdayWish").addEventListener("click", () => {
   $("#birthdayWish").classList.toggle("is-lit", isLit);
   $("#birthdayWish").firstChild.textContent = isLit ? "华紫蝶，这一岁已经点亮 " : "点这里，点亮这一岁 ";
   if (isLit) {
-    void playBirthdayRecording();
     burstFromElement($("#birthdayCake"), 54);
     runFairytaleCelebration();
   } else {
@@ -191,12 +190,14 @@ function awakenFinale(particleCount = 36) {
 }
 
 finaleWishButton.addEventListener("click", () => {
+  stopFairytaleCelebration();
   finaleWishButton.classList.add("is-complete");
   $("#finaleWishText").textContent = "愿望已收好";
   finaleWishButton.querySelector("small").textContent = "願いを大切にしまった";
-  finaleWishButton.setAttribute("aria-label", "生日愿望已收好，再次播放庆祝特效");
+  finaleWishButton.setAttribute("aria-label", "生日愿望已收好，再次播放生日录音与庆祝特效");
   awakenFinale(54);
   runGrandCelebration(false);
+  void playBirthdayRecording();
 });
 
 if ("IntersectionObserver" in window) {
@@ -217,23 +218,40 @@ const birthdayRecording = $("#birthdayRecording");
 let birthdayRecordingActive = false;
 let birthdayAudioContext = null;
 let birthdayAudioGraphReady = false;
-backgroundMusic.volume = .46;
+let fireworkAudioBus = null;
+let fireworkNoiseBuffer = null;
+let fireworkAudioActive = false;
+const backgroundMusicDefaultVolume = .46;
+backgroundMusic.volume = backgroundMusicDefaultVolume;
 birthdayRecording.volume = 1;
 
-function enhanceBirthdayRecording() {
-  if (birthdayAudioGraphReady) return birthdayAudioContext;
-
+function getBirthdayAudioContext() {
+  if (birthdayAudioContext) return birthdayAudioContext;
   const AudioContextClass = window.AudioContext || window.webkitAudioContext;
   if (!AudioContextClass) return null;
 
   try {
     birthdayAudioContext = new AudioContextClass();
-    const source = birthdayAudioContext.createMediaElementSource(birthdayRecording);
-    const voiceHighpass = birthdayAudioContext.createBiquadFilter();
-    const voicePresence = birthdayAudioContext.createBiquadFilter();
-    const voiceAir = birthdayAudioContext.createBiquadFilter();
-    const voiceGain = birthdayAudioContext.createGain();
-    const voiceCompressor = birthdayAudioContext.createDynamicsCompressor();
+    return birthdayAudioContext;
+  } catch {
+    birthdayAudioContext = null;
+    return null;
+  }
+}
+
+function enhanceBirthdayRecording() {
+  if (birthdayAudioGraphReady) return birthdayAudioContext;
+
+  const audioContext = getBirthdayAudioContext();
+  if (!audioContext) return null;
+
+  try {
+    const source = audioContext.createMediaElementSource(birthdayRecording);
+    const voiceHighpass = audioContext.createBiquadFilter();
+    const voicePresence = audioContext.createBiquadFilter();
+    const voiceAir = audioContext.createBiquadFilter();
+    const voiceGain = audioContext.createGain();
+    const voiceCompressor = audioContext.createDynamicsCompressor();
 
     // Cut rumble, bring speech presence forward, then level the louder peaks.
     voiceHighpass.type = "highpass";
@@ -259,15 +277,124 @@ function enhanceBirthdayRecording() {
       .connect(voiceAir)
       .connect(voiceGain)
       .connect(voiceCompressor)
-      .connect(birthdayAudioContext.destination);
+      .connect(audioContext.destination);
     birthdayAudioGraphReady = true;
-    return birthdayAudioContext;
+    return audioContext;
   } catch {
     // Keep the recording playable at its native volume if Web Audio is unavailable.
     birthdayAudioContext = null;
     birthdayAudioGraphReady = false;
     return null;
   }
+}
+
+function getFireworkAudioBus(audioContext) {
+  if (fireworkAudioBus?.context === audioContext) return fireworkAudioBus;
+  fireworkAudioBus = audioContext.createGain();
+  fireworkAudioBus.gain.value = .0001;
+  fireworkAudioBus.connect(audioContext.destination);
+  return fireworkAudioBus;
+}
+
+function getFireworkNoiseBuffer(audioContext) {
+  if (fireworkNoiseBuffer?.sampleRate === audioContext.sampleRate) return fireworkNoiseBuffer;
+  const frameCount = Math.round(audioContext.sampleRate * 1.1);
+  fireworkNoiseBuffer = audioContext.createBuffer(1, frameCount, audioContext.sampleRate);
+  const data = fireworkNoiseBuffer.getChannelData(0);
+  for (let index = 0; index < frameCount; index += 1) {
+    const fade = 1 - index / frameCount;
+    data[index] = (Math.random() * 2 - 1) * fade;
+  }
+  return fireworkNoiseBuffer;
+}
+
+function startFireworkAudio() {
+  const audioContext = getBirthdayAudioContext();
+  if (!audioContext) return;
+  const bus = getFireworkAudioBus(audioContext);
+  const now = audioContext.currentTime;
+  fireworkAudioActive = true;
+  bus.gain.cancelScheduledValues(now);
+  bus.gain.setTargetAtTime(.34, now, .08);
+  backgroundMusic.volume = .16;
+  if (audioContext.state === "suspended") void audioContext.resume();
+}
+
+function stopFireworkAudio() {
+  const audioContext = birthdayAudioContext;
+  fireworkAudioActive = false;
+  backgroundMusic.volume = backgroundMusicDefaultVolume;
+  if (!audioContext || !fireworkAudioBus) return;
+  const now = audioContext.currentTime;
+  fireworkAudioBus.gain.cancelScheduledValues(now);
+  fireworkAudioBus.gain.setTargetAtTime(.0001, now, .08);
+}
+
+function playFireworkLaunchSound() {
+  if (!fireworkAudioActive) return;
+  const audioContext = getBirthdayAudioContext();
+  if (!audioContext) return;
+  const bus = getFireworkAudioBus(audioContext);
+  const now = audioContext.currentTime;
+  const oscillator = audioContext.createOscillator();
+  const gain = audioContext.createGain();
+  oscillator.type = "sine";
+  oscillator.frequency.setValueAtTime(230, now);
+  oscillator.frequency.exponentialRampToValueAtTime(980, now + .42);
+  gain.gain.setValueAtTime(.0001, now);
+  gain.gain.exponentialRampToValueAtTime(.13, now + .07);
+  gain.gain.exponentialRampToValueAtTime(.0001, now + .58);
+  oscillator.connect(gain).connect(bus);
+  oscillator.start(now);
+  oscillator.stop(now + .62);
+}
+
+function playFireworkBurstSound() {
+  if (!fireworkAudioActive) return;
+  const audioContext = getBirthdayAudioContext();
+  if (!audioContext) return;
+  const bus = getFireworkAudioBus(audioContext);
+  const now = audioContext.currentTime;
+  const noiseBuffer = getFireworkNoiseBuffer(audioContext);
+
+  const boomSource = audioContext.createBufferSource();
+  const boomFilter = audioContext.createBiquadFilter();
+  const boomGain = audioContext.createGain();
+  boomSource.buffer = noiseBuffer;
+  boomFilter.type = "lowpass";
+  boomFilter.frequency.setValueAtTime(2400, now);
+  boomFilter.frequency.exponentialRampToValueAtTime(180, now + .62);
+  boomGain.gain.setValueAtTime(.0001, now);
+  boomGain.gain.exponentialRampToValueAtTime(.44, now + .018);
+  boomGain.gain.exponentialRampToValueAtTime(.0001, now + .7);
+  boomSource.connect(boomFilter).connect(boomGain).connect(bus);
+  boomSource.start(now);
+  boomSource.stop(now + .74);
+
+  const thump = audioContext.createOscillator();
+  const thumpGain = audioContext.createGain();
+  thump.type = "sine";
+  thump.frequency.setValueAtTime(120, now);
+  thump.frequency.exponentialRampToValueAtTime(43, now + .42);
+  thumpGain.gain.setValueAtTime(.0001, now);
+  thumpGain.gain.exponentialRampToValueAtTime(.3, now + .012);
+  thumpGain.gain.exponentialRampToValueAtTime(.0001, now + .48);
+  thump.connect(thumpGain).connect(bus);
+  thump.start(now);
+  thump.stop(now + .52);
+
+  const sparkleSource = audioContext.createBufferSource();
+  const sparkleFilter = audioContext.createBiquadFilter();
+  const sparkleGain = audioContext.createGain();
+  sparkleSource.buffer = noiseBuffer;
+  sparkleFilter.type = "highpass";
+  sparkleFilter.frequency.value = 2300;
+  sparkleGain.gain.setValueAtTime(.0001, now + .03);
+  sparkleGain.gain.exponentialRampToValueAtTime(.16, now + .1);
+  sparkleGain.gain.exponentialRampToValueAtTime(.0001, now + .72);
+  sparkleSource.connect(sparkleFilter).connect(sparkleGain).connect(bus);
+  sparkleSource.start(now + .03);
+  sparkleSource.stop(now + .76);
 }
 
 function updateSoundState(isPlaying) {
@@ -737,6 +864,7 @@ function stopFairytaleCelebration() {
   overlay.classList.remove("is-active");
   overlay.setAttribute("aria-hidden", "true");
   document.body.classList.remove("fairytale-live");
+  stopFireworkAudio();
   burstParticles = [];
 }
 
@@ -750,6 +878,7 @@ function runFairytaleCelebration() {
   overlay.setAttribute("aria-hidden", "false");
   document.body.classList.remove("date-reveal-live", "celebration-live");
   document.body.classList.add("fairytale-live");
+  startFireworkAudio();
 
   const isMobile = particleWidth < 600;
   const targets = isMobile ? [
@@ -780,22 +909,36 @@ function runFairytaleCelebration() {
     const delay = 150 + index * 245;
     const x = particleWidth * target.x;
     const y = particleHeight * target.y;
-    scheduleCelebration(() => createFairytaleRocket(x, y, target.color), delay);
+    scheduleCelebration(() => {
+      createFairytaleRocket(x, y, target.color);
+      playFireworkLaunchSound();
+    }, delay);
     const burstCount = isMobile ? (index % 2 ? 48 : 58) : (index % 2 ? 78 : 92);
-    scheduleCelebration(() => createFairytaleFirework(x, y, burstCount, target.color), delay + 720);
+    scheduleCelebration(() => {
+      createFairytaleFirework(x, y, burstCount, target.color);
+      playFireworkBurstSound();
+    }, delay + 720);
   });
   if (isMobile) {
-    scheduleCelebration(() => createFairytaleFirework(particleWidth * .06, particleHeight * .3, 60, 3), 2660);
-    scheduleCelebration(() => createFairytaleFirework(particleWidth * .94, particleHeight * .31, 60, 1), 3110);
+    scheduleCelebration(() => {
+      createFairytaleFirework(particleWidth * .06, particleHeight * .3, 60, 3);
+      playFireworkBurstSound();
+    }, 2660);
+    scheduleCelebration(() => {
+      createFairytaleFirework(particleWidth * .94, particleHeight * .31, 60, 1);
+      playFireworkBurstSound();
+    }, 3110);
   } else {
-    scheduleCelebration(() => createFairytaleFirework(particleWidth * .46, particleHeight * .25, 124, 3), 2870);
-    scheduleCelebration(() => createFairytaleFirework(particleWidth * .68, particleHeight * .34, 118, 1), 3320);
+    scheduleCelebration(() => {
+      createFairytaleFirework(particleWidth * .46, particleHeight * .25, 124, 3);
+      playFireworkBurstSound();
+    }, 2870);
+    scheduleCelebration(() => {
+      createFairytaleFirework(particleWidth * .68, particleHeight * .34, 118, 1);
+      playFireworkBurstSound();
+    }, 3320);
   }
-  scheduleCelebration(() => {
-    overlay.classList.remove("is-active");
-    overlay.setAttribute("aria-hidden", "true");
-    document.body.classList.remove("fairytale-live");
-  }, 9000);
+  scheduleCelebration(stopFairytaleCelebration, 9000);
 }
 
 function burstFromElement(element, count = 24) {
