@@ -6,10 +6,11 @@
     <meta name="theme-color" content="#f3efe7" />
     <meta name="description" content="一整本写给华紫蝶的未出版生日摄影集" />
     <title>献给华紫蝶</title>
+    <link rel="icon" href="assets/hero/birthday-portrait-mobile.jpg" type="image/jpeg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Ma+Shan+Zheng&family=Noto+Serif+JP:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700;900&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=20260728-fairytale-audio" />
+    <link rel="stylesheet" href="styles.css?v=20260728-living-album" />
   </head>
   <body class="ceremony-pending">
     <div class="noise" aria-hidden="true"></div>
@@ -89,6 +90,15 @@
         <span id="soundLabel">播放音乐</span>
       </button>
     </header>
+
+    <aside class="chapter-compass" id="chapterCompass" aria-hidden="true">
+      <span id="chapterCompassIndex">00</span>
+      <i></i>
+      <div>
+        <b id="chapterCompassLabel">封面</b>
+        <small id="chapterCompassJapanese" lang="ja">はじまり</small>
+      </div>
+    </aside>
 
     <main>
       <section class="cover" id="cover" aria-labelledby="coverTitle">
@@ -458,12 +468,12 @@
       <button class="lightbox-close" id="lightboxClose" type="button" aria-label="关闭预览">×</button>
       <button class="lightbox-arrow lightbox-prev" id="lightboxPrev" type="button" aria-label="上一张">←</button>
       <figure>
-        <img id="lightboxImage" alt="" />
+        <img id="lightboxImage" alt="" draggable="false" />
         <figcaption><span id="lightboxCaption"></span><span class="mono" id="lightboxCounter"></span></figcaption>
       </figure>
       <button class="lightbox-arrow lightbox-next" id="lightboxNext" type="button" aria-label="下一张">→</button>
     </div>
 
-    <script src="app.js?v=20260728-fairytale-audio"></script>
+    <script src="app.js?v=20260728-living-album"></script>
   </body>
 </html>

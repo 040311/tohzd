@@ -5,10 +5,11 @@ const hasFinePointer = window.matchMedia("(hover: hover) and (pointer: fine)").m
 
 const lightbox = $("#lightbox");
 const lightboxImage = $("#lightboxImage");
+const lightboxFigure = $("#lightbox figure");
 const lightboxChat = document.createElement("div");
 lightboxChat.className = "lightbox-chat-preview";
 lightboxChat.hidden = true;
-$("#lightbox figure").prepend(lightboxChat);
+lightboxFigure.prepend(lightboxChat);
 
 let activeGallery = "portraits";
 let activeIndex = 0;
@@ -65,6 +66,8 @@ function openLightbox(name, index) {
 
 function closeLightbox() {
   lightbox.hidden = true;
+  lightbox.classList.remove("is-swipe-next", "is-swipe-prev");
+  lightboxSwipeActive = false;
   document.body.classList.remove("is-locked");
   setLightboxBackgroundInert(false);
   if (lightboxReturnFocus?.isConnected) lightboxReturnFocus.focus({ preventScroll: true });
@@ -75,6 +78,19 @@ function moveLightbox(direction) {
   const items = galleryItems(activeGallery);
   activeIndex = (activeIndex + direction + items.length) % items.length;
   syncLightbox();
+}
+
+let lightboxSwipeActive = false;
+function animateLightboxMove(direction) {
+  if (lightboxSwipeActive) return;
+  lightboxSwipeActive = true;
+  const className = direction > 0 ? "is-swipe-next" : "is-swipe-prev";
+  lightbox.classList.add(className);
+  window.setTimeout(() => moveLightbox(direction), prefersReducedMotion ? 0 : 190);
+  window.setTimeout(() => {
+    lightbox.classList.remove(className);
+    lightboxSwipeActive = false;
+  }, prefersReducedMotion ? 20 : 430);
 }
 
 function bindGalleryCards() {
@@ -96,8 +112,8 @@ function bindGalleryCards() {
 }
 
 $("#lightboxClose").addEventListener("click", closeLightbox);
-$("#lightboxPrev").addEventListener("click", () => moveLightbox(-1));
-$("#lightboxNext").addEventListener("click", () => moveLightbox(1));
+$("#lightboxPrev").addEventListener("click", () => animateLightboxMove(-1));
+$("#lightboxNext").addEventListener("click", () => animateLightboxMove(1));
 lightbox.addEventListener("click", (event) => {
   if (event.target === lightbox) closeLightbox();
 });
@@ -119,6 +135,33 @@ document.addEventListener("keydown", (event) => {
     }
   }
 });
+
+let lightboxPointerStart = null;
+lightboxFigure.addEventListener("pointerdown", (event) => {
+  if (event.pointerType === "mouse" && event.button !== 0) return;
+  lightboxPointerStart = { x: event.clientX, y: event.clientY, id: event.pointerId };
+  lightboxFigure.setPointerCapture?.(event.pointerId);
+});
+lightboxFigure.addEventListener("pointerup", (event) => {
+  if (!lightboxPointerStart || lightboxPointerStart.id !== event.pointerId) return;
+  const deltaX = event.clientX - lightboxPointerStart.x;
+  const deltaY = event.clientY - lightboxPointerStart.y;
+  lightboxPointerStart = null;
+  if (Math.abs(deltaX) > 52 && Math.abs(deltaX) > Math.abs(deltaY) * 1.15) {
+    animateLightboxMove(deltaX < 0 ? 1 : -1);
+  }
+});
+lightboxFigure.addEventListener("pointercancel", () => { lightboxPointerStart = null; });
+if (hasFinePointer) {
+  let wheelReleaseTimer = 0;
+  lightbox.addEventListener("wheel", (event) => {
+    if (lightbox.hidden || lightboxSwipeActive || Math.abs(event.deltaY) < 18) return;
+    event.preventDefault();
+    animateLightboxMove(event.deltaY > 0 ? 1 : -1);
+    window.clearTimeout(wheelReleaseTimer);
+    wheelReleaseTimer = window.setTimeout(() => { lightboxSwipeActive = false; }, 520);
+  }, { passive: false });
+}
 
 $("#birthdayWish").addEventListener("click", () => {
   const cake = $("#birthdayCake");
@@ -172,11 +215,22 @@ $("#futureButton").addEventListener("click", () => {
   if (!isOpen) burstFromElement($("#futureButton"), 22);
 });
 
+let letterOpening = false;
 $("#letterOpen").addEventListener("click", () => {
-  $("#letterCover").hidden = true;
-  $("#letterInside").hidden = false;
-  burstFromElement($("#letterInside"), 32);
-  $("#letterInside").scrollIntoView({ behavior: "smooth", block: "center" });
+  if (letterOpening) return;
+  letterOpening = true;
+  const letterCover = $("#letterCover");
+  const letterInside = $("#letterInside");
+  letterCover.classList.add("is-unsealing");
+  burstFromElement($("#letterOpen"), 26);
+  createButterflyCluster($("#letterOpen"), 7);
+  playWishChime(4);
+  window.setTimeout(() => {
+    letterCover.hidden = true;
+    letterInside.hidden = false;
+    burstFromElement(letterInside, 32);
+    letterInside.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth", block: "center" });
+  }, prefersReducedMotion ? 10 : 690);
 });
 
 const finaleSection = $("#finale");
@@ -397,6 +451,27 @@ function playFireworkBurstSound() {
   sparkleSource.stop(now + .76);
 }
 
+function playWishChime(index = 0) {
+  const audioContext = getBirthdayAudioContext();
+  if (!audioContext) return;
+  if (audioContext.state === "suspended") void audioContext.resume();
+  const notes = [523.25, 659.25, 783.99, 987.77, 1046.5];
+  const frequency = notes[index % notes.length];
+  const now = audioContext.currentTime;
+  [1, 2.01].forEach((ratio, toneIndex) => {
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    oscillator.type = toneIndex === 0 ? "sine" : "triangle";
+    oscillator.frequency.value = frequency * ratio;
+    gain.gain.setValueAtTime(.0001, now);
+    gain.gain.exponentialRampToValueAtTime(toneIndex === 0 ? .055 : .018, now + .025);
+    gain.gain.exponentialRampToValueAtTime(.0001, now + .72 + toneIndex * .12);
+    oscillator.connect(gain).connect(audioContext.destination);
+    oscillator.start(now);
+    oscillator.stop(now + .9);
+  });
+}
+
 function updateSoundState(isPlaying) {
   soundControl.classList.toggle("is-playing", isPlaying);
   if (birthdayRecordingActive) {
@@ -525,6 +600,70 @@ function updateHeaderTheme() {
   const darkSections = [$("#cover"), $("#pageTurn"), $("#confession"), $("#future"), $("#finale")];
   const isDark = darkSections.some((section) => checkpoint >= section.offsetTop && checkpoint < section.offsetTop + section.offsetHeight);
   $(".site-header").classList.toggle("on-dark", isDark);
+  $("#chapterCompass").classList.toggle("on-dark", isDark);
+}
+
+const chapterCompass = $("#chapterCompass");
+const chapterCompassIndex = $("#chapterCompassIndex");
+const chapterCompassLabel = $("#chapterCompassLabel");
+const chapterCompassJapanese = $("#chapterCompassJapanese");
+const chapterDefinitions = [
+  { id: "cover", index: "00", label: "封面", japanese: "はじまり" },
+  { id: "birthdayOpening", index: "00", label: "生日", japanese: "誕生日" },
+  { id: "favorites", index: "01", label: "喜欢", japanese: "好き" },
+  { id: "pageTurn", index: "01.5", label: "转页", japanese: "次の頁" },
+  { id: "her", index: "02", label: "她", japanese: "彼女" },
+  { id: "conversations", index: "03", label: "我们说过", japanese: "ことば" },
+  { id: "confession", index: "04", label: "想说", japanese: "本音" },
+  { id: "future", index: "05", label: "未来", japanese: "これから" },
+  { id: "letter", index: "06", label: "信件", japanese: "手紙" },
+  { id: "finale", index: "07", label: "生日终章", japanese: "誕生日" },
+].map((chapter) => ({ ...chapter, element: $(`#${chapter.id}`) }));
+let currentChapterId = "";
+
+function updateChapterExperience() {
+  const checkpoint = window.scrollY + window.innerHeight * .36;
+  let activeChapter = chapterDefinitions[0];
+  chapterDefinitions.forEach((chapter) => {
+    if (checkpoint >= chapter.element.offsetTop) activeChapter = chapter;
+  });
+  const localProgress = Math.max(0, Math.min(1, (checkpoint - activeChapter.element.offsetTop) / Math.max(1, activeChapter.element.offsetHeight)));
+  chapterCompass.style.setProperty("--chapter-fill", `${(localProgress * 100).toFixed(1)}%`);
+  chapterCompass.dataset.chapter = activeChapter.id;
+
+  if (currentChapterId === activeChapter.id) return;
+  currentChapterId = activeChapter.id;
+  chapterCompassIndex.textContent = activeChapter.index;
+  chapterCompassLabel.textContent = activeChapter.label;
+  chapterCompassJapanese.textContent = activeChapter.japanese;
+  chapterCompass.classList.remove("is-changing");
+  void chapterCompass.offsetWidth;
+  chapterCompass.classList.add("is-changing");
+  $$(".section-nav a").forEach((link) => {
+    link.classList.toggle("is-current", link.getAttribute("href") === `#${activeChapter.id}`);
+  });
+}
+
+const sceneSections = $$(".birthday-opening, .favorite-page, .page-turn, .portrait-page, .conversations, .confession, .future, .letter, .birthday-finale");
+sceneSections.forEach((section) => section.classList.add("scene-reactive"));
+let spatialMotionFrame = 0;
+
+function updateSpatialMotion() {
+  spatialMotionFrame = 0;
+  updateChapterExperience();
+  if (prefersReducedMotion) return;
+  sceneSections.forEach((section) => {
+    const rect = section.getBoundingClientRect();
+    const progress = (window.innerHeight - rect.top) / Math.max(1, window.innerHeight + rect.height);
+    const shift = Math.max(-48, Math.min(48, (.5 - progress) * 72));
+    section.style.setProperty("--scene-shift", `${shift.toFixed(1)}px`);
+    section.classList.toggle("is-scene-active", rect.top < window.innerHeight * .7 && rect.bottom > window.innerHeight * .28);
+  });
+}
+
+function scheduleSpatialMotion() {
+  if (spatialMotionFrame) return;
+  spatialMotionFrame = window.requestAnimationFrame(updateSpatialMotion);
 }
 
 const favoriteUniverse = $("#favoriteUniverse");
@@ -552,11 +691,13 @@ window.addEventListener("scroll", () => {
   updateReadingProgress();
   updateHeaderTheme();
   scheduleCharacterParallax();
+  scheduleSpatialMotion();
 }, { passive: true });
 window.addEventListener("resize", () => {
   updateReadingProgress();
   updateHeaderTheme();
   scheduleCharacterParallax();
+  scheduleSpatialMotion();
 });
 
 function bindTilt(card) {
@@ -568,12 +709,35 @@ function bindTilt(card) {
     const y = (event.clientY - rect.top) / rect.height - .5;
     card.style.setProperty("--tilt-x", `${(-y * 3.2).toFixed(2)}deg`);
     card.style.setProperty("--tilt-y", `${(x * 3.2).toFixed(2)}deg`);
+    card.style.setProperty("--pointer-x", `${((x + .5) * 100).toFixed(1)}%`);
+    card.style.setProperty("--pointer-y", `${((y + .5) * 100).toFixed(1)}%`);
     card.classList.add("is-tilting");
   });
   card.addEventListener("pointerleave", () => {
     card.style.setProperty("--tilt-x", "0deg");
     card.style.setProperty("--tilt-y", "0deg");
+    card.style.setProperty("--pointer-x", "50%");
+    card.style.setProperty("--pointer-y", "50%");
     card.classList.remove("is-tilting");
+  });
+}
+
+function bindMagneticControls() {
+  if (!hasFinePointer || prefersReducedMotion) return;
+  const controls = $$(".ceremony-enter, .wish-button, .page-turn-button, .future-button, .letter-open, .finale-wish-button, .cover-cta");
+  controls.forEach((control) => {
+    control.classList.add("magnetic-control");
+    control.addEventListener("pointermove", (event) => {
+      const rect = control.getBoundingClientRect();
+      const x = (event.clientX - rect.left) / rect.width - .5;
+      const y = (event.clientY - rect.top) / rect.height - .5;
+      control.style.setProperty("--magnet-x", `${(x * 10).toFixed(1)}px`);
+      control.style.setProperty("--magnet-y", `${(y * 8).toFixed(1)}px`);
+    });
+    control.addEventListener("pointerleave", () => {
+      control.style.setProperty("--magnet-x", "0px");
+      control.style.setProperty("--magnet-y", "0px");
+    });
   });
 }
 
@@ -627,7 +791,14 @@ function drawParticle(particle, alpha) {
   particleContext.rotate(particle.rotation ?? (particle.phase || 0) * .35);
   particleContext.fillStyle = `rgba(${particle.color},${Math.max(0, alpha)})`;
   const size = particle.size;
-  if (particle.shape === "glow") {
+  if (particle.shape === "butterfly") {
+    const flap = .48 + Math.abs(Math.sin((particle.phase || 0) * 1.8)) * .72;
+    particleContext.beginPath();
+    particleContext.ellipse(-size * .62, 0, size * flap, size * .68, -.38, 0, Math.PI * 2);
+    particleContext.ellipse(size * .62, 0, size * flap, size * .68, .38, 0, Math.PI * 2);
+    particleContext.fill();
+    particleContext.fillRect(-size * .1, -size * .55, size * .2, size * 1.1);
+  } else if (particle.shape === "glow") {
     particleContext.shadowColor = `rgba(${particle.color},${Math.max(0, alpha * .9)})`;
     particleContext.shadowBlur = size * 7;
     particleContext.beginPath();
@@ -673,6 +844,37 @@ function createBirthdayBurst(x, y, count = 24) {
       color: particlePalette[index % particlePalette.length],
     });
   }
+}
+
+function createButterflyTrail(x, y, count = 1) {
+  if (prefersReducedMotion) return;
+  const colors = ["233,180,168", "243,239,231", "170,205,211"];
+  const amount = Math.min(count, 10);
+  for (let index = 0; index < amount; index += 1) {
+    burstParticles.push({
+      x: x + (Math.random() - .5) * 18,
+      y: y + (Math.random() - .5) * 14,
+      vx: (Math.random() - .5) * .72,
+      vy: -.28 - Math.random() * .58,
+      size: 2 + Math.random() * 2.1,
+      alpha: .38 + Math.random() * .34,
+      life: 1,
+      decay: .012 + Math.random() * .008,
+      drag: .99,
+      gravity: -.004,
+      phase: Math.random() * Math.PI * 2,
+      rotation: (Math.random() - .5) * .8,
+      spin: (Math.random() - .5) * .045,
+      shape: "butterfly",
+      color: colors[index % colors.length],
+    });
+  }
+}
+
+function createButterflyCluster(element, count = 6) {
+  if (!element) return;
+  const rect = element.getBoundingClientRect();
+  createButterflyTrail(rect.left + rect.width / 2, rect.top + rect.height / 2, count);
 }
 
 function createFirework(x, y, count = 58, colorOffset = 0) {
@@ -990,16 +1192,29 @@ function animateParticles(time) {
 resizeParticleCanvas();
 if (!prefersReducedMotion) window.requestAnimationFrame(animateParticles);
 window.addEventListener("resize", resizeParticleCanvas);
+let lastButterflyTrail = { x: -1000, y: -1000, time: 0 };
 window.addEventListener("pointermove", (event) => {
   pointerPosition.x = event.clientX;
   pointerPosition.y = event.clientY;
+  if (!hasFinePointer || document.body.classList.contains("fairytale-live")) return;
+  const now = performance.now();
+  const distance = Math.hypot(event.clientX - lastButterflyTrail.x, event.clientY - lastButterflyTrail.y);
+  if (distance < 28 || now - lastButterflyTrail.time < 52) return;
+  lastButterflyTrail = { x: event.clientX, y: event.clientY, time: now };
+  createButterflyTrail(event.clientX, event.clientY, 1);
 }, { passive: true });
 document.addEventListener("pointerdown", (event) => {
-  createBirthdayBurst(event.clientX, event.clientY, 7);
+  if (document.body.classList.contains("fairytale-live")) {
+    createFairytaleFirework(event.clientX, event.clientY, particleWidth < 600 ? 58 : 78, Math.floor(Math.random() * fairytalePalette.length));
+    playFireworkBurstSound();
+    return;
+  }
+  createBirthdayBurst(event.clientX, event.clientY, 6);
+  createButterflyTrail(event.clientX, event.clientY, event.pointerType === "touch" ? 4 : 2);
 }, { passive: true });
 
 const blessingResult = $("#blessingResult");
-$$('.blessing-option').forEach((option) => {
+$$('.blessing-option').forEach((option, optionIndex) => {
   option.setAttribute("aria-pressed", "false");
   option.addEventListener("click", () => {
     $$(".blessing-option").forEach((button) => {
@@ -1012,6 +1227,8 @@ $$('.blessing-option').forEach((option) => {
     blessingResult.classList.remove("is-written");
     window.requestAnimationFrame(() => blessingResult.classList.add("is-written"));
     burstFromElement(option, 22);
+    createButterflyCluster(option, 4);
+    playWishChime(optionIndex);
   });
 });
 
@@ -1053,7 +1270,12 @@ function drawConstellation() {
 
 const constellationMessage = $("#constellationMessage");
 const constellationCount = $("#constellationCount");
-constellationNodes.forEach((node) => {
+constellationStage.addEventListener("pointermove", (event) => {
+  const rect = constellationStage.getBoundingClientRect();
+  constellationStage.style.setProperty("--constellation-x", `${((event.clientX - rect.left) / rect.width * 100).toFixed(1)}%`);
+  constellationStage.style.setProperty("--constellation-y", `${((event.clientY - rect.top) / rect.height * 100).toFixed(1)}%`);
+});
+constellationNodes.forEach((node, nodeIndex) => {
   node.setAttribute("aria-pressed", "false");
   node.addEventListener("click", () => {
     if (node.classList.contains("is-lit")) return;
@@ -1064,6 +1286,8 @@ constellationNodes.forEach((node) => {
     constellationMessage.textContent = `已点亮：${litConstellationNodes.map((item) => item.dataset.word).join(" · ")}`;
     drawConstellation();
     burstFromElement(node, 18);
+    createButterflyCluster(node, 3);
+    playWishChime(nodeIndex);
     if (litConstellationNodes.length === constellationNodes.length) {
       constellationMessage.textContent = "未来星图已完成：生日之后，我们慢慢把这些愿望拍成照片。";
       constellationMessage.classList.add("is-complete");
@@ -1097,7 +1321,9 @@ if (prefersReducedMotion || !("IntersectionObserver" in window)) {
 }
 
 bindGalleryCards();
+bindMagneticControls();
 updateSoundState(!backgroundMusic.paused);
 updateReadingProgress();
 updateHeaderTheme();
 updateCharacterParallax();
+updateSpatialMotion();
