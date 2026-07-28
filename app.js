@@ -214,8 +214,60 @@ const soundLabel = $("#soundLabel");
 const backgroundMusic = $("#backgroundMusic");
 const birthdayRecording = $("#birthdayRecording");
 let birthdayRecordingActive = false;
+let birthdayAudioContext = null;
+let birthdayAudioGraphReady = false;
 backgroundMusic.volume = .46;
-birthdayRecording.volume = .92;
+birthdayRecording.volume = 1;
+
+function enhanceBirthdayRecording() {
+  if (birthdayAudioGraphReady) return birthdayAudioContext;
+
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContextClass) return null;
+
+  try {
+    birthdayAudioContext = new AudioContextClass();
+    const source = birthdayAudioContext.createMediaElementSource(birthdayRecording);
+    const voiceHighpass = birthdayAudioContext.createBiquadFilter();
+    const voicePresence = birthdayAudioContext.createBiquadFilter();
+    const voiceAir = birthdayAudioContext.createBiquadFilter();
+    const voiceGain = birthdayAudioContext.createGain();
+    const voiceCompressor = birthdayAudioContext.createDynamicsCompressor();
+
+    // Cut rumble, bring speech presence forward, then level the louder peaks.
+    voiceHighpass.type = "highpass";
+    voiceHighpass.frequency.value = 90;
+    voiceHighpass.Q.value = .7;
+    voicePresence.type = "peaking";
+    voicePresence.frequency.value = 1800;
+    voicePresence.Q.value = .9;
+    voicePresence.gain.value = 4.5;
+    voiceAir.type = "highshelf";
+    voiceAir.frequency.value = 4200;
+    voiceAir.gain.value = 2.5;
+    voiceGain.gain.value = 1.9;
+    voiceCompressor.threshold.value = -27;
+    voiceCompressor.knee.value = 18;
+    voiceCompressor.ratio.value = 4.2;
+    voiceCompressor.attack.value = .004;
+    voiceCompressor.release.value = .16;
+
+    source
+      .connect(voiceHighpass)
+      .connect(voicePresence)
+      .connect(voiceAir)
+      .connect(voiceGain)
+      .connect(voiceCompressor)
+      .connect(birthdayAudioContext.destination);
+    birthdayAudioGraphReady = true;
+    return birthdayAudioContext;
+  } catch {
+    // Keep the recording playable at its native volume if Web Audio is unavailable.
+    birthdayAudioContext = null;
+    birthdayAudioGraphReady = false;
+    return null;
+  }
+}
 
 function updateSoundState(isPlaying) {
   soundControl.classList.toggle("is-playing", isPlaying);
@@ -268,6 +320,8 @@ async function playBirthdayRecording() {
   birthdayRecording.currentTime = 0;
   updateSoundState(false);
   try {
+    const audioContext = enhanceBirthdayRecording();
+    if (audioContext?.state === "suspended") await audioContext.resume();
     await birthdayRecording.play();
     updateSoundState(true);
   } catch {
