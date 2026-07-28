@@ -130,8 +130,9 @@ $("#birthdayWish").addEventListener("click", () => {
   if (isLit) {
     void playBirthdayRecording();
     burstFromElement($("#birthdayCake"), 54);
-    runGrandCelebration(true);
+    runFairytaleCelebration();
   } else {
+    stopFairytaleCelebration();
     document.body.classList.remove("celebration-live");
   }
 });
@@ -487,9 +488,10 @@ function resizeParticleCanvas() {
 function drawParticle(particle, alpha) {
   particleContext.save();
   if (particle.trail) {
+    const trailLength = particle.trailLength ?? 4.5;
     particleContext.beginPath();
     particleContext.moveTo(particle.x, particle.y);
-    particleContext.lineTo(particle.x - particle.vx * 4.5, particle.y - particle.vy * 4.5);
+    particleContext.lineTo(particle.x - particle.vx * trailLength, particle.y - particle.vy * trailLength);
     particleContext.strokeStyle = `rgba(${particle.color},${Math.max(0, alpha * .45)})`;
     particleContext.lineWidth = Math.max(.5, particle.size * .38);
     particleContext.stroke();
@@ -498,7 +500,13 @@ function drawParticle(particle, alpha) {
   particleContext.rotate(particle.rotation ?? (particle.phase || 0) * .35);
   particleContext.fillStyle = `rgba(${particle.color},${Math.max(0, alpha)})`;
   const size = particle.size;
-  if (particle.shape === "confetti") {
+  if (particle.shape === "glow") {
+    particleContext.shadowColor = `rgba(${particle.color},${Math.max(0, alpha * .9)})`;
+    particleContext.shadowBlur = size * 7;
+    particleContext.beginPath();
+    particleContext.arc(0, 0, size, 0, Math.PI * 2);
+    particleContext.fill();
+  } else if (particle.shape === "confetti") {
     particleContext.fillRect(-size * 1.8, -size * .45, size * 3.6, size * .9);
   } else if (particle.shape === "petal") {
     particleContext.beginPath();
@@ -566,6 +574,73 @@ function createFirework(x, y, count = 58, colorOffset = 0) {
   }
 }
 
+const fairytalePalette = ["255,229,179", "255,188,213", "184,216,255", "255,249,214", "216,184,255", "170,233,222"];
+
+function createFairytaleRocket(targetX, targetY, colorOffset = 0) {
+  if (prefersReducedMotion) return;
+  const startX = targetX + (Math.random() - .5) * Math.min(110, particleWidth * .14);
+  const startY = particleHeight + 28;
+  const steps = 48 + Math.random() * 14;
+  burstParticles.push({
+    x: startX,
+    y: startY,
+    vx: (targetX - startX) / steps,
+    vy: (targetY - startY) / steps,
+    size: 1.7 + Math.random() * .8,
+    alpha: .98,
+    life: 1,
+    decay: .015,
+    drag: .999,
+    gravity: .004,
+    rotation: 0,
+    spin: 0,
+    trail: true,
+    trailLength: 8,
+    shape: "glow",
+    color: fairytalePalette[colorOffset % fairytalePalette.length],
+  });
+}
+
+function createFairytaleFirework(x, y, count = 96, colorOffset = 0) {
+  if (prefersReducedMotion) return;
+  const amount = Math.min(count, 124);
+  const palette = fairytalePalette;
+  for (let index = 0; index < amount; index += 1) {
+    const angle = (Math.PI * 2 * index) / amount + Math.random() * .1;
+    const speed = 3.2 + Math.random() * 5.8;
+    burstParticles.push({
+      x,
+      y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      size: .9 + Math.random() * 2.15,
+      alpha: .94,
+      life: 1,
+      decay: .007 + Math.random() * .004,
+      drag: .978,
+      gravity: .022,
+      rotation: angle,
+      spin: .035,
+      trail: true,
+      trailLength: 9 + Math.random() * 3,
+      shape: "star",
+      color: palette[(index + colorOffset) % palette.length],
+    });
+  }
+  burstParticles.push({
+    x,
+    y,
+    vx: 0,
+    vy: 0,
+    size: 3 + Math.random() * 2,
+    alpha: 1,
+    life: 1,
+    decay: .045,
+    shape: "glow",
+    color: palette[colorOffset % palette.length],
+  });
+}
+
 function createConfettiRain(count = 100) {
   if (prefersReducedMotion) return;
   const amount = Math.min(count, 140);
@@ -614,6 +689,10 @@ function createPetalWave(count = 48) {
 }
 
 const celebrationTimers = [];
+function clearCelebrationTimers() {
+  celebrationTimers.splice(0).forEach((timer) => window.clearTimeout(timer));
+}
+
 function scheduleCelebration(callback, delay) {
   const timer = window.setTimeout(callback, delay);
   celebrationTimers.push(timer);
@@ -621,7 +700,7 @@ function scheduleCelebration(callback, delay) {
 
 function runGrandCelebration(fullCeremony) {
   if (prefersReducedMotion) return;
-  celebrationTimers.splice(0).forEach((timer) => window.clearTimeout(timer));
+  clearCelebrationTimers();
   const overlay = $("#grandCelebration");
   overlay.classList.remove("is-active");
   void overlay.offsetWidth;
@@ -650,6 +729,73 @@ function runGrandCelebration(fullCeremony) {
     scheduleCelebration(() => createFirework(particleWidth * .67, particleHeight * .48, Math.round(70 * scale), 0), 1680);
     scheduleCelebration(() => document.body.classList.remove("celebration-live"), 7200);
   }
+}
+
+function stopFairytaleCelebration() {
+  clearCelebrationTimers();
+  const overlay = $("#fairytaleCelebration");
+  overlay.classList.remove("is-active");
+  overlay.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("fairytale-live");
+  burstParticles = [];
+}
+
+function runFairytaleCelebration() {
+  if (prefersReducedMotion) return;
+  clearCelebrationTimers();
+  const overlay = $("#fairytaleCelebration");
+  overlay.classList.remove("is-active");
+  void overlay.offsetWidth;
+  overlay.classList.add("is-active");
+  overlay.setAttribute("aria-hidden", "false");
+  document.body.classList.remove("date-reveal-live", "celebration-live");
+  document.body.classList.add("fairytale-live");
+
+  const isMobile = particleWidth < 600;
+  const targets = isMobile ? [
+    { x: .08, y: .17, color: 0 },
+    { x: .92, y: .18, color: 2 },
+    { x: .07, y: .38, color: 4 },
+    { x: .93, y: .4, color: 1 },
+    { x: .1, y: .58, color: 3 },
+    { x: .9, y: .59, color: 5 },
+    { x: .12, y: .77, color: 2 },
+    { x: .88, y: .76, color: 0 },
+  ] : [
+    { x: .14, y: .31, color: 0 },
+    { x: .33, y: .18, color: 2 },
+    { x: .52, y: .29, color: 1 },
+    { x: .73, y: .17, color: 3 },
+    { x: .9, y: .34, color: 4 },
+    { x: .24, y: .5, color: 5 },
+    { x: .62, y: .46, color: 0 },
+    { x: .82, y: .53, color: 2 },
+    { x: .08, y: .18, color: 3 },
+    { x: .43, y: .12, color: 5 },
+    { x: .68, y: .25, color: 1 },
+    { x: .95, y: .19, color: 0 },
+  ];
+
+  targets.forEach((target, index) => {
+    const delay = 150 + index * 245;
+    const x = particleWidth * target.x;
+    const y = particleHeight * target.y;
+    scheduleCelebration(() => createFairytaleRocket(x, y, target.color), delay);
+    const burstCount = isMobile ? (index % 2 ? 48 : 58) : (index % 2 ? 78 : 92);
+    scheduleCelebration(() => createFairytaleFirework(x, y, burstCount, target.color), delay + 720);
+  });
+  if (isMobile) {
+    scheduleCelebration(() => createFairytaleFirework(particleWidth * .06, particleHeight * .3, 60, 3), 2660);
+    scheduleCelebration(() => createFairytaleFirework(particleWidth * .94, particleHeight * .31, 60, 1), 3110);
+  } else {
+    scheduleCelebration(() => createFairytaleFirework(particleWidth * .46, particleHeight * .25, 124, 3), 2870);
+    scheduleCelebration(() => createFairytaleFirework(particleWidth * .68, particleHeight * .34, 118, 1), 3320);
+  }
+  scheduleCelebration(() => {
+    overlay.classList.remove("is-active");
+    overlay.setAttribute("aria-hidden", "true");
+    document.body.classList.remove("fairytale-live");
+  }, 9000);
 }
 
 function burstFromElement(element, count = 24) {
