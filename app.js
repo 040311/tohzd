@@ -1375,6 +1375,14 @@ let meteorShowerStopTimer = 0;
 let meteorShowerPlayed = false;
 let meteorStars = [];
 let meteorTracks = [];
+const meteorPalette = [
+  { primary: "255,102,174", secondary: "255,190,216" },
+  { primary: "255,204,94", secondary: "255,137,102" },
+  { primary: "84,221,255", secondary: "116,151,255" },
+  { primary: "82,238,176", secondary: "93,205,255" },
+  { primary: "185,117,255", secondary: "255,112,219" },
+  { primary: "255,104,88", secondary: "255,191,92" },
+];
 
 function resizeMeteorShowerCanvas() {
   meteorShowerWidth = Math.max(1, window.innerWidth);
@@ -1395,7 +1403,7 @@ function buildMeteorShowerScene() {
     alpha: .12 + Math.random() * .42,
     phase: Math.random() * Math.PI * 2,
     speed: .0008 + Math.random() * .0015,
-    warm: Math.random() > .7,
+    color: Math.floor(Math.random() * meteorPalette.length),
   }));
 
   meteorTracks = [];
@@ -1415,16 +1423,17 @@ function buildMeteorShowerScene() {
         slope: .36 + Math.random() * .22,
         length: (.075 + Math.random() * .105) * (.82 + depth * .25),
         width: .55 + depth * 1.15,
-        alpha: .46 + Math.random() * .5,
-        warm: (index + waveIndex) % 4 === 0,
+        alpha: .68 + Math.random() * .3,
+        color: (index + waveIndex * 2 + Math.floor(Math.random() * 3)) % meteorPalette.length,
         fragments: Math.random() > .58 ? 3 : 0,
       });
     }
   });
 
   meteorTracks.push(
-    { start: 1450, duration: 1650, x: 1.16, y: .08, distance: 1.28, slope: .54, length: .23, width: 2.1, alpha: 1, warm: true, fragments: 5 },
-    { start: 3920, duration: 1780, x: .94, y: -.02, distance: 1.12, slope: .6, length: .27, width: 2.35, alpha: 1, warm: false, fragments: 6 },
+    { start: 1450, duration: 1650, x: 1.16, y: .08, distance: 1.28, slope: .54, length: .23, width: 2.2, alpha: 1, color: 4, fragments: 6 },
+    { start: 3920, duration: 1780, x: .94, y: -.02, distance: 1.12, slope: .6, length: .27, width: 2.45, alpha: 1, color: 2, fragments: 7 },
+    { start: 5350, duration: 1580, x: 1.08, y: .18, distance: 1.18, slope: .48, length: .24, width: 2.25, alpha: 1, color: 1, fragments: 6 },
   );
 }
 
@@ -1432,9 +1441,8 @@ function drawMeteorStar(star, elapsed) {
   const twinkle = .62 + Math.sin(elapsed * star.speed + star.phase) * .38;
   meteorShowerContext.beginPath();
   meteorShowerContext.arc(star.x * meteorShowerWidth, star.y * meteorShowerHeight, star.radius, 0, Math.PI * 2);
-  meteorShowerContext.fillStyle = star.warm
-    ? `rgba(255,225,196,${star.alpha * twinkle})`
-    : `rgba(223,239,244,${star.alpha * twinkle})`;
+  const color = meteorPalette[star.color].primary;
+  meteorShowerContext.fillStyle = `rgba(${color},${star.alpha * twinkle})`;
   meteorShowerContext.fill();
 }
 
@@ -1453,20 +1461,23 @@ function drawMeteor(track, elapsed) {
   const tailX = x - ux * tailLength;
   const tailY = y - uy * tailLength;
   const fade = Math.min(1, progress * 7, (1 - progress) * 5) * track.alpha;
-  const color = track.warm ? "255,215,188" : "218,239,244";
+  const palette = meteorPalette[track.color];
+  const color = palette.primary;
+  const accent = palette.secondary;
 
   meteorShowerContext.save();
   meteorShowerContext.globalCompositeOperation = "lighter";
   meteorShowerContext.lineCap = "round";
   const glow = meteorShowerContext.createLinearGradient(tailX, tailY, x, y);
   glow.addColorStop(0, `rgba(${color},0)`);
-  glow.addColorStop(.56, `rgba(${color},${fade * .08})`);
-  glow.addColorStop(.9, `rgba(${color},${fade * .42})`);
+  glow.addColorStop(.48, `rgba(${color},${fade * .1})`);
+  glow.addColorStop(.78, `rgba(${color},${fade * .48})`);
+  glow.addColorStop(.94, `rgba(${accent},${fade * .86})`);
   glow.addColorStop(1, `rgba(255,250,240,${fade})`);
   meteorShowerContext.strokeStyle = glow;
-  meteorShowerContext.lineWidth = track.width * 3.4;
+  meteorShowerContext.lineWidth = track.width * 4.2;
   meteorShowerContext.shadowColor = `rgba(${color},${fade * .8})`;
-  meteorShowerContext.shadowBlur = 15 * track.width;
+  meteorShowerContext.shadowBlur = 18 * track.width;
   meteorShowerContext.beginPath();
   meteorShowerContext.moveTo(tailX, tailY);
   meteorShowerContext.lineTo(x, y);
@@ -1482,7 +1493,7 @@ function drawMeteor(track, elapsed) {
   const headRadius = 6 + track.width * 3.8;
   const headGlow = meteorShowerContext.createRadialGradient(x, y, 0, x, y, headRadius);
   headGlow.addColorStop(0, `rgba(255,255,247,${fade})`);
-  headGlow.addColorStop(.2, `rgba(${color},${fade * .8})`);
+  headGlow.addColorStop(.2, `rgba(${accent},${fade * .9})`);
   headGlow.addColorStop(1, `rgba(${color},0)`);
   meteorShowerContext.fillStyle = headGlow;
   meteorShowerContext.beginPath();
@@ -1494,7 +1505,8 @@ function drawMeteor(track, elapsed) {
     const drift = Math.sin(track.start * .01 + index * 1.7) * 5;
     meteorShowerContext.beginPath();
     meteorShowerContext.arc(x - ux * distance - uy * drift, y - uy * distance + ux * drift, Math.max(.45, track.width * .38), 0, Math.PI * 2);
-    meteorShowerContext.fillStyle = `rgba(${color},${fade * (.32 - index * .035)})`;
+    const fragmentColor = index % 2 ? color : accent;
+    meteorShowerContext.fillStyle = `rgba(${fragmentColor},${fade * (.42 - index * .038)})`;
     meteorShowerContext.fill();
   }
   meteorShowerContext.restore();
