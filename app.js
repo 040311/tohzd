@@ -1362,10 +1362,181 @@ $$('.blessing-option').forEach((option, optionIndex) => {
   });
 });
 
+// The completed constellation opens a short, full-screen meteor scene.
+const meteorShower = $("#meteorShower");
+const meteorShowerCanvas = $("#meteorShowerCanvas");
+const meteorShowerContext = meteorShowerCanvas.getContext("2d");
+let meteorShowerDpr = 1;
+let meteorShowerWidth = 1;
+let meteorShowerHeight = 1;
+let meteorShowerFrame = 0;
+let meteorShowerStartedAt = 0;
+let meteorShowerStopTimer = 0;
+let meteorShowerPlayed = false;
+let meteorStars = [];
+let meteorTracks = [];
+
+function resizeMeteorShowerCanvas() {
+  meteorShowerWidth = Math.max(1, window.innerWidth);
+  meteorShowerHeight = Math.max(1, window.innerHeight);
+  meteorShowerDpr = Math.min(window.devicePixelRatio || 1, 2);
+  meteorShowerCanvas.width = Math.round(meteorShowerWidth * meteorShowerDpr);
+  meteorShowerCanvas.height = Math.round(meteorShowerHeight * meteorShowerDpr);
+  meteorShowerContext.setTransform(meteorShowerDpr, 0, 0, meteorShowerDpr, 0, 0);
+}
+
+function buildMeteorShowerScene() {
+  const isMobile = meteorShowerWidth < 640;
+  const starCount = isMobile ? 46 : 92;
+  meteorStars = Array.from({ length: starCount }, () => ({
+    x: Math.random(),
+    y: Math.random() * .82,
+    radius: .35 + Math.random() * 1.15,
+    alpha: .12 + Math.random() * .42,
+    phase: Math.random() * Math.PI * 2,
+    speed: .0008 + Math.random() * .0015,
+    warm: Math.random() > .7,
+  }));
+
+  meteorTracks = [];
+  const waves = isMobile
+    ? [{ start: 520, count: 7 }, { start: 1880, count: 9 }, { start: 3400, count: 11 }, { start: 5050, count: 8 }]
+    : [{ start: 480, count: 11 }, { start: 1740, count: 14 }, { start: 3200, count: 17 }, { start: 4920, count: 13 }];
+
+  waves.forEach((wave, waveIndex) => {
+    for (let index = 0; index < wave.count; index += 1) {
+      const depth = .5 + Math.random() * .85;
+      meteorTracks.push({
+        start: wave.start + Math.random() * 740,
+        duration: (980 + Math.random() * 780) / (.78 + depth * .28),
+        x: .18 + Math.random() * 1.15,
+        y: -.14 + Math.random() * .5,
+        distance: .5 + Math.random() * .64,
+        slope: .36 + Math.random() * .22,
+        length: (.075 + Math.random() * .105) * (.82 + depth * .25),
+        width: .55 + depth * 1.15,
+        alpha: .46 + Math.random() * .5,
+        warm: (index + waveIndex) % 4 === 0,
+        fragments: Math.random() > .58 ? 3 : 0,
+      });
+    }
+  });
+
+  meteorTracks.push(
+    { start: 1450, duration: 1650, x: 1.16, y: .08, distance: 1.28, slope: .54, length: .23, width: 2.1, alpha: 1, warm: true, fragments: 5 },
+    { start: 3920, duration: 1780, x: .94, y: -.02, distance: 1.12, slope: .6, length: .27, width: 2.35, alpha: 1, warm: false, fragments: 6 },
+  );
+}
+
+function drawMeteorStar(star, elapsed) {
+  const twinkle = .62 + Math.sin(elapsed * star.speed + star.phase) * .38;
+  meteorShowerContext.beginPath();
+  meteorShowerContext.arc(star.x * meteorShowerWidth, star.y * meteorShowerHeight, star.radius, 0, Math.PI * 2);
+  meteorShowerContext.fillStyle = star.warm
+    ? `rgba(255,225,196,${star.alpha * twinkle})`
+    : `rgba(223,239,244,${star.alpha * twinkle})`;
+  meteorShowerContext.fill();
+}
+
+function drawMeteor(track, elapsed) {
+  const progress = (elapsed - track.start) / track.duration;
+  if (progress <= 0 || progress >= 1) return;
+
+  const x = (track.x - track.distance * progress) * meteorShowerWidth;
+  const y = (track.y + track.distance * track.slope * progress) * meteorShowerHeight;
+  const vx = -track.distance * meteorShowerWidth;
+  const vy = track.distance * track.slope * meteorShowerHeight;
+  const velocity = Math.hypot(vx, vy) || 1;
+  const ux = vx / velocity;
+  const uy = vy / velocity;
+  const tailLength = Math.hypot(meteorShowerWidth, meteorShowerHeight) * track.length;
+  const tailX = x - ux * tailLength;
+  const tailY = y - uy * tailLength;
+  const fade = Math.min(1, progress * 7, (1 - progress) * 5) * track.alpha;
+  const color = track.warm ? "255,215,188" : "218,239,244";
+
+  meteorShowerContext.save();
+  meteorShowerContext.globalCompositeOperation = "lighter";
+  meteorShowerContext.lineCap = "round";
+  const glow = meteorShowerContext.createLinearGradient(tailX, tailY, x, y);
+  glow.addColorStop(0, `rgba(${color},0)`);
+  glow.addColorStop(.56, `rgba(${color},${fade * .08})`);
+  glow.addColorStop(.9, `rgba(${color},${fade * .42})`);
+  glow.addColorStop(1, `rgba(255,250,240,${fade})`);
+  meteorShowerContext.strokeStyle = glow;
+  meteorShowerContext.lineWidth = track.width * 3.4;
+  meteorShowerContext.shadowColor = `rgba(${color},${fade * .8})`;
+  meteorShowerContext.shadowBlur = 15 * track.width;
+  meteorShowerContext.beginPath();
+  meteorShowerContext.moveTo(tailX, tailY);
+  meteorShowerContext.lineTo(x, y);
+  meteorShowerContext.stroke();
+
+  meteorShowerContext.lineWidth = Math.max(.7, track.width * .72);
+  meteorShowerContext.shadowBlur = 4;
+  meteorShowerContext.beginPath();
+  meteorShowerContext.moveTo(tailX + (x - tailX) * .22, tailY + (y - tailY) * .22);
+  meteorShowerContext.lineTo(x, y);
+  meteorShowerContext.stroke();
+
+  const headRadius = 6 + track.width * 3.8;
+  const headGlow = meteorShowerContext.createRadialGradient(x, y, 0, x, y, headRadius);
+  headGlow.addColorStop(0, `rgba(255,255,247,${fade})`);
+  headGlow.addColorStop(.2, `rgba(${color},${fade * .8})`);
+  headGlow.addColorStop(1, `rgba(${color},0)`);
+  meteorShowerContext.fillStyle = headGlow;
+  meteorShowerContext.beginPath();
+  meteorShowerContext.arc(x, y, headRadius, 0, Math.PI * 2);
+  meteorShowerContext.fill();
+
+  for (let index = 1; index <= track.fragments; index += 1) {
+    const distance = tailLength * (.16 + index * .1);
+    const drift = Math.sin(track.start * .01 + index * 1.7) * 5;
+    meteorShowerContext.beginPath();
+    meteorShowerContext.arc(x - ux * distance - uy * drift, y - uy * distance + ux * drift, Math.max(.45, track.width * .38), 0, Math.PI * 2);
+    meteorShowerContext.fillStyle = `rgba(${color},${fade * (.32 - index * .035)})`;
+    meteorShowerContext.fill();
+  }
+  meteorShowerContext.restore();
+}
+
+function stopMeteorShower() {
+  window.cancelAnimationFrame(meteorShowerFrame);
+  window.clearTimeout(meteorShowerStopTimer);
+  meteorShowerFrame = 0;
+  meteorShower.classList.remove("is-active");
+  meteorShowerContext.clearRect(0, 0, meteorShowerWidth, meteorShowerHeight);
+}
+
+function animateMeteorShower(time) {
+  if (!meteorShowerStartedAt) meteorShowerStartedAt = time;
+  const elapsed = time - meteorShowerStartedAt;
+  meteorShowerContext.clearRect(0, 0, meteorShowerWidth, meteorShowerHeight);
+  meteorStars.forEach((star) => drawMeteorStar(star, elapsed));
+  meteorTracks.forEach((track) => drawMeteor(track, elapsed));
+  if (elapsed < 8600) meteorShowerFrame = window.requestAnimationFrame(animateMeteorShower);
+}
+
+function launchMeteorShower() {
+  if (meteorShowerPlayed || prefersReducedMotion) return;
+  meteorShowerPlayed = true;
+  resizeMeteorShowerCanvas();
+  buildMeteorShowerScene();
+  meteorShower.classList.remove("is-active");
+  void meteorShower.offsetWidth;
+  meteorShower.classList.add("is-active");
+  meteorShowerStartedAt = 0;
+  meteorShowerFrame = window.requestAnimationFrame(animateMeteorShower);
+  meteorShowerStopTimer = window.setTimeout(stopMeteorShower, 8700);
+}
+
+window.addEventListener("resize", resizeMeteorShowerCanvas);
+
 const constellationStage = $("#constellationStage");
 const constellationCanvas = $("#constellationCanvas");
 const constellationContext = constellationCanvas.getContext("2d");
 const constellationNodes = $$(".constellation-node");
+const futureSection = $("#future");
 const litConstellationNodes = [];
 let constellationDpr = 1;
 
@@ -1421,7 +1592,9 @@ constellationNodes.forEach((node, nodeIndex) => {
     if (litConstellationNodes.length === constellationNodes.length) {
       constellationMessage.textContent = "未来星图已完成：生日之后，我们慢慢把这些愿望拍成照片。";
       constellationMessage.classList.add("is-complete");
+      futureSection.classList.add("is-constellation-complete");
       burstFromElement(constellationStage, 72);
+      window.setTimeout(launchMeteorShower, prefersReducedMotion ? 0 : 420);
     }
   });
 });
