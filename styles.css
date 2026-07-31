@@ -3,7 +3,7 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url("assets/fonts/ma-shan-zheng-birthday.ttf") format("truetype");
+  src: url("assets/fonts/ma-shan-zheng-birthday.ttf?v=20260731-sakura-film-break") format("truetype");
 }
 
 :root {
@@ -302,9 +302,14 @@ body.fairytale-live .particle-canvas { z-index: 151; mix-blend-mode: screen; opa
 .meteor-shower-veil { z-index: 2; background: radial-gradient(ellipse at 50% 42%, transparent 0 25%, rgba(2,8,12,.18) 62%, rgba(2,6,10,.58) 100%), linear-gradient(180deg, rgba(4,10,15,.24), transparent 34%, rgba(3,8,12,.42)); }
 .meteor-shower-meta { position: absolute; z-index: 3; top: clamp(78px, 10vh, 104px); right: clamp(28px, 5vw, 76px); left: clamp(28px, 5vw, 76px); display: flex; justify-content: space-between; padding-bottom: 13px; border-bottom: 1px solid rgba(255,240,220,.28); color: rgba(255,240,220,.68); font-size: 11px; letter-spacing: 0; opacity: 0; }
 .meteor-shower-copy { position: absolute; z-index: 3; right: 24px; bottom: clamp(74px, 13vh, 138px); left: 24px; text-align: center; text-shadow: 0 4px 28px rgba(0,5,9,.75); opacity: 0; transform: translateY(18px); }
-.meteor-shower-copy p { margin: 0; font-family: var(--art-serif); font-size: clamp(38px, 5.3vw, 78px); font-weight: 400; line-height: 1.18; }
-.meteor-shower-copy strong { color: #f4c3b5; font-weight: 400; }
-.meteor-shower-copy > span { display: block; margin-top: 15px; color: rgba(255,235,214,.78); font-family: var(--jp-serif); font-size: clamp(13px, 1.2vw, 17px); }
+.meteor-shower-copy p { display: flex; align-items: baseline; justify-content: center; gap: .2em; width: max-content; max-width: 100%; margin: 0 auto; font-family: var(--art-serif); font-size: clamp(44px, 6.2vw, 88px); font-weight: 400; line-height: 1; transform: rotate(-.7deg); }
+.meteor-shower-copy p > span { color: #fff8ed; font-size: .78em; }
+.meteor-shower-copy strong { position: relative; color: #f4bdb2; font-weight: 400; }
+.meteor-shower-copy strong::after { position: absolute; right: 2%; bottom: -.12em; left: 18%; height: 1px; content: ""; background: linear-gradient(90deg, rgba(255,218,203,.08), rgba(255,218,203,.82) 38%, transparent); transform: rotate(-2deg); transform-origin: right center; }
+.meteor-shower-copy > span { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 22px; color: rgba(255,235,214,.82); font-family: var(--jp-serif); font-size: clamp(13px, 1.2vw, 17px); letter-spacing: 0; }
+.meteor-shower-copy > span::before,
+.meteor-shower-copy > span::after { width: clamp(34px, 4.8vw, 72px); height: 1px; content: ""; background: linear-gradient(90deg, transparent, rgba(244,189,178,.62)); }
+.meteor-shower-copy > span::after { transform: rotate(180deg); }
 .meteor-shower.is-active .meteor-shower-meta { animation: meteorMetaReveal 8.6s ease both; }
 .meteor-shower.is-active .meteor-shower-copy { animation: meteorCopyReveal 8.6s cubic-bezier(.2,.72,.2,1) both; }
 @keyframes meteorSceneReveal { 0% { opacity: 0; } 7%, 88% { opacity: 1; } 100% { opacity: 0; } }
@@ -785,9 +790,70 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
 .fastener-butterfly::after { position: absolute; top: 2px; width: 22px; height: 25px; border: 1px solid rgba(141,113,76,.62); content: ""; background: rgba(225,196,151,.76); box-shadow: 0 3px 5px rgba(60,50,40,.15); }
 .fastener-butterfly::before { right: 19px; border-radius: 75% 25% 58% 42%; transform: rotate(18deg); }
 .fastener-butterfly::after { left: 19px; border-radius: 25% 75% 42% 58%; transform: rotate(-18deg); }
-.portrait-gallery-note { position: relative; z-index: 2; grid-column: 1; grid-row: 4; width: 84%; margin-top: 18px; padding-top: 25px; border-top: 1px solid rgba(59,78,66,.24); }
-.portrait-gallery-note p { margin: 0; color: #46534b; font-family: var(--serif); font-size: clamp(19px, 1.8vw, 25px); line-height: 1.75; }
-.portrait-gallery-note span { display: block; margin-top: 18px; color: #8a5149; font-size: 10px; }
+.portrait-gallery-note {
+  position: relative;
+  z-index: 2;
+  grid-column: 1;
+  grid-row: 4;
+  width: 88%;
+  margin: 24px 0 0 2%;
+  padding: clamp(38px, 4vw, 52px) clamp(28px, 3.5vw, 46px) clamp(30px, 3vw, 40px);
+  border: 1px solid rgba(139,78,92,.17);
+  background-color: #f1cbd3;
+  background-image:
+    repeating-linear-gradient(180deg, transparent 0 39px, rgba(128,73,87,.085) 39px 40px),
+    radial-gradient(circle at 18% 13%, rgba(255,255,255,.42), transparent 31%),
+    repeating-linear-gradient(103deg, rgba(255,255,255,.04) 0 2px, rgba(111,65,78,.018) 2px 5px);
+  box-shadow: 0 17px 27px rgba(80,48,60,.16), 0 3px 8px rgba(80,48,60,.11), inset 0 0 28px rgba(135,73,90,.045);
+  transform: rotate(.85deg);
+  transform-origin: 48% 18%;
+}
+.portrait-gallery-note::before {
+  position: absolute;
+  z-index: 2;
+  top: -14px;
+  left: 50%;
+  width: 92px;
+  height: 29px;
+  content: "";
+  background: repeating-linear-gradient(90deg, rgba(245,218,215,.86) 0 8px, rgba(222,178,187,.82) 8px 15px);
+  box-shadow: 0 3px 6px rgba(80,48,60,.13);
+  opacity: .9;
+  transform: translateX(-50%) rotate(-2.5deg);
+  clip-path: polygon(2% 7%, 98% 0, 96% 94%, 0 100%);
+}
+.portrait-gallery-note::after {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 31px;
+  height: 31px;
+  content: "";
+  background: linear-gradient(135deg, rgba(170,102,119,.18) 0 49%, #f9e6ea 50% 100%);
+  box-shadow: -3px -3px 6px rgba(112,65,78,.07);
+}
+.portrait-gallery-note p {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  color: #4b4146;
+  font-family: var(--art-serif);
+  font-size: clamp(27px, 2.8vw, 40px);
+  font-weight: 400;
+  line-height: 1.55;
+  text-shadow: 0 1px rgba(255,255,255,.4);
+}
+.portrait-gallery-note span {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: max-content;
+  margin-top: 22px;
+  color: #a45668;
+  font-family: var(--jp-serif);
+  font-size: 10px;
+  transform: rotate(-1.5deg);
+}
 .image-caption { position: absolute; right: 17px; bottom: 16px; left: 17px; display: flex; justify-content: space-between; color: white; font-family: var(--serif); font-size: 15px; text-shadow: 0 1px 12px rgba(0,0,0,.35); }
 .image-caption i { font-family: var(--mono); font-size: 13px; font-style: normal; letter-spacing: 0; }
 .stage-stamp { position: absolute; z-index: 2; right: 18px; top: 49%; color: rgba(126,73,66,.72); line-height: 1.6; transform: rotate(90deg); transform-origin: right center; }
@@ -806,13 +872,95 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
   padding: clamp(26px, 4vw, 54px);
   overflow: hidden;
   isolation: isolate;
-  background: #171a19;
+  background: #171719;
   color: var(--paper);
   box-shadow: 0 28px 70px rgba(28, 25, 23, .16);
 }
+.film-break-sakura-scene,
+.film-break-sakura-scene img,
+.film-break-sakura-scene::before,
+.film-break-sakura-scene::after,
+.sakura-petals { position: absolute; inset: 0; width: 100%; height: 100%; }
+.film-break-sakura-scene { z-index: 0; overflow: hidden; pointer-events: none; }
+.film-break-sakura-scene img {
+  z-index: 0;
+  max-width: none;
+  object-fit: cover;
+  object-position: center 47%;
+  filter: saturate(.82) brightness(.72) contrast(1.08);
+  transform: scale(1.045);
+  animation: sakuraSceneBreath 18s cubic-bezier(.2,.72,.2,1) infinite alternate;
+}
+.film-break-sakura-scene::before {
+  z-index: 1;
+  content: "";
+  background:
+    radial-gradient(ellipse at 52% 43%, rgba(18,13,20,.08), rgba(13,16,17,.57) 78%),
+    linear-gradient(90deg, rgba(14,18,18,.52), rgba(23,15,20,.32) 48%, rgba(12,17,18,.49)),
+    linear-gradient(180deg, rgba(10,14,15,.21), transparent 34%, rgba(9,13,14,.5));
+}
+.film-break-sakura-scene::after {
+  z-index: 1;
+  content: "";
+  background: linear-gradient(112deg, transparent 0 48%, rgba(255,218,224,.07) 49%, transparent 50% 100%);
+  mix-blend-mode: screen;
+}
+.sakura-petals { z-index: 2; overflow: hidden; }
+.sakura-petals i {
+  --x: 50%;
+  --drift: 80px;
+  --size: 12px;
+  --duration: 15s;
+  --delay: -4s;
+  --turn: 540deg;
+  --alpha: .74;
+  position: absolute;
+  top: -16%;
+  left: var(--x);
+  width: var(--size);
+  height: calc(var(--size) * .72);
+  border-radius: 80% 22% 68% 34%;
+  background: radial-gradient(circle at 72% 28%, #fff7f5 0 9%, #f5c8cf 44%, #d88f9f 100%);
+  box-shadow: 0 0 7px rgba(255,211,221,.34);
+  opacity: 0;
+  transform-origin: 22% 72%;
+  animation: sakuraPetalFall var(--duration) linear var(--delay) infinite;
+  will-change: transform, opacity;
+}
+.sakura-petals i:nth-child(1) { --x: 3%; --drift: 95px; --size: 9px; --duration: 17s; --delay: -11s; --turn: 620deg; }
+.sakura-petals i:nth-child(2) { --x: 9%; --drift: -70px; --size: 14px; --duration: 13s; --delay: -4s; --turn: -520deg; }
+.sakura-petals i:nth-child(3) { --x: 16%; --drift: 120px; --size: 7px; --duration: 19s; --delay: -15s; --turn: 710deg; --alpha: .48; }
+.sakura-petals i:nth-child(4) { --x: 23%; --drift: -110px; --size: 18px; --duration: 11s; --delay: -7s; --turn: -430deg; --alpha: .82; }
+.sakura-petals i:nth-child(5) { --x: 29%; --drift: 86px; --size: 11px; --duration: 16s; --delay: -2s; --turn: 590deg; }
+.sakura-petals i:nth-child(6) { --x: 36%; --drift: -64px; --size: 8px; --duration: 20s; --delay: -13s; --turn: -680deg; --alpha: .52; }
+.sakura-petals i:nth-child(7) { --x: 42%; --drift: 135px; --size: 15px; --duration: 14s; --delay: -9s; --turn: 510deg; }
+.sakura-petals i:nth-child(8) { --x: 48%; --drift: -96px; --size: 10px; --duration: 18s; --delay: -5s; --turn: -630deg; }
+.sakura-petals i:nth-child(9) { --x: 54%; --drift: 76px; --size: 20px; --duration: 12s; --delay: -10s; --turn: 460deg; --alpha: .86; }
+.sakura-petals i:nth-child(10) { --x: 59%; --drift: -128px; --size: 7px; --duration: 21s; --delay: -17s; --turn: -760deg; --alpha: .46; }
+.sakura-petals i:nth-child(11) { --x: 64%; --drift: 102px; --size: 13px; --duration: 15s; --delay: -6s; --turn: 570deg; }
+.sakura-petals i:nth-child(12) { --x: 69%; --drift: -82px; --size: 9px; --duration: 19s; --delay: -1s; --turn: -690deg; --alpha: .58; }
+.sakura-petals i:nth-child(13) { --x: 74%; --drift: 118px; --size: 17px; --duration: 13s; --delay: -12s; --turn: 490deg; }
+.sakura-petals i:nth-child(14) { --x: 79%; --drift: -106px; --size: 8px; --duration: 17s; --delay: -8s; --turn: -610deg; --alpha: .5; }
+.sakura-petals i:nth-child(15) { --x: 84%; --drift: 72px; --size: 12px; --duration: 16s; --delay: -14s; --turn: 650deg; }
+.sakura-petals i:nth-child(16) { --x: 89%; --drift: -116px; --size: 19px; --duration: 11s; --delay: -3s; --turn: -450deg; --alpha: .84; }
+.sakura-petals i:nth-child(17) { --x: 94%; --drift: 92px; --size: 10px; --duration: 18s; --delay: -16s; --turn: 720deg; --alpha: .6; }
+.sakura-petals i:nth-child(18) { --x: 98%; --drift: -74px; --size: 14px; --duration: 14s; --delay: -7s; --turn: -540deg; }
+.sakura-petals i:nth-child(19) { --x: 33%; --drift: 155px; --size: 22px; --duration: 10s; --delay: -5s; --turn: 390deg; --alpha: .76; filter: blur(.7px); }
+.sakura-petals i:nth-child(20) { --x: 71%; --drift: -142px; --size: 24px; --duration: 10.5s; --delay: -9s; --turn: -410deg; --alpha: .72; filter: blur(.9px); }
+@keyframes sakuraSceneBreath {
+  from { transform: scale(1.045) translate3d(-.5%, 0, 0); }
+  to { transform: scale(1.105) translate3d(1.4%, -.9%, 0); }
+}
+@keyframes sakuraPetalFall {
+  0% { opacity: 0; transform: translate3d(0, -12vh, 0) rotateX(18deg) rotateZ(0deg); }
+  8% { opacity: var(--alpha); }
+  42% { transform: translate3d(var(--drift), 39vh, 0) rotateX(205deg) rotateZ(calc(var(--turn) * .45)); }
+  72% { opacity: var(--alpha); transform: translate3d(0, 75vh, 0) rotateX(350deg) rotateZ(calc(var(--turn) * .76)); }
+  100% { opacity: 0; transform: translate3d(var(--drift), 116vh, 0) rotateX(520deg) rotateZ(var(--turn)); }
+}
 .conversation-film-break::before {
   position: absolute;
-  z-index: -1;
+  z-index: 1;
   content: "03";
   right: clamp(20px, 5vw, 78px);
   bottom: -9%;
@@ -825,6 +973,7 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
 }
 .conversation-film-break::after {
   position: absolute;
+  z-index: 4;
   content: "";
   inset: 18px;
   border: 1px solid rgba(243, 239, 231, .18);
@@ -833,7 +982,7 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
 .film-break-meta,
 .film-break-foot {
   position: relative;
-  z-index: 1;
+  z-index: 3;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -844,7 +993,7 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
 }
 .film-break-prompt {
   position: relative;
-  z-index: 1;
+  z-index: 3;
   margin: auto 0 30px;
   color: #d89e8e;
   font-size: 10px;
@@ -853,7 +1002,7 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
 }
 .conversation-film-break h3 {
   position: relative;
-  z-index: 1;
+  z-index: 3;
   max-width: 960px;
   margin: 0 auto 12vh;
   color: var(--paper);
@@ -870,8 +1019,8 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
 }
 .conversation-film-break h3 span,
 .conversation-film-break h3 strong { display: block; }
-.conversation-film-break h3 span { color: rgba(243, 239, 231, .65); font-size: .52em; }
-.conversation-film-break h3 strong { color: #fff7e8; font-weight: 400; }
+.conversation-film-break h3 span { color: rgba(255,209,216,.84); font-size: .52em; text-shadow: 0 3px 22px rgba(28,12,21,.82); }
+.conversation-film-break h3 strong { color: #fff8ed; font-weight: 400; text-shadow: 0 5px 32px rgba(22,10,17,.88); }
 .conversations.is-scene-active .conversation-film-break h3 {
   opacity: 1;
   clip-path: inset(0);
@@ -1177,9 +1326,12 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
   .meteor-shower-meta { top: 76px; right: 20px; left: 20px; gap: 18px; font-size: 8px; line-height: 1.5; }
   .meteor-shower-meta span:last-child { text-align: right; }
   .meteor-shower-copy { right: 20px; bottom: 14vh; left: 20px; }
-  .meteor-shower-copy p { font-size: clamp(34px, 10.5vw, 48px); line-height: 1.3; }
+  .meteor-shower-copy p { display: grid; justify-items: center; gap: 2px; width: 100%; font-size: clamp(38px, 12vw, 52px); line-height: 1.08; }
+  .meteor-shower-copy p > span { font-size: .74em; }
   .meteor-shower-copy strong { display: block; }
-  .meteor-shower-copy > span { margin-top: 13px; font-size: 12px; }
+  .meteor-shower-copy > span { gap: 10px; margin-top: 18px; font-size: 12px; }
+  .meteor-shower-copy > span::before,
+  .meteor-shower-copy > span::after { width: 27px; }
   .opening-ceremony { background: #211f1e; }
   .ceremony-media { bottom: auto; height: 54%; }
   .ceremony-media img { object-position: center 34%; }
@@ -1311,9 +1463,9 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
   .portrait-rem { width: 89%; margin-right: auto; margin-left: 1%; }
   .portrait-stage .image-caption { min-height: 51px; padding: 12px 3px 10px; font-size: 13px; }
   .portrait-stage .image-caption b { font-size: 13px; }
-  .portrait-gallery-note { grid-column: 1; grid-row: auto; width: 94%; margin: 12px 0 0; }
-  .portrait-gallery-note p { font-size: 21px; }
-  .portrait-gallery-note span { display: block; margin-top: 22px; font-size: 11px; }
+  .portrait-gallery-note { grid-column: 1; grid-row: auto; width: 90%; margin: 20px 2% 0 auto; padding: 38px 25px 32px; transform: rotate(.7deg); }
+  .portrait-gallery-note p { font-size: clamp(27px, 8.2vw, 34px); line-height: 1.52; }
+  .portrait-gallery-note span { display: block; margin-top: 21px; font-size: 10px; }
   .stage-stamp { display: none; }
   .interlude { grid-template-columns: 1fr; gap: 14px; padding: 28px 20px; }
   .interlude p { white-space: normal; font-size: 12px; }
@@ -1447,6 +1599,8 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
   .grand-celebration, .fairytale-celebration, .meteor-shower { display: none !important; }
   .kinetic-ribbon-track { animation: none !important; }
   .chapter-compass { transition: none !important; }
+  .film-break-sakura-scene img { animation: none !important; transform: scale(1.06) !important; }
+  .sakura-petals { display: none !important; }
   .reveal-on-scroll { opacity: 1 !important; translate: 0 0 !important; }
   .image-card { transform: none !important; }
   .portrait-stage .portrait-feature { transform: rotate(-2.15deg) !important; }
