@@ -1033,7 +1033,7 @@ function createFirework(x, y, count = 58, colorOffset = 0) {
   }
 }
 
-const fairytalePalette = ["255,229,179", "255,188,213", "184,216,255", "255,249,214", "216,184,255", "170,233,222"];
+const fairytalePalette = ["255,204,88", "255,102,178", "91,190,255", "99,239,171", "190,116,255", "255,112,82", "82,231,236"];
 
 function createFairytaleRocket(targetX, targetY, colorOffset = 0) {
   if (prefersReducedMotion) return;
@@ -1098,6 +1098,29 @@ function createFairytaleFirework(x, y, count = 96, colorOffset = 0) {
     shape: "glow",
     color: palette[colorOffset % palette.length],
   });
+
+  const glitterAmount = Math.round(amount * .2);
+  for (let index = 0; index < glitterAmount; index += 1) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = .7 + Math.random() * 2.4;
+    burstParticles.push({
+      x,
+      y,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed - .25,
+      size: .65 + Math.random() * 1.15,
+      alpha: .82,
+      life: 1,
+      decay: .006 + Math.random() * .004,
+      drag: .986,
+      gravity: .009,
+      rotation: angle,
+      spin: .02,
+      trail: false,
+      shape: "glow",
+      color: palette[(index * 2 + colorOffset) % palette.length],
+    });
+  }
 }
 
 function createConfettiRain(count = 100) {
@@ -1214,27 +1237,27 @@ function runFairytaleCelebration() {
 
   const isMobile = particleWidth < 600;
   const targets = isMobile ? [
-    { x: .08, y: .17, color: 0 },
-    { x: .92, y: .18, color: 2 },
-    { x: .07, y: .38, color: 4 },
-    { x: .93, y: .4, color: 1 },
-    { x: .1, y: .58, color: 3 },
-    { x: .9, y: .59, color: 5 },
-    { x: .12, y: .77, color: 2 },
-    { x: .88, y: .76, color: 0 },
+    { x: .08, y: .14, color: 0 },
+    { x: .92, y: .16, color: 2 },
+    { x: .08, y: .32, color: 4 },
+    { x: .92, y: .34, color: 1 },
+    { x: .1, y: .5, color: 3 },
+    { x: .9, y: .52, color: 5 },
+    { x: .12, y: .68, color: 6 },
+    { x: .88, y: .7, color: 0 },
   ] : [
-    { x: .14, y: .31, color: 0 },
-    { x: .33, y: .18, color: 2 },
-    { x: .52, y: .29, color: 1 },
-    { x: .73, y: .17, color: 3 },
-    { x: .9, y: .34, color: 4 },
-    { x: .24, y: .5, color: 5 },
-    { x: .62, y: .46, color: 0 },
-    { x: .82, y: .53, color: 2 },
-    { x: .08, y: .18, color: 3 },
-    { x: .43, y: .12, color: 5 },
-    { x: .68, y: .25, color: 1 },
-    { x: .95, y: .19, color: 0 },
+    { x: .08, y: .2, color: 0 },
+    { x: .22, y: .11, color: 2 },
+    { x: .4, y: .17, color: 4 },
+    { x: .72, y: .1, color: 3 },
+    { x: .91, y: .2, color: 1 },
+    { x: .13, y: .35, color: 5 },
+    { x: .34, y: .29, color: 6 },
+    { x: .82, y: .31, color: 0 },
+    { x: .05, y: .12, color: 3 },
+    { x: .47, y: .08, color: 5 },
+    { x: .77, y: .21, color: 2 },
+    { x: .96, y: .13, color: 4 },
   ];
 
   targets.forEach((target, index) => {
@@ -1262,11 +1285,11 @@ function runFairytaleCelebration() {
     }, 3110);
   } else {
     scheduleCelebration(() => {
-      createFairytaleFirework(particleWidth * .46, particleHeight * .25, 124, 3);
+      createFairytaleFirework(particleWidth * .28, particleHeight * .2, 124, 3);
       playFireworkBurstSound();
     }, 2870);
     scheduleCelebration(() => {
-      createFairytaleFirework(particleWidth * .68, particleHeight * .34, 118, 1);
+      createFairytaleFirework(particleWidth * .78, particleHeight * .2, 118, 1);
       playFireworkBurstSound();
     }, 3320);
   }
@@ -1315,7 +1338,10 @@ function animateParticles(time) {
     drawParticle(particle, Math.min(1, particle.life) * particle.alpha);
   });
   burstParticles = burstParticles.filter((particle) => particle.life > 0);
-  if (burstParticles.length > 620) burstParticles.splice(0, burstParticles.length - 620);
+  const burstLimit = document.body.classList.contains("fairytale-live")
+    ? (particleWidth < 600 ? 560 : 840)
+    : 620;
+  if (burstParticles.length > burstLimit) burstParticles.splice(0, burstParticles.length - burstLimit);
   window.requestAnimationFrame(animateParticles);
 }
 
