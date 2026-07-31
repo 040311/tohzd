@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Ma+Shan+Zheng&family=Noto+Serif+JP:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700;900&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=20260731-fairytale-fireworks" />
+    <link rel="stylesheet" href="styles.css?v=20260731-portrait-photo-wall" />
   </head>
   <body class="ceremony-pending">
     <div class="noise" aria-hidden="true"></div>
@@ -64,8 +64,8 @@
       <div class="fairytale-stars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="fairytale-copy">
         <p class="mono" lang="ja">夜空に、願いごとをひとつ。</p>
-        <strong>华紫蝶</strong>
-        <span>生日快乐</span>
+        <strong><i>我的</i><b>蕾姆</b></strong>
+        <span>生日快乐呀</span>
         <small lang="ja">お誕生日おめでとう</small>
         <time datetime="2026-08-07">2026.08.07</time>
       </div>
@@ -226,6 +226,7 @@
         <div class="favorite-universe" id="favoriteUniverse">
           <div class="favorite-rail mono" aria-hidden="true"><span>BIRTHDAY GUESTS / 01—06</span><span>2026.08.07</span></div>
             <div class="character-wall" aria-label="角色收藏展墙">
+              <div class="character-carousel" id="characterCarousel" aria-hidden="false">
               <button class="character-card character-card-shinchan" type="button" data-gallery="favorites" data-index="0" data-title="蜡笔小新 · 永远保留一点天真" data-parallax-speed="22" aria-label="放大查看蜡笔小新">
                 <img src="assets/characters/shinchan.jpg" alt="蜡笔小新和朋友们" loading="lazy" decoding="async" />
                 <span class="character-meta"><b>01</b><em>蜡笔小新</em><small lang="ja">ずっと、子どもの心を</small></span>
@@ -250,7 +251,7 @@
                 <img src="assets/characters/klee.jpg" alt="原神可莉" loading="lazy" decoding="async" />
                 <span class="character-meta"><b>06</b><em>可莉</em><small lang="ja">新しい一年に、花火を</small></span>
               </button>
-              <div class="character-wall-seal" aria-hidden="true"><span>07</span><i lang="ja">八月</i><b>2026</b></div>
+              </div>
             </div>
             <div class="universe-foot">
               <span class="mono" lang="ja">近づいて、写真をひらく</span>
@@ -287,32 +288,36 @@
           </div>
         </div>
         <div class="portrait-exhibit">
-          <div class="portrait-stage">
-            <div class="portrait-spread portrait-spread-primary">
-              <div class="image-card portrait-feature" data-gallery="portraits" data-index="0" data-full-src="assets/portraits/huazidie-portrait-04-original.jpg" tabindex="0" role="button" aria-label="查看照片：光落在她眼里">
-                <img src="assets/portraits/huazidie-portrait-04.jpg" width="1446" height="1920" alt="橙发角色装扮的华紫蝶" loading="lazy" decoding="async" />
-                <span class="image-caption">光落在她眼里 <i>01</i></span>
-              </div>
-              <div class="portrait-column">
-                <div class="image-card portrait-close" data-gallery="portraits" data-index="1" tabindex="0" role="button" aria-label="查看照片：靠近一点">
-                  <img src="assets/portraits/huazidie-portrait-01.jpg" width="1080" height="1434" alt="黑发紫瞳角色装扮的华紫蝶近景" loading="lazy" decoding="async" />
-                  <span class="image-caption">靠近一点 <i>02</i></span>
-                </div>
-                <div class="image-card portrait-seated" data-gallery="portraits" data-index="2" tabindex="0" role="button" aria-label="查看照片：安静的一刻">
-                  <img src="assets/portraits/huazidie-portrait-03.jpg" width="1080" height="1440" alt="蓝白女仆装的华紫蝶安静看向手机" loading="lazy" decoding="async" />
-                  <span class="image-caption">安静的一刻 <i>03</i></span>
-                </div>
-              </div>
+          <div class="portrait-stage" role="group" aria-label="华紫蝶人物照片墙">
+            <div class="portrait-wall-mark" aria-hidden="true">
+              <span class="mono">PORTRAIT WALL / 02</span>
+              <b>只收藏此刻的你</b>
             </div>
-            <div class="portrait-spread portrait-spread-secondary">
-              <div class="image-card portrait-full" data-gallery="portraits" data-index="3" tabindex="0" role="button" aria-label="查看照片：可爱有很多种样子">
-                <img src="assets/portraits/huazidie-portrait-02.jpg" width="1279" height="1706" alt="棕色角色服装的华紫蝶全身照" loading="lazy" decoding="async" />
-                <span class="image-caption">可爱有很多种样子 <i>04</i></span>
-              </div>
-              <div class="image-card portrait-rem" data-gallery="portraits" data-index="4" tabindex="0" role="button" aria-label="查看照片：裙摆像一朵花">
-                <img src="assets/portraits/huazidie-portrait-05.jpg" width="1280" height="1726" alt="蓝发黑白女仆装的华紫蝶全身照" loading="lazy" decoding="async" />
-                <span class="image-caption">裙摆像一朵花 <i>05</i></span>
-              </div>
+            <span class="portrait-wall-line" aria-hidden="true"><i></i><i></i></span>
+            <div class="image-card portrait-feature" data-gallery="portraits" data-index="0" data-full-src="assets/portraits/huazidie-portrait-04-original.jpg" tabindex="0" role="button" aria-label="查看照片：光落在她眼里">
+              <span class="photo-fastener fastener-washi" aria-hidden="true"></span>
+              <img src="assets/portraits/huazidie-portrait-04.jpg" width="1446" height="1920" alt="橙发角色装扮的华紫蝶" loading="lazy" decoding="async" />
+              <span class="image-caption"><b>光落在她眼里</b><i>PORTRAIT / 01</i></span>
+            </div>
+            <div class="image-card portrait-close" data-gallery="portraits" data-index="1" tabindex="0" role="button" aria-label="查看照片：靠近一点">
+              <span class="photo-fastener fastener-pin" aria-hidden="true"></span>
+              <img src="assets/portraits/huazidie-portrait-01.jpg" width="1080" height="1434" alt="黑发紫瞳角色装扮的华紫蝶近景" loading="lazy" decoding="async" />
+              <span class="image-caption"><b>靠近一点</b><i>PORTRAIT / 02</i></span>
+            </div>
+            <div class="image-card portrait-seated" data-gallery="portraits" data-index="2" tabindex="0" role="button" aria-label="查看照片：安静的一刻">
+              <span class="photo-fastener fastener-clip" aria-hidden="true"></span>
+              <img src="assets/portraits/huazidie-portrait-03.jpg" width="1080" height="1440" alt="蓝白女仆装的华紫蝶安静看向手机" loading="lazy" decoding="async" />
+              <span class="image-caption"><b>安静的一刻</b><i>PORTRAIT / 03</i></span>
+            </div>
+            <div class="image-card portrait-full" data-gallery="portraits" data-index="3" tabindex="0" role="button" aria-label="查看照片：可爱有很多种样子">
+              <span class="photo-fastener fastener-corners" aria-hidden="true"></span>
+              <img src="assets/portraits/huazidie-portrait-02.jpg" width="1279" height="1706" alt="棕色角色服装的华紫蝶全身照" loading="lazy" decoding="async" />
+              <span class="image-caption"><b>可爱有很多种样子</b><i>PORTRAIT / 04</i></span>
+            </div>
+            <div class="image-card portrait-rem" data-gallery="portraits" data-index="4" tabindex="0" role="button" aria-label="查看照片：裙摆像一朵花">
+              <span class="photo-fastener fastener-butterfly" aria-hidden="true"></span>
+              <img src="assets/portraits/huazidie-portrait-05.jpg" width="1280" height="1726" alt="蓝发黑白女仆装的华紫蝶全身照" loading="lazy" decoding="async" />
+              <span class="image-caption"><b>裙摆像一朵花</b><i>PORTRAIT / 05</i></span>
             </div>
             <div class="portrait-gallery-note">
               <p>每一种装扮，都有属于华紫蝶的光。<br />而我想收藏的，是镜头里每一种真实的你。</p>
@@ -417,7 +422,8 @@
       <section class="future section-pad" id="future" aria-labelledby="futureTitle">
         <div class="future-orbit" aria-hidden="true"><span></span><span></span><span></span></div>
         <div class="section-kicker mono" lang="ja">05 / 2026年8月7日の、その先へ</div>
-        <h2 id="futureTitle">生日之后，<br /><em>还有很多页。</em></h2>
+        <h2 id="futureTitle">一起去看<br /><em>流星雨。</em></h2>
+        <p class="future-title-ja" lang="ja">一緒に、流星群を見に行こう。</p>
         <p class="future-lead">我们认识的时间不长，所以这本摄影集最珍贵的地方，<br />是它还有很多空白，等我们一起把它变成照片。</p>
         <div class="constellation-shell" id="constellationShell">
           <div class="constellation-head">

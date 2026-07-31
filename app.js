@@ -1640,7 +1640,7 @@ resizeConstellation();
 window.addEventListener("resize", resizeConstellation);
 
 const revealTargets = $$(
-  ".birthday-opening-mark, .birthday-art, .birthday-opening-copy > *, .favorite-page-head > *, .favorite-universe, .page-turn-copy > *, .portrait-edition-meta, .manifesto-grid > *, .portrait-stage .image-card, .conversation-intro > *, .chat-frame, .confession-rail > *, .confession-promise > *, .confession-side > *, .confession-foot > *, .future > h2, .future-lead, .constellation-shell, .letter-cover > *, .finale-copy > *, .finale-visual, .finale-end"
+  ".birthday-opening-mark, .birthday-art, .birthday-opening-copy > *, .favorite-page-head > *, .favorite-universe, .page-turn-copy > *, .portrait-edition-meta, .manifesto-grid > *, .portrait-stage .image-card, .conversation-intro > *, .chat-frame, .confession-rail > *, .confession-promise > *, .confession-side > *, .confession-foot > *, .future > h2, .future-title-ja, .future-lead, .constellation-shell, .letter-cover > *, .finale-copy > *, .finale-visual, .finale-end"
 );
 revealTargets.forEach((target, index) => {
   target.classList.add("reveal-on-scroll");
