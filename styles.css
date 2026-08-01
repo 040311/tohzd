@@ -1881,8 +1881,10 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
 .letter-reveal-all:hover,
 .letter-reveal-all:focus-visible { border-color: #263b43; color: #172b33; }
 .letter-reveal-all:focus-visible { outline: 1px solid #263b43; outline-offset: 6px; }
-.letter-inside h2 { margin-top: 59px; color: #23353d; font-family: var(--art-serif); font-size: clamp(43px, 4.6vw, 56px); font-weight: 400; font-synthesis: none; line-height: 1.25; }
+.letter-inside h2 { margin-top: 59px; color: #a65f6a; font-family: var(--art-serif); font-size: clamp(43px, 4.6vw, 56px); font-weight: 400; font-synthesis: none; line-height: 1.25; text-shadow: 0 8px 24px rgba(142,77,90,.13), 0 1px rgba(255,255,255,.58); }
 .letter-inside h2 .letter-glyph { color: inherit; }
+.letter-inside h2 .letter-glyph:nth-child(4),
+.letter-inside h2 .letter-glyph:nth-child(5) { color: #8e4d5a; }
 .letter-body { max-width: 640px; margin-top: 37px; color: rgba(35,43,46,.9); font-family: var(--uniform-art-serif); font-size: 22px; font-weight: 400; font-synthesis: none; line-height: 2.05; }
 .letter-body p { margin: 0 0 30px; font-weight: 400; }
 .letter-glyph { position: relative; display: inline-block; opacity: 0; font-weight: 400; filter: blur(2.4px); transform: translateY(calc(5px + var(--ink-rise))) rotate(var(--ink-turn)); }
