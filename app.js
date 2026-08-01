@@ -222,6 +222,12 @@ const letterTitle = $("#letterTitle");
 const letterBody = $(".letter-body");
 const letterSign = $(".letter-sign");
 const letterRevealAll = $("#letterRevealAll");
+const letterSection = $("#letter");
+const letterFlightPaths = $("#letterFlightPaths");
+const letterButterflyCanvas = $("#letterButterflyDust");
+const letterButterflyField = $("#letterButterflyField");
+const letterButterflyContext = letterButterflyCanvas?.getContext("2d", { alpha: true });
+const letterSvgNamespace = "http://www.w3.org/2000/svg";
 let letterOpening = false;
 let letterWritingTimer = 0;
 let letterWritingIndex = 0;
@@ -229,6 +235,379 @@ let letterWritingActive = false;
 let letterAutoFollow = true;
 let letterLastFollowAt = 0;
 const letterGlyphs = [];
+let letterButterflyWidth = 1;
+let letterButterflyHeight = 1;
+let letterButterflyDpr = 1;
+let letterButterflyFrame = 0;
+let letterButterflyLastFrame = 0;
+let letterButterflyActive = false;
+let letterDustParticles = [];
+let letterButterflySafeZones = [];
+
+const letterButterflyPalettes = [
+  { className: "azure", dust: "164,222,238" },
+  { className: "pearl", dust: "224,245,249" },
+  { className: "lilac", dust: "202,205,232" },
+];
+
+const letterFlightRoutes = [
+  [[.82, 1.12], [.92, .78], [.69, .24], [.8, -.12]],
+  [[1.12, .78], [.82, .96], [.28, .63], [-.12, .86]],
+  [[-.12, .43], [.22, .22], [.68, .08], [1.12, .35]],
+  [[-.12, .72], [.22, .93], [.72, .57], [1.12, .82]],
+  [[1.12, .12], [.76, .28], [.34, .02], [-.12, .17]],
+];
+
+const letterButterflies = [
+  { period: 22.5, offset: .14, size: 106, mobileSize: 74, depth: .96, palette: 0, alpha: .9, phase: .4, flapCycle: 2.32, flapWindow: .78, flapRate: 5 },
+  { period: 25.5, offset: .56, size: 76, mobileSize: 54, depth: .7, palette: 1, alpha: .78, phase: 2.2, flapCycle: 2.75, flapWindow: .86, flapRate: 4.5 },
+  { period: 28.5, offset: .29, size: 54, mobileSize: 39, depth: .4, palette: 0, alpha: .62, phase: 4.1, flapCycle: 2.58, flapWindow: .72, flapRate: 5.8 },
+  { period: 23, offset: .73, size: 64, mobileSize: 46, depth: .57, palette: 2, alpha: .68, phase: 1.3, flapCycle: 2.9, flapWindow: .82, flapRate: 4.8 },
+  { period: 31, offset: .42, size: 42, mobileSize: 30, depth: .25, palette: 1, alpha: .5, phase: 3.4, flapCycle: 3.15, flapWindow: .7, flapRate: 6.2 },
+].map((butterfly, index) => ({
+  ...butterfly,
+  route: index,
+  path: null,
+  pathLength: 1,
+  element: null,
+  bankElement: null,
+  visualElement: null,
+  leftWing: null,
+  rightWing: null,
+  opacity: 0,
+  bank: 0,
+  lastAngle: null,
+  dustAt: 0,
+  previousOpen: 1,
+}));
+
+function resizeLetterButterflyCanvas() {
+  if (!letterButterflyContext || !letterFlightPaths || !letterButterflyField || letterOpening) return;
+  const rect = letterButterflyCanvas.getBoundingClientRect();
+  if (!rect.width || !rect.height) return;
+  letterButterflyWidth = rect.width;
+  letterButterflyHeight = rect.height;
+  letterButterflyDpr = Math.min(window.devicePixelRatio || 1, rect.width < 640 ? 1.5 : 2);
+  letterButterflyCanvas.width = Math.round(rect.width * letterButterflyDpr);
+  letterButterflyCanvas.height = Math.round(rect.height * letterButterflyDpr);
+  letterButterflyContext.setTransform(letterButterflyDpr, 0, 0, letterButterflyDpr, 0, 0);
+  letterDustParticles = [];
+  letterFlightPaths.setAttribute("viewBox", `0 0 ${letterButterflyWidth} ${letterButterflyHeight}`);
+  const canvasRect = letterButterflyCanvas.getBoundingClientRect();
+  letterButterflySafeZones = [".letter-label", ".seal", ".letter-cover > p", ".letter-open"]
+    .map((selector) => letterSection.querySelector(selector))
+    .filter(Boolean)
+    .map((element) => {
+      const rect = element.getBoundingClientRect();
+      return {
+        left: rect.left - canvasRect.left,
+        right: rect.right - canvasRect.left,
+        top: rect.top - canvasRect.top,
+        bottom: rect.bottom - canvasRect.top,
+      };
+    });
+  rebuildLetterFlightPaths();
+
+  const mobile = letterButterflyWidth < 640;
+  letterButterflies.forEach((butterfly, index) => {
+    if (!butterfly.element) return;
+    butterfly.element.style.setProperty("--butterfly-size", `${mobile ? butterfly.mobileSize : butterfly.size}px`);
+    butterfly.element.style.display = index < (mobile ? 3 : 5) ? "" : "none";
+    butterfly.element.style.zIndex = String(Math.round(butterfly.depth * 10));
+  });
+}
+
+function letterFlightPathData(route, yShift = 0) {
+  const points = route.map(([x, y]) => {
+    const shiftedY = Math.max(-.08, Math.min(1.08, y + yShift));
+    return [x * letterButterflyWidth, shiftedY * letterButterflyHeight];
+  });
+  return `M ${points[0][0]} ${points[0][1]} C ${points[1][0]} ${points[1][1]}, ${points[2][0]} ${points[2][1]}, ${points[3][0]} ${points[3][1]}`;
+}
+
+function scoreLetterFlightPath(path, size) {
+  const length = Math.max(1, path.getTotalLength());
+  const padding = size * .55 + (letterButterflyWidth < 640 ? 12 : 20);
+  let score = 0;
+  for (let index = 0; index <= 36; index += 1) {
+    const point = path.getPointAtLength(length * index / 36);
+    letterButterflySafeZones.forEach((zone) => {
+      if (point.x > zone.left - padding && point.x < zone.right + padding
+        && point.y > zone.top - padding && point.y < zone.bottom + padding) score += 1;
+    });
+  }
+  return score;
+}
+
+function rebuildLetterFlightPaths() {
+  letterFlightPaths.replaceChildren();
+  const mobile = letterButterflyWidth < 640;
+  letterButterflies.forEach((butterfly) => {
+    const path = document.createElementNS(letterSvgNamespace, "path");
+    path.setAttribute("fill", "none");
+    path.setAttribute("vector-effect", "non-scaling-stroke");
+    letterFlightPaths.append(path);
+
+    const route = letterFlightRoutes[butterfly.route];
+    const shifts = [0, -.08, .08, -.16, .16];
+    let bestPath = letterFlightPathData(route);
+    let bestScore = Number.POSITIVE_INFINITY;
+    shifts.forEach((shift) => {
+      const candidate = letterFlightPathData(route, shift);
+      path.setAttribute("d", candidate);
+      const score = scoreLetterFlightPath(path, mobile ? butterfly.mobileSize : butterfly.size);
+      if (score < bestScore) {
+        bestScore = score;
+        bestPath = candidate;
+      }
+    });
+    path.setAttribute("d", bestPath);
+    butterfly.path = path;
+    butterfly.pathLength = Math.max(1, path.getTotalLength());
+  });
+}
+
+function letterButterflyPosition(butterfly, now) {
+  const progress = ((now / 1000 / butterfly.period + butterfly.offset) % 1 + 1) % 1;
+  const distance = butterfly.pathLength * progress;
+  const tangentStep = Math.max(3, butterfly.pathLength * .0025);
+  const point = butterfly.path.getPointAtLength(distance);
+  const behind = butterfly.path.getPointAtLength(Math.max(0, distance - tangentStep));
+  const ahead = butterfly.path.getPointAtLength(Math.min(butterfly.pathLength, distance + tangentStep));
+  const angle = Math.atan2(ahead.y - behind.y, ahead.x - behind.x);
+  const bob = Math.sin(now * .0011 + butterfly.phase) * (1.5 + butterfly.depth * 3.5)
+    + Math.sin(now * .0023 + butterfly.phase * 1.7) * (1 + butterfly.depth);
+  return {
+    x: point.x - Math.sin(angle) * bob,
+    y: point.y + Math.cos(angle) * bob,
+    angle,
+  };
+}
+
+function butterflyFocusOpacity(x, y, size) {
+  let opacity = 1;
+  const padding = size * .72 + (letterButterflyWidth < 640 ? 11 : 17);
+  letterButterflySafeZones.forEach((zone) => {
+    const dx = Math.max(zone.left - padding - x, 0, x - zone.right - padding);
+    const dy = Math.max(zone.top - padding - y, 0, y - zone.bottom - padding);
+    const zoneOpacity = Math.min(1, Math.hypot(dx, dy) / (letterButterflyWidth < 640 ? 34 : 48));
+    opacity = Math.min(opacity, zoneOpacity);
+  });
+  return opacity;
+}
+
+function letterButterflyWingSvg(index, side) {
+  const left = side === "left";
+  const id = `letter-wing-${index}-${side}`;
+  const forewing = left
+    ? "M58.6 68.4C52.7 51.2 42.3 29.1 27.8 17.2C17.1 8.4 6.9 13.3 5.7 27.2C4.2 42.8 14.2 56.8 29.3 64.9C39.8 70.4 50.3 72 57.4 70.2C59.3 69.7 59.8 69.2 58.6 68.4Z"
+    : "M61.4 68.4C67.3 51.2 77.7 29.1 92.2 17.2C102.9 8.4 113.1 13.3 114.3 27.2C115.8 42.8 105.8 56.8 90.7 64.9C80.2 70.4 69.7 72 62.6 70.2C60.7 69.7 60.2 69.2 61.4 68.4Z";
+  const hindwing = left
+    ? "M58.2 68.7C46.2 66.3 31.7 69.2 19.2 77.2C8.4 84.2 6.8 97.9 14.9 108.9C20.2 116.1 27.2 120.5 31.8 126.3C34.2 129.4 35.5 124.2 35.9 120C40 118.7 44.1 113.9 47.5 105.8C54.5 96.4 59.2 82.7 61.2 73C62 70 60.5 69 58.2 68.7Z"
+    : "M61.8 68.7C73.8 66.3 88.3 69.2 100.8 77.2C111.6 84.2 113.2 97.9 105.1 108.9C99.8 116.1 92.8 120.5 88.2 126.3C85.8 129.4 84.5 124.2 84.1 120C80 118.7 75.9 113.9 72.5 105.8C65.5 96.4 60.8 82.7 58.8 73C58 70 59.5 69 61.8 68.7Z";
+  const veins = left
+    ? "M58 69C46 57 34 38 26 18M56 68C41 63 23 49 7 32M52 71C36 71 20 66 10 55M58 72C45 80 31 94 17 108M56 78C42 84 28 93 11 96M53 91C41 101 32 111 25 116"
+    : "M62 69C74 57 86 38 94 18M64 68C79 63 97 49 113 32M68 71C84 71 100 66 110 55M62 72C75 80 89 94 103 108M64 78C78 84 92 93 109 96M67 91C79 101 88 111 95 116";
+  const rim = left
+    ? "M27.8 17.2C17.1 8.4 6.9 13.3 5.7 27.2C4.2 42.8 14.2 56.8 29.3 64.9M19.2 77.2C8.4 84.2 6.8 97.9 14.9 108.9C23.7 120.9 38.4 118.1 47.5 105.8"
+    : "M92.2 17.2C102.9 8.4 113.1 13.3 114.3 27.2C115.8 42.8 105.8 56.8 90.7 64.9M100.8 77.2C111.6 84.2 113.2 97.9 105.1 108.9C96.3 120.9 81.6 118.1 72.5 105.8";
+  const pearlX = left ? 16 : 104;
+  const gradientX = left ? 7 : 113;
+
+  return `<svg viewBox="0 0 120 140" width="100%" height="100%" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <defs>
+      <radialGradient id="${id}-surface" gradientUnits="userSpaceOnUse" cx="60" cy="70" r="58" fx="${left ? 53 : 67}" fy="56"><stop offset="0" stop-color="var(--wing-pearl)"/><stop offset=".24" stop-color="var(--wing-light)"/><stop offset=".62" stop-color="var(--wing-mid)"/><stop offset="1" stop-color="var(--wing-deep)"/></radialGradient>
+      <linearGradient id="${id}-sheen" gradientUnits="userSpaceOnUse" x1="60" y1="72" x2="${gradientX}" y2="20"><stop stop-color="#fff" stop-opacity=".58"/><stop offset=".46" stop-color="var(--wing-light)" stop-opacity=".24"/><stop offset=".72" stop-color="#c9c9e8" stop-opacity=".32"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+      <linearGradient id="${id}-shadow" gradientUnits="userSpaceOnUse" x1="60" y1="70" x2="${gradientX}" y2="74"><stop stop-color="var(--body-ink)" stop-opacity=".45"/><stop offset=".48" stop-color="var(--body-ink)" stop-opacity=".05"/><stop offset="1" stop-color="var(--body-ink)" stop-opacity="0"/></linearGradient>
+    </defs>
+    <path class="wing-surface" d="${hindwing}" fill="url(#${id}-surface)"/><path class="wing-surface" d="${forewing}" fill="url(#${id}-surface)"/>
+    <path class="wing-shadow" d="${hindwing}" fill="url(#${id}-shadow)"/><path class="wing-shadow" d="${forewing}" fill="url(#${id}-shadow)"/>
+    <path class="wing-sheen" d="${hindwing}" fill="url(#${id}-sheen)"/><path class="wing-sheen" d="${forewing}" fill="url(#${id}-sheen)"/>
+    <path class="wing-vein" d="${veins}"/><path class="wing-rim" d="${rim}"/>
+    <ellipse class="wing-pearl" cx="${pearlX}" cy="45" rx="1.7" ry="4.2" transform="rotate(${left ? -18 : 18} ${pearlX} 45)"/>
+    <ellipse class="wing-pearl" cx="${left ? 20 : 100}" cy="99" rx="1.5" ry="3.4" opacity=".42"/>
+  </svg>`;
+}
+
+function letterButterflyBodySvg(index) {
+  const id = `letter-body-${index}`;
+  return `<svg viewBox="0 0 120 140" width="100%" height="100%" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <defs><linearGradient id="${id}" x1="54" y1="54" x2="65" y2="120" gradientUnits="userSpaceOnUse"><stop stop-color="var(--wing-light)"/><stop offset=".22" stop-color="var(--body-ink)"/><stop offset="1" stop-color="#183c4e"/></linearGradient></defs>
+    <path class="antenna" d="M58.2 43C54.5 33.5 48 26.8 40.5 25.5C38.2 25.1 36.5 26.6 36.8 29M61.8 43C65.5 33.5 72 26.8 79.5 25.5C81.8 25.1 83.5 26.6 83.2 29"/>
+    <circle class="antenna-tip" cx="36.8" cy="29" r="1.15"/><circle class="antenna-tip" cx="83.2" cy="29" r="1.15"/>
+    <circle cx="60" cy="44" r="4.4" fill="url(#${id})"/><ellipse cx="60" cy="59" rx="5.4" ry="12.8" fill="url(#${id})"/>
+    <path d="M56.8 67C55.8 80 57 108 60 130C63 108 64.2 80 63.2 67C62.5 63 57.5 63 56.8 67Z" fill="url(#${id})"/>
+    <path class="body-line" d="M57.2 78Q60 80 62.8 78M57.4 89Q60 91 62.6 89M58 101Q60 103 62 101M58.5 113Q60 115 61.5 113"/>
+  </svg>`;
+}
+
+function createLetterButterflies() {
+  if (!letterButterflyField) return;
+  const fragment = document.createDocumentFragment();
+  letterButterflies.forEach((butterfly, index) => {
+    const palette = letterButterflyPalettes[butterfly.palette];
+    const element = document.createElement("div");
+    element.className = `letter-butterfly letter-butterfly--${palette.className}`;
+    element.style.setProperty("--butterfly-size", `${butterfly.size}px`);
+    element.innerHTML = `<div class="letter-butterfly__bank"><div class="letter-butterfly__visual">
+      <div class="letter-butterfly__wing letter-butterfly__wing--left">${letterButterflyWingSvg(index, "left")}</div>
+      <div class="letter-butterfly__wing letter-butterfly__wing--right">${letterButterflyWingSvg(index, "right")}</div>
+      <div class="letter-butterfly__body">${letterButterflyBodySvg(index)}</div>
+    </div></div>`;
+    butterfly.element = element;
+    butterfly.bankElement = element.querySelector(".letter-butterfly__bank");
+    butterfly.visualElement = element.querySelector(".letter-butterfly__visual");
+    butterfly.leftWing = element.querySelector(".letter-butterfly__wing--left");
+    butterfly.rightWing = element.querySelector(".letter-butterfly__wing--right");
+    fragment.append(element);
+  });
+  letterButterflyField.replaceChildren(fragment);
+}
+
+function emitLetterButterflyDust(butterfly, x, y, angle, size, openness, alpha, now) {
+  const openingPeak = openness > .84 && butterfly.previousOpen <= .84;
+  butterfly.previousOpen = openness;
+  if (!openingPeak || alpha < .28 || now < butterfly.dustAt) return;
+  const mobile = letterButterflyWidth < 640;
+  butterfly.dustAt = now + (mobile ? 760 : 520) + Math.random() * 420;
+  const palette = letterButterflyPalettes[butterfly.palette];
+  const count = !mobile && Math.random() > .78 ? 2 : 1;
+  for (let index = 0; index < count; index += 1) {
+    const side = Math.random() > .5 ? 1 : -1;
+    const life = .95 + Math.random() * .75;
+    letterDustParticles.push({
+      x: x - Math.cos(angle) * size * .14 + Math.sin(angle) * side * size * .2,
+      y: y - Math.sin(angle) * size * .14 - Math.cos(angle) * side * size * .2,
+      vx: -Math.cos(angle) * (2 + Math.random() * 4) + (Math.random() - .5) * 5,
+      vy: -Math.sin(angle) * (2 + Math.random() * 4) - 4 - Math.random() * 5,
+      size: .45 + Math.random() * .75,
+      life,
+      maxLife: life,
+      alpha: alpha * (.28 + Math.random() * .28),
+      color: palette.dust,
+      glint: Math.random() > .88,
+    });
+  }
+  const limit = mobile ? 26 : 56;
+  if (letterDustParticles.length > limit) letterDustParticles.splice(0, letterDustParticles.length - limit);
+}
+
+function drawLetterButterflyDust(delta) {
+  const context = letterButterflyContext;
+  context.save();
+  context.globalCompositeOperation = "screen";
+  letterDustParticles.forEach((particle) => {
+    particle.life -= delta;
+    particle.x += particle.vx * delta;
+    particle.y += particle.vy * delta;
+    particle.vx *= Math.pow(.965, delta * 60);
+    particle.vy -= 1.2 * delta;
+    const age = 1 - Math.max(0, particle.life) / particle.maxLife;
+    const alpha = Math.sin(Math.PI * Math.min(1, age)) * particle.alpha;
+    context.globalAlpha = alpha;
+    context.fillStyle = `rgb(${particle.color})`;
+    context.shadowColor = `rgba(${particle.color},${alpha})`;
+    context.shadowBlur = particle.size * 4;
+    if (particle.glint) {
+      context.fillRect(particle.x - particle.size * 1.8, particle.y - .25, particle.size * 3.6, .5);
+      context.fillRect(particle.x - .25, particle.y - particle.size * 1.8, .5, particle.size * 3.6);
+    } else {
+      context.beginPath();
+      context.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+      context.fill();
+    }
+  });
+  context.restore();
+  letterDustParticles = letterDustParticles.filter((particle) => particle.life > 0);
+}
+
+function animateLetterButterflies(now) {
+  if (!letterButterflyActive || !letterButterflyContext || !letterButterflyField) {
+    letterButterflyFrame = 0;
+    return;
+  }
+  const delta = Math.min(.05, Math.max(.001, (now - letterButterflyLastFrame) / 1000 || .0167));
+  letterButterflyLastFrame = now;
+  letterButterflyContext.clearRect(0, 0, letterButterflyWidth, letterButterflyHeight);
+  drawLetterButterflyDust(delta);
+
+  const mobile = letterButterflyWidth < 640;
+  const visibleButterflies = mobile ? letterButterflies.slice(0, 3) : letterButterflies;
+  visibleButterflies.forEach((butterfly) => {
+    if (!butterfly.path || !butterfly.element) return;
+    const position = letterButterflyPosition(butterfly, now);
+    const size = mobile ? butterfly.mobileSize : butterfly.size;
+    const alpha = butterfly.alpha * butterflyFocusOpacity(position.x, position.y, size);
+    butterfly.opacity += (alpha - butterfly.opacity) * Math.min(1, delta * 4.6);
+
+    const seconds = now / 1000;
+    const behavior = ((seconds + butterfly.phase * .37) % butterfly.flapCycle + butterfly.flapCycle) % butterfly.flapCycle;
+    let openness;
+    if (behavior < butterfly.flapWindow) {
+      const flapPulse = (1 - Math.cos(behavior * Math.PI * 2 * butterfly.flapRate)) * .5;
+      openness = .17 + .83 * Math.pow(flapPulse, .64);
+    } else {
+      openness = .91 + Math.sin(seconds * 1.55 + butterfly.phase) * .045;
+    }
+    const fold = 7 + (1 - openness) * 64;
+
+    if (butterfly.lastAngle !== null) {
+      let angleDelta = position.angle - butterfly.lastAngle;
+      angleDelta = Math.atan2(Math.sin(angleDelta), Math.cos(angleDelta));
+      const targetBank = Math.max(-13, Math.min(13, angleDelta / delta * 18));
+      butterfly.bank += (targetBank - butterfly.bank) * Math.min(1, delta * 3.8);
+    }
+    butterfly.lastAngle = position.angle;
+
+    const depthScale = .84 + butterfly.depth * .16;
+    const depthZ = -18 + butterfly.depth * 42;
+    const heading = position.angle * 180 / Math.PI + 90;
+    butterfly.element.style.opacity = butterfly.opacity.toFixed(3);
+    butterfly.element.style.transform = `translate3d(${(position.x - size * .5).toFixed(2)}px, ${(position.y - size * 3 / 8).toFixed(2)}px, ${depthZ.toFixed(1)}px) rotateZ(${heading.toFixed(2)}deg) scale(${depthScale.toFixed(3)})`;
+    butterfly.element.style.setProperty("--wing-fold", `${fold.toFixed(2)}deg`);
+    butterfly.element.style.setProperty("--wing-fold-right", `${(-fold).toFixed(2)}deg`);
+    butterfly.element.style.setProperty("--pitch", `${Math.max(-7, Math.min(7, -Math.sin(position.angle) * 5)).toFixed(2)}deg`);
+    butterfly.bankElement.style.transform = `rotateY(${(butterfly.bank * 1.15).toFixed(2)}deg) rotateZ(${(butterfly.bank * .22).toFixed(2)}deg)`;
+    emitLetterButterflyDust(butterfly, position.x, position.y, position.angle, size, openness, butterfly.opacity, now);
+  });
+  letterButterflyFrame = window.requestAnimationFrame(animateLetterButterflies);
+}
+
+function setLetterButterflyActive(active) {
+  const shouldRun = Boolean(active && !prefersReducedMotion && !letterOpening
+    && letterButterflyContext && letterFlightPaths && letterButterflyField);
+  letterButterflyActive = shouldRun;
+  if (shouldRun && !letterButterflyFrame) {
+    resizeLetterButterflyCanvas();
+    letterButterflyLastFrame = performance.now();
+    letterButterflyFrame = window.requestAnimationFrame(animateLetterButterflies);
+  } else if (!shouldRun && letterButterflyFrame) {
+    window.cancelAnimationFrame(letterButterflyFrame);
+    letterButterflyFrame = 0;
+  }
+}
+
+function releaseLetterButterflyAtmosphere() {
+  setLetterButterflyActive(false);
+  letterDustParticles = [];
+  if (letterButterflyContext) {
+    letterButterflyContext.clearRect(0, 0, letterButterflyWidth, letterButterflyHeight);
+    letterButterflyCanvas.width = 0;
+    letterButterflyCanvas.height = 0;
+  }
+  letterFlightPaths?.replaceChildren();
+  letterButterflyField?.replaceChildren();
+  letterButterflies.forEach((butterfly) => {
+    butterfly.path = null;
+    butterfly.element = null;
+    butterfly.bankElement = null;
+    butterfly.visualElement = null;
+    butterfly.leftWing = null;
+    butterfly.rightWing = null;
+  });
+}
+
+createLetterButterflies();
 
 function splitLetterText(element, paragraphPause = 0) {
   const text = element.textContent;
@@ -299,7 +678,7 @@ function finishLetterWriting(withFlourish = false) {
   letterSign.classList.add("is-visible");
   letterRevealAll.hidden = true;
   if (withFlourish) {
-    createButterflyCluster(letterSign, 4);
+    burstFromElement(letterSign, 14);
     playWishChime(2);
   }
 }
@@ -339,6 +718,29 @@ function stopLetterAutoFollow() {
 }
 
 prepareLetterWriting();
+if (prefersReducedMotion) {
+  letterSection.classList.add("is-in-view");
+} else if (!("IntersectionObserver" in window)) {
+  letterSection.classList.add("is-in-view");
+  setLetterButterflyActive(true);
+} else {
+  const letterAtmosphereObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      letterSection.classList.toggle("is-in-view", entry.isIntersecting);
+      setLetterButterflyActive(entry.isIntersecting && !document.hidden);
+    });
+  }, { threshold: .06, rootMargin: "12% 0px" });
+  letterAtmosphereObserver.observe(letterSection);
+}
+if ("ResizeObserver" in window) {
+  const letterButterflyResizeObserver = new ResizeObserver(resizeLetterButterflyCanvas);
+  letterButterflyResizeObserver.observe(letterSection);
+} else {
+  window.addEventListener("resize", resizeLetterButterflyCanvas);
+}
+document.addEventListener("visibilitychange", () => {
+  setLetterButterflyActive(!document.hidden && letterSection.classList.contains("is-in-view"));
+});
 letterRevealAll.addEventListener("click", () => finishLetterWriting(true));
 window.addEventListener("pointerdown", stopLetterAutoFollow, { passive: true });
 window.addEventListener("wheel", stopLetterAutoFollow, { passive: true });
@@ -350,9 +752,11 @@ document.addEventListener("keydown", (event) => {
 letterOpen.addEventListener("click", () => {
   if (letterOpening) return;
   letterOpening = true;
+  letterSection.classList.add("is-open");
+  setLetterButterflyActive(false);
+  window.setTimeout(releaseLetterButterflyAtmosphere, prefersReducedMotion ? 20 : 780);
   letterCover.classList.add("is-unsealing");
   burstFromElement(letterOpen, 26);
-  createButterflyCluster(letterOpen, 7);
   playWishChime(4);
   window.setTimeout(() => {
     letterCover.hidden = true;
@@ -1083,7 +1487,7 @@ function createBirthdayBurst(x, y, count = 24) {
 
 function createButterflyTrail(x, y, count = 1) {
   if (prefersReducedMotion) return;
-  const colors = ["233,180,168", "243,239,231", "170,205,211"];
+  const colors = ["218,244,249", "235,240,249", "178,219,232"];
   const amount = Math.min(count, 10);
   for (let index = 0; index < amount; index += 1) {
     burstParticles.push({
@@ -1091,8 +1495,8 @@ function createButterflyTrail(x, y, count = 1) {
       y: y + (Math.random() - .5) * 14,
       vx: (Math.random() - .5) * .72,
       vy: -.28 - Math.random() * .58,
-      size: 2 + Math.random() * 2.1,
-      alpha: .38 + Math.random() * .34,
+      size: 1.1 + Math.random() * 1.3,
+      alpha: .3 + Math.random() * .28,
       life: 1,
       decay: .012 + Math.random() * .008,
       drag: .99,
@@ -1100,7 +1504,7 @@ function createButterflyTrail(x, y, count = 1) {
       phase: Math.random() * Math.PI * 2,
       rotation: (Math.random() - .5) * .8,
       spin: (Math.random() - .5) * .045,
-      shape: "butterfly",
+      shape: "glow",
       color: colors[index % colors.length],
     });
   }
@@ -1457,7 +1861,7 @@ let lastButterflyTrail = { x: -1000, y: -1000, time: 0 };
 window.addEventListener("pointermove", (event) => {
   pointerPosition.x = event.clientX;
   pointerPosition.y = event.clientY;
-  if (!hasFinePointer || document.body.classList.contains("fairytale-live")) return;
+  if (!hasFinePointer || document.body.classList.contains("fairytale-live") || letterSection.classList.contains("is-in-view")) return;
   const now = performance.now();
   const distance = Math.hypot(event.clientX - lastButterflyTrail.x, event.clientY - lastButterflyTrail.y);
   if (distance < 28 || now - lastButterflyTrail.time < 52) return;
@@ -1470,6 +1874,7 @@ document.addEventListener("pointerdown", (event) => {
     playFireworkBurstSound();
     return;
   }
+  if (event.target instanceof Element && event.target.closest("#letter")) return;
   createBirthdayBurst(event.clientX, event.clientY, 6);
   createButterflyTrail(event.clientX, event.clientY, event.pointerType === "touch" ? 4 : 2);
 }, { passive: true });

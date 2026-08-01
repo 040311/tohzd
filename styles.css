@@ -1457,19 +1457,164 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
 .future-orbit span:nth-child(2) { right: 7%; top: 62%; }
 .future-orbit span:nth-child(3) { left: 30%; bottom: 2%; }
 
-.letter { background: var(--paper-deep); }
-.letter-cover { position: relative; min-height: 520px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; transform-origin: center; }
-.letter-cover::before { position: absolute; content: ""; top: 50%; width: min(82vw, 720px); height: 1px; background: linear-gradient(90deg, transparent, rgba(194,72,58,.32), transparent); pointer-events: none; }
+.letter {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.68) 0%, rgba(255,255,255,.14) 32%, rgba(119,178,202,.12) 100%),
+    linear-gradient(128deg, #edfaff 0%, #d9f0f8 42%, #cae5ef 72%, #e8f6fa 100%);
+  color: #153847;
+  isolation: isolate;
+}
+.letter::before {
+  position: absolute;
+  z-index: 0;
+  content: "";
+  inset: 24px;
+  border: 1px solid rgba(61,114,136,.16);
+  box-shadow: inset 0 0 110px rgba(255,255,255,.38);
+  pointer-events: none;
+}
+.letter::after {
+  position: absolute;
+  z-index: 0;
+  content: "";
+  inset: 0;
+  background:
+    linear-gradient(176deg, transparent 0 15%, rgba(255,255,255,.32) 26%, transparent 39%),
+    linear-gradient(6deg, transparent 0 65%, rgba(255,255,255,.25) 77%, transparent 91%),
+    repeating-linear-gradient(112deg, rgba(255,255,255,.04) 0 1px, transparent 1px 9px);
+  filter: blur(.2px);
+  opacity: .72;
+  pointer-events: none;
+}
+.letter-atmosphere {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  overflow: hidden;
+  opacity: 1;
+  perspective: 920px;
+  pointer-events: none;
+  visibility: visible;
+  transition: opacity .75s ease, filter .75s ease, visibility 0s linear;
+}
+.letter-atmosphere::before,
+.letter-atmosphere::after {
+  position: absolute;
+  content: "";
+  left: -8%;
+  width: 116%;
+  pointer-events: none;
+}
+.letter-atmosphere::before {
+  top: 9%;
+  height: 31%;
+  background: linear-gradient(176deg, transparent 0%, rgba(255,255,255,.44) 43%, rgba(241,251,254,.18) 62%, transparent 100%);
+  filter: blur(18px);
+  opacity: .62;
+}
+.letter-atmosphere::after {
+  bottom: -4%;
+  height: 30%;
+  background: linear-gradient(180deg, transparent, rgba(92,158,185,.12) 54%, rgba(255,255,255,.4));
+  filter: blur(22px);
+}
+.letter-flight-paths,
+.letter-butterfly-dust,
+.letter-butterfly-field { position: absolute; inset: 0; width: 100%; height: 100%; }
+.letter-flight-paths { overflow: visible; opacity: 0; }
+.letter-butterfly-dust { display: block; }
+.letter-butterfly-field { z-index: 1; transform-style: preserve-3d; }
+.letter-butterfly {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--butterfly-size);
+  aspect-ratio: 4 / 3;
+  opacity: 0;
+  transform-origin: 50% 50%;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+}
+.letter-butterfly__bank,
+.letter-butterfly__visual,
+.letter-butterfly__wing,
+.letter-butterfly__wing svg,
+.letter-butterfly__body { position: absolute; inset: 0; width: 100%; height: 100%; }
+.letter-butterfly__bank,
+.letter-butterfly__visual { transform-style: preserve-3d; }
+.letter-butterfly__visual {
+  filter: drop-shadow(0 5px 5px rgba(39,91,112,.18));
+  transform: rotateX(var(--pitch, 0deg));
+}
+.letter-butterfly__wing {
+  transform-style: preserve-3d;
+  backface-visibility: visible;
+  will-change: transform;
+}
+.letter-butterfly__wing--left {
+  clip-path: inset(-12% 50% -12% -18%);
+  transform-origin: 50% 50%;
+  transform: rotateY(var(--wing-fold, 18deg));
+}
+.letter-butterfly__wing--right {
+  clip-path: inset(-12% -18% -12% 50%);
+  transform-origin: 50% 50%;
+  transform: rotateY(var(--wing-fold-right, -18deg));
+}
+.letter-butterfly__wing svg { overflow: visible; }
+.letter-butterfly__body { z-index: 2; overflow: visible; transform: translateZ(2px); }
+.letter-butterfly .wing-surface { stroke: var(--wing-edge); stroke-width: 1.15; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.letter-butterfly .wing-sheen { opacity: .62; mix-blend-mode: screen; }
+.letter-butterfly .wing-shadow { opacity: .74; mix-blend-mode: multiply; }
+.letter-butterfly .wing-vein { fill: none; stroke: var(--wing-vein); stroke-width: .72; stroke-linecap: round; opacity: .44; vector-effect: non-scaling-stroke; }
+.letter-butterfly .wing-rim { fill: none; stroke: rgba(245,253,255,.68); stroke-width: .72; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.letter-butterfly .wing-pearl { fill: var(--wing-pearl); opacity: .68; }
+.letter-butterfly .body-line,
+.letter-butterfly .antenna { fill: none; stroke: var(--body-ink); stroke-linecap: round; }
+.letter-butterfly .body-line { stroke-width: .86; opacity: .5; vector-effect: non-scaling-stroke; }
+.letter-butterfly .antenna { stroke-width: 1.05; opacity: .84; vector-effect: non-scaling-stroke; }
+.letter-butterfly .antenna-tip { fill: var(--body-ink); opacity: .72; }
+.letter-butterfly--azure {
+  --wing-deep: #3f738e;
+  --wing-mid: #72b3ca;
+  --wing-light: #c9edf5;
+  --wing-pearl: #f7fdff;
+  --wing-edge: rgba(38,85,107,.58);
+  --wing-vein: rgba(36,82,104,.78);
+  --body-ink: #244f63;
+}
+.letter-butterfly--lilac {
+  --wing-deep: #626e93;
+  --wing-mid: #9faed0;
+  --wing-light: #dce7f3;
+  --wing-pearl: #fbfdff;
+  --wing-edge: rgba(71,81,111,.44);
+  --wing-vein: rgba(66,78,108,.68);
+  --body-ink: #3f4d69;
+}
+.letter-butterfly--pearl {
+  --wing-deep: #6898aa;
+  --wing-mid: #9fcbd6;
+  --wing-light: #e0f3f6;
+  --wing-pearl: #ffffff;
+  --wing-edge: rgba(64,108,123,.38);
+  --wing-vein: rgba(60,101,117,.64);
+  --body-ink: #3f6573;
+}
+.letter.is-open .letter-atmosphere { visibility: hidden; opacity: 0; filter: blur(4px); transition-delay: 0s, 0s, .75s; }
+.letter-cover { position: relative; z-index: 2; min-height: 520px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; transform-origin: center; }
+.letter-cover::before { position: absolute; content: ""; top: 50%; width: min(82vw, 720px); height: 1px; background: linear-gradient(90deg, transparent, rgba(57,111,133,.3), rgba(194,72,58,.22), rgba(57,111,133,.3), transparent); pointer-events: none; }
 .letter-cover.is-unsealing { animation: letterUnseal .72s cubic-bezier(.65,0,.25,1) both; }
-.letter-label { align-self: flex-start; margin-bottom: 50px; color: var(--red); }
-.seal { display: grid; place-items: center; width: 74px; height: 74px; margin-bottom: 29px; border-radius: 50%; background: var(--red); color: var(--paper); font-family: var(--serif); font-size: 24px; line-height: 1.05; transform: rotate(-8deg); }
+.letter-label { align-self: flex-start; margin-bottom: 50px; color: #3f6c7e; }
+.seal { display: grid; place-items: center; width: 74px; height: 74px; margin-bottom: 29px; border-radius: 50%; background: #b6534e; box-shadow: 0 13px 32px rgba(75,113,126,.16); color: #f8fcfd; font-family: var(--serif); font-size: 24px; line-height: 1.05; transform: rotate(-8deg); }
 .seal small { font-size: 13px; }
-.letter-cover p { margin: 0 0 35px; font-family: var(--serif); font-size: clamp(34px, 4.8vw, 64px); line-height: 1.35; }
-.letter-open { position: relative; border: 0; padding: 0 0 7px; border-bottom: 1px solid var(--ink); background: transparent; font-size: 15px; }
-.letter-open::before { position: absolute; content: "蝶"; left: 50%; bottom: calc(100% + 22px); display: grid; place-items: center; width: 46px; height: 46px; background: var(--red); box-shadow: 0 9px 22px rgba(80,45,37,.18); color: var(--paper); font-family: var(--serif); font-size: 18px; transform: translateX(-50%) rotate(-8deg); transition: transform .45s cubic-bezier(.2,.75,.2,1), box-shadow .35s ease; }
-.letter-open:hover::before, .letter-open:focus-visible::before { box-shadow: 0 14px 30px rgba(80,45,37,.24); transform: translateX(-50%) rotate(8deg) scale(1.08); }
-.letter-open span { margin-left: 17px; color: var(--red); font-size: 18px; }
-.letter-inside { position: relative; max-width: 760px; margin: 0 auto; padding: 45px clamp(34px, 6vw, 86px) 62px; background: #f8f2e7; box-shadow: 0 15px 45px rgba(50,38,28,.1); scroll-margin-top: 88px; transform-origin: top center; animation: letterUnfold .85s cubic-bezier(.2,.75,.2,1) both; }
+.letter-cover p { margin: 0 0 35px; color: #173746; font-family: var(--serif); font-size: clamp(34px, 4.8vw, 64px); line-height: 1.35; text-shadow: 0 2px 20px rgba(255,255,255,.84); }
+.letter-open { position: relative; border: 0; padding: 0 0 7px; border-bottom: 1px solid #244d5e; background: transparent; color: #173746; font-size: 15px; }
+.letter-open span { margin-left: 17px; color: #b6534e; font-size: 18px; transition: transform .2s ease; }
+.letter-open:hover span, .letter-open:focus-visible span { display: inline-block; transform: translate(3px,-3px); }
+.letter-inside { position: relative; z-index: 2; max-width: 760px; margin: 0 auto; border: 1px solid rgba(72,122,143,.16); padding: 45px clamp(34px, 6vw, 86px) 62px; background: rgba(249,252,252,.96); box-shadow: 0 24px 70px rgba(41,91,110,.14); scroll-margin-top: 88px; transform-origin: top center; animation: letterUnfold .85s cubic-bezier(.2,.75,.2,1) both; }
 @keyframes letterUnseal { 0% { opacity: 1; filter: blur(0); transform: perspective(900px) rotateX(0) scale(1); } 48% { opacity: .9; transform: perspective(900px) rotateX(-4deg) scale(.985); } 100% { opacity: 0; filter: blur(5px); transform: perspective(900px) rotateX(12deg) scale(.94); } }
 @keyframes letterUnfold { from { opacity: 0; clip-path: inset(0 0 96% 0); transform: perspective(1000px) rotateX(-8deg) translateY(-18px); } to { opacity: 1; clip-path: inset(0); transform: perspective(1000px) rotateX(0) translateY(0); } }
 .letter-inside-head { display: flex; justify-content: space-between; align-items: start; gap: 24px; }
@@ -1829,6 +1974,7 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
   .node-five { left: 91%; top: 64%; }
   .constellation-message { font-size: 14px; }
   .future-orbit { width: min(410px, 100vw); height: min(410px, 100vw); }
+  .letter::before { inset: 12px; }
   .letter-cover { min-height: 420px; }
   .letter-label { align-self: flex-start; margin-bottom: 40px; }
   .letter-cover p { font-size: clamp(34px, 11vw, 55px); }
@@ -1913,6 +2059,7 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
   .chapter-compass { transition: none !important; }
   .film-break-sakura-scene img { animation: none !important; transform: scale(1.06) !important; }
   .sakura-petals { display: none !important; }
+  .letter-atmosphere { display: none !important; }
   .reveal-on-scroll { opacity: 1 !important; translate: 0 0 !important; }
   .image-card { transform: none !important; }
   .portrait-stage .portrait-feature { transform: rotate(-2.15deg) !important; }
