@@ -2397,6 +2397,12 @@ const constellationNodes = $$(".constellation-node");
 const futureSection = $("#future");
 const litConstellationNodes = [];
 let constellationDpr = 1;
+let constellationLineProgress = 1;
+let constellationLineFrame = 0;
+let constellationLineStartedAt = 0;
+let constellationLineResolve = null;
+let constellationAutoStarted = false;
+let constellationAutoCompleted = false;
 
 function resizeConstellation() {
   const rect = constellationStage.getBoundingClientRect();
@@ -2418,13 +2424,50 @@ function drawConstellation() {
   constellationContext.save();
   constellationContext.beginPath();
   constellationContext.moveTo(points[0].x, points[0].y);
-  points.slice(1).forEach((point) => constellationContext.lineTo(point.x, point.y));
+  for (let index = 1; index < points.length - 1; index += 1) {
+    constellationContext.lineTo(points[index].x, points[index].y);
+  }
+  const from = points[points.length - 2];
+  const to = points[points.length - 1];
+  constellationContext.lineTo(
+    from.x + (to.x - from.x) * constellationLineProgress,
+    from.y + (to.y - from.y) * constellationLineProgress,
+  );
   constellationContext.lineWidth = 1.2;
   constellationContext.strokeStyle = "rgba(233,180,168,.72)";
   constellationContext.shadowColor = "rgba(233,180,168,.55)";
   constellationContext.shadowBlur = 12;
   constellationContext.stroke();
   constellationContext.restore();
+}
+
+function animateConstellationLine(time) {
+  const progress = Math.min(1, Math.max(0, (time - constellationLineStartedAt) / 680));
+  constellationLineProgress = 1 - Math.pow(1 - progress, 3);
+  drawConstellation();
+  if (progress < 1) {
+    constellationLineFrame = window.requestAnimationFrame(animateConstellationLine);
+    return;
+  }
+  constellationLineFrame = 0;
+  const resolve = constellationLineResolve;
+  constellationLineResolve = null;
+  resolve?.();
+}
+
+function animateLatestConstellationLine() {
+  if (litConstellationNodes.length < 2) {
+    constellationLineProgress = 1;
+    drawConstellation();
+    return Promise.resolve();
+  }
+  if (constellationLineFrame) window.cancelAnimationFrame(constellationLineFrame);
+  constellationLineProgress = 0;
+  constellationLineStartedAt = performance.now();
+  return new Promise((resolve) => {
+    constellationLineResolve = resolve;
+    constellationLineFrame = window.requestAnimationFrame(animateConstellationLine);
+  });
 }
 
 const constellationMessage = $("#constellationMessage");
@@ -2434,28 +2477,74 @@ constellationStage.addEventListener("pointermove", (event) => {
   constellationStage.style.setProperty("--constellation-x", `${((event.clientX - rect.left) / rect.width * 100).toFixed(1)}%`);
   constellationStage.style.setProperty("--constellation-y", `${((event.clientY - rect.top) / rect.height * 100).toFixed(1)}%`);
 });
-constellationNodes.forEach((node, nodeIndex) => {
-  node.setAttribute("aria-pressed", "false");
-  node.addEventListener("click", () => {
-    if (node.classList.contains("is-lit")) return;
-    node.classList.add("is-lit");
-    node.setAttribute("aria-pressed", "true");
-    litConstellationNodes.push(node);
-    constellationCount.textContent = `${String(litConstellationNodes.length).padStart(2, "0")} / 05`;
-    constellationMessage.textContent = `已点亮：${litConstellationNodes.map((item) => item.dataset.word).join(" · ")}`;
-    drawConstellation();
-    burstFromElement(node, 18);
-    createButterflyCluster(node, 3);
-    playWishChime(nodeIndex);
-    if (litConstellationNodes.length === constellationNodes.length) {
-      constellationMessage.textContent = "未来星图已完成：生日之后，我们慢慢把这些愿望拍成照片。";
-      constellationMessage.classList.add("is-complete");
-      futureSection.classList.add("is-constellation-complete");
-      burstFromElement(constellationStage, 72);
-      window.setTimeout(launchMeteorShower, prefersReducedMotion ? 0 : 420);
-    }
+function activateConstellationNode(node, nodeIndex) {
+  if (node.classList.contains("is-lit")) return false;
+  node.classList.add("is-lit");
+  node.setAttribute("aria-pressed", "true");
+  litConstellationNodes.push(node);
+  constellationCount.textContent = `${String(litConstellationNodes.length).padStart(2, "0")} / 05`;
+  constellationMessage.textContent = `星图自动连线 · ${litConstellationNodes.map((item) => item.dataset.word).join(" · ")}`;
+  burstFromElement(node, 18);
+  createButterflyCluster(node, 3);
+  playWishChime(nodeIndex);
+  return true;
+}
+
+function finishConstellation() {
+  if (constellationAutoCompleted) return;
+  constellationAutoCompleted = true;
+  constellationLineProgress = 1;
+  drawConstellation();
+  constellationCount.textContent = "05 / 05";
+  constellationMessage.textContent = "未来星图已完成：生日之后，我们慢慢把这些愿望拍成照片。";
+  constellationMessage.classList.add("is-complete");
+  constellationStage.classList.remove("is-auto-connecting");
+  futureSection.classList.add("is-constellation-complete");
+  burstFromElement(constellationStage, 72);
+  window.setTimeout(launchMeteorShower, prefersReducedMotion ? 0 : 900);
+}
+
+async function runConstellationAutoSequence() {
+  if (constellationAutoStarted) return;
+  constellationAutoStarted = true;
+  constellationStage.classList.add("is-auto-connecting");
+  constellationNodes.forEach((node) => {
+    node.disabled = true;
+    node.setAttribute("aria-disabled", "true");
+    node.tabIndex = -1;
   });
+
+  if (prefersReducedMotion) {
+    constellationNodes.forEach((node, nodeIndex) => activateConstellationNode(node, nodeIndex));
+    finishConstellation();
+    return;
+  }
+
+  for (const [nodeIndex, node] of constellationNodes.entries()) {
+    await new Promise((resolve) => window.setTimeout(resolve, nodeIndex === 0 ? 360 : 250));
+    activateConstellationNode(node, nodeIndex);
+    await animateLatestConstellationLine();
+    await new Promise((resolve) => window.setTimeout(resolve, 180));
+  }
+  await new Promise((resolve) => window.setTimeout(resolve, 420));
+  finishConstellation();
+}
+
+constellationNodes.forEach((node) => {
+  node.setAttribute("aria-pressed", "false");
+  node.addEventListener("click", () => { void runConstellationAutoSequence(); });
 });
+
+if (prefersReducedMotion || !("IntersectionObserver" in window)) {
+  void runConstellationAutoSequence();
+} else {
+  const constellationObserver = new IntersectionObserver(([entry]) => {
+    if (!entry?.isIntersecting) return;
+    constellationObserver.disconnect();
+    void runConstellationAutoSequence();
+  }, { threshold: .2, rootMargin: "0px 0px -12%" });
+  constellationObserver.observe(constellationStage);
+}
 resizeConstellation();
 window.addEventListener("resize", resizeConstellation);
 
