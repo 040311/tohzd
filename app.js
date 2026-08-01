@@ -294,7 +294,7 @@ function resizeLetterButterflyCanvas() {
   letterDustParticles = [];
   letterFlightPaths.setAttribute("viewBox", `0 0 ${letterButterflyWidth} ${letterButterflyHeight}`);
   const canvasRect = letterButterflyCanvas.getBoundingClientRect();
-  letterButterflySafeZones = [".letter-label", ".seal", ".letter-cover > p", ".letter-open"]
+  letterButterflySafeZones = [".letter-label", ".letter-envelope__address", ".letter-open"]
     .map((selector) => letterSection.querySelector(selector))
     .filter(Boolean)
     .map((element) => {
@@ -754,17 +754,22 @@ letterOpen.addEventListener("click", () => {
   letterOpening = true;
   letterSection.classList.add("is-open");
   setLetterButterflyActive(false);
-  window.setTimeout(releaseLetterButterflyAtmosphere, prefersReducedMotion ? 20 : 780);
+  window.setTimeout(releaseLetterButterflyAtmosphere, prefersReducedMotion ? 20 : 1420);
   letterCover.classList.add("is-unsealing");
-  burstFromElement(letterOpen, 26);
+  createButterflyCluster(letterOpen, 8);
   playWishChime(4);
   window.setTimeout(() => {
-    letterCover.hidden = true;
     letterInside.hidden = false;
-    burstFromElement(letterInside, 32);
-    letterInside.scrollIntoView({ behavior: prefersReducedMotion ? "auto" : "smooth", block: "start" });
-    window.setTimeout(startLetterWriting, prefersReducedMotion ? 0 : 520);
-  }, prefersReducedMotion ? 10 : 690);
+    letterInside.inert = true;
+  }, prefersReducedMotion ? 0 : 980);
+  window.setTimeout(() => {
+    letterCover.hidden = true;
+    letterInside.inert = false;
+    letterInside.focus({ preventScroll: true });
+    createButterflyCluster(letterInside, 10);
+    letterInside.scrollIntoView({ behavior: "auto", block: "start" });
+    window.setTimeout(startLetterWriting, prefersReducedMotion ? 0 : 300);
+  }, prefersReducedMotion ? 10 : 1360);
 });
 
 const finaleSection = $("#finale");

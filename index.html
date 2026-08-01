@@ -489,12 +489,96 @@
           <div class="letter-butterfly-field" id="letterButterflyField"></div>
         </div>
         <div class="letter-cover" id="letterCover">
-          <span class="letter-label mono" lang="ja">誕生日の手紙 / 封をした言葉</span>
-          <div class="seal">给<br /><small>紫蝶</small></div>
-          <p>还有一页，<br />只写给你。</p>
-          <button class="letter-open" id="letterOpen" type="button">打开信件 <span>↗</span></button>
+          <div class="letter-envelope">
+            <div class="letter-envelope__back" aria-hidden="true"></div>
+            <div class="letter-envelope__paper" aria-hidden="true">
+              <span>FOR HUAZIDIE</span><i></i><small>2026.08.07</small>
+            </div>
+            <div class="letter-envelope__face" aria-hidden="true"></div>
+            <div class="letter-envelope__flap" aria-hidden="true"></div>
+            <span class="letter-label mono" lang="ja">誕生日の手紙 / 封をした言葉</span>
+            <svg class="envelope-line-art envelope-line-art--butterfly" viewBox="0 0 180 160" aria-hidden="true">
+              <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M88 80C69 50 49 27 28 29C7 31 12 58 31 72C48 85 69 86 88 80Z" />
+                <path d="M92 80C111 50 131 27 152 29C173 31 168 58 149 72C132 85 111 86 92 80Z" />
+                <path d="M87 83C66 82 44 90 36 109C29 127 47 136 62 124C76 113 84 96 87 83Z" />
+                <path d="M93 83C114 82 136 90 144 109C151 127 133 136 118 124C104 113 96 96 93 83Z" />
+                <path d="M90 66C86 78 86 104 90 129C94 104 94 78 90 66Z" />
+                <path d="M87 66C78 50 67 46 59 48M93 66C102 50 113 46 121 48" />
+                <path d="M84 80C64 65 47 51 29 36M80 87C62 91 49 105 41 120M96 80C116 65 133 51 151 36M100 87C118 91 131 105 139 120" />
+              </g>
+            </svg>
+            <svg class="envelope-line-art envelope-line-art--rose" viewBox="0 0 170 250" aria-hidden="true">
+              <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M77 65C60 52 63 30 82 26C99 14 121 25 121 45C136 57 126 80 107 84C93 96 70 87 68 71C52 65 51 46 64 38" />
+                <path d="M75 54C78 38 99 31 111 43C119 54 109 70 94 67C84 65 81 55 88 49C94 44 102 48 101 54" />
+                <path d="M92 84C88 121 85 162 88 225" />
+                <path d="M88 132C69 112 51 116 43 137C58 145 76 145 88 132Z" />
+                <path d="M87 164C105 145 123 150 130 172C113 179 99 177 87 164Z" />
+                <path d="M88 195C71 180 57 186 51 204C66 208 79 205 88 195Z" />
+              </g>
+            </svg>
+            <div class="letter-envelope__bow" aria-hidden="true">
+              <svg viewBox="0 0 430 310">
+                <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M208 125C178 77 131 39 90 49C51 58 68 103 109 118C145 132 179 129 208 125Z" />
+                  <path d="M222 124C252 73 303 39 341 54C378 69 354 111 315 122C278 133 250 128 222 124Z" />
+                  <path d="M207 137C166 150 135 183 90 249" />
+                  <path d="M210 143C186 185 167 229 139 282" />
+                  <path d="M226 139C257 163 283 197 314 261" />
+                  <path d="M231 134C276 143 314 165 370 208" />
+                </g>
+                <path d="M199 116C209 105 228 106 238 117C246 129 238 148 220 151C203 151 191 137 199 116Z" fill="currentColor" />
+              </svg>
+            </div>
+            <div class="envelope-sparkles" aria-hidden="true"><i>+</i><i>×</i><i>✦</i><i>×</i><i>+</i><i>·</i><i>✦</i></div>
+            <p class="envelope-note envelope-note--top" aria-hidden="true">Fortune favors<br />the bold</p>
+            <p class="envelope-note envelope-note--side" aria-hidden="true">If you find a path with no obstacles,<br />it probably doesn't lead anywhere.</p>
+            <div class="letter-envelope__address">
+              <span class="mono">TO / 華紫蝶</span>
+              <p>还有一页，<br />只写给你。</p>
+              <small>ONLY FOR YOU / 2026.08.07</small>
+            </div>
+            <button class="letter-open" id="letterOpen" type="button">
+              <span class="letter-open-icon" aria-hidden="true">↗</span>
+              <span class="letter-open-copy"><b>打开信件</b><small>OPEN THE LETTER</small></span>
+            </button>
+            <div class="letter-envelope__shine" aria-hidden="true"></div>
+          </div>
         </div>
-        <div class="letter-inside" id="letterInside" hidden>
+        <div class="letter-inside" id="letterInside" tabindex="-1" hidden>
+          <div class="letter-paper-texture" aria-hidden="true"></div>
+          <div class="letter-paper-art" aria-hidden="true">
+            <svg class="letter-paper-butterfly" viewBox="0 0 180 160">
+              <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M88 80C69 50 49 27 28 29C7 31 12 58 31 72C48 85 69 86 88 80Z" />
+                <path d="M92 80C111 50 131 27 152 29C173 31 168 58 149 72C132 85 111 86 92 80Z" />
+                <path d="M87 83C66 82 44 90 36 109C29 127 47 136 62 124C76 113 84 96 87 83Z" />
+                <path d="M93 83C114 82 136 90 144 109C151 127 133 136 118 124C104 113 96 96 93 83Z" />
+                <path d="M90 66C86 78 86 104 90 129C94 104 94 78 90 66Z" />
+              </g>
+            </svg>
+            <svg class="letter-paper-bow" viewBox="0 0 430 310">
+              <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M208 125C178 77 131 39 90 49C51 58 68 103 109 118C145 132 179 129 208 125Z" />
+                <path d="M222 124C252 73 303 39 341 54C378 69 354 111 315 122C278 133 250 128 222 124Z" />
+                <path d="M207 137C166 150 135 183 90 249M210 143C186 185 167 229 139 282" />
+                <path d="M226 139C257 163 283 197 314 261M231 134C276 143 314 165 370 208" />
+              </g>
+              <path d="M199 116C209 105 228 106 238 117C246 129 238 148 220 151C203 151 191 137 199 116Z" fill="currentColor" />
+            </svg>
+            <svg class="letter-paper-rose" viewBox="0 0 170 250">
+              <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M77 65C60 52 63 30 82 26C99 14 121 25 121 45C136 57 126 80 107 84C93 96 70 87 68 71C52 65 51 46 64 38" />
+                <path d="M75 54C78 38 99 31 111 43C119 54 109 70 94 67C84 65 81 55 88 49C94 44 102 48 101 54" />
+                <path d="M92 84C88 121 85 162 88 225M88 132C69 112 51 116 43 137C58 145 76 145 88 132Z" />
+                <path d="M87 164C105 145 123 150 130 172C113 179 99 177 87 164Z" />
+              </g>
+            </svg>
+            <span class="paper-sparkle paper-sparkle--one">+</span><span class="paper-sparkle paper-sparkle--two">✦</span><span class="paper-sparkle paper-sparkle--three">×</span>
+          </div>
+          <p class="letter-paper-whisper" aria-hidden="true">I hope you're here<br />for me</p>
+          <p class="letter-paper-fortune" aria-hidden="true">Fortune favors<br />the bold</p>
           <div class="letter-inside-head">
             <div class="letter-inside-meta mono" lang="ja">あなたへ / 2026.08.07</div>
             <button class="letter-reveal-all" id="letterRevealAll" type="button" aria-label="直接展开完整信件" hidden>
