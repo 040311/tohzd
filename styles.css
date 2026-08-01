@@ -1383,7 +1383,7 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
   mix-blend-mode: screen;
 }
 .confession-butterfly-field {
-  z-index: 3;
+  z-index: 1;
   perspective: 900px;
   transform-style: preserve-3d;
 }

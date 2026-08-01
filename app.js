@@ -1156,7 +1156,8 @@ function updateConfessionButterflyOrbit() {
   const size = mobile ? 58 : 92;
   const titleWidth = confessionClosingTitle.offsetWidth;
   const titleHeight = confessionClosingTitle.offsetHeight;
-  const maxRadiusX = Math.max(1, confessionButterflyWidth * .5 - size * .55);
+  // Leave room for the rotated wing box so the glow never clips at narrow edges.
+  const maxRadiusX = Math.max(1, confessionButterflyWidth * .5 - size * .8);
   confessionButterflyOrbit = {
     centerX: confessionClosingTitle.offsetLeft + titleWidth * .5,
     centerY: confessionClosingTitle.offsetTop + titleHeight * .5 - (mobile ? 9 : 17),
