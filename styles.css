@@ -19,6 +19,7 @@
   --sans: "Outfit", "Helvetica Neue", Arial, sans-serif;
   --mono: "DM Mono", "Courier New", monospace;
   --art-serif: "Ma Shan Zheng", "STKaiti", "KaiTi", var(--serif);
+  --uniform-art-serif: "STKaiti", "KaiTi", "Noto Serif SC", Georgia, serif;
 }
 
 * { box-sizing: border-box; }
@@ -1089,28 +1090,232 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
 .chat-photo-foot em { color: var(--red); font-family: var(--serif); font-size: 15px; font-style: normal; }
 .chat-photo-foot small { flex: none; color: var(--muted); font-size: 10px; }
 
-.confession { position: relative; min-height: 100svh; overflow: hidden; padding: 108px clamp(28px, 7.5vw, 120px) 72px; background: #8d302c; color: var(--paper); isolation: isolate; }
-.confession::before { position: absolute; z-index: -1; content: ""; inset: 31px; border: 1px solid rgba(243,239,231,.22); pointer-events: none; }
-.confession::after { position: absolute; z-index: -1; content: "本音"; right: 2.5vw; bottom: -62px; color: rgba(243,239,231,.065); font-family: var(--jp-serif); font-size: 240px; font-weight: 600; line-height: 1; pointer-events: none; }
-.confession-rail { position: relative; z-index: 2; display: flex; justify-content: space-between; gap: 30px; max-width: 1240px; margin: 0 auto; padding: 0 0 17px; border-bottom: 1px solid rgba(243,239,231,.3); color: rgba(243,239,231,.72); }
-.confession-rail span { font-size: 12px; }
-.confession-layout { position: relative; z-index: 2; display: grid; grid-template-columns: minmax(0, 1fr) 150px; gap: 70px; align-items: center; min-height: 620px; max-width: 1240px; margin: 0 auto; }
-.confession-promise { margin: 0; padding: 62px 0 55px; color: var(--paper); font-family: var(--serif); font-size: inherit; font-style: normal; font-weight: 400; line-height: 1.4; }
-.confession-promise small { display: block; color: rgba(243,239,231,.72); font-family: var(--serif); font-size: 34px; font-weight: 400; line-height: 1.55; }
-.confession-promise small em { color: var(--paper); font-style: normal; }
-.confession-promise > span { display: block; margin-top: 42px; color: rgba(243,239,231,.84); font-family: var(--serif); font-size: 34px; font-weight: 400; }
-.confession-promise strong { position: relative; display: block; width: max-content; max-width: 100%; margin: 10px 0 22px; color: #fff8ec; font-family: var(--art-serif); font-size: 98px; font-weight: 400; line-height: 1.14; letter-spacing: 0; white-space: nowrap; }
-.confession-promise strong::after { position: absolute; content: ""; right: 0; bottom: -7px; left: 0; height: 2px; background: linear-gradient(90deg, transparent, #f5c7bd 12%, #fff4e7 72%, transparent); transform: scaleX(0); transform-origin: left; }
-.confession.is-scene-active .confession-promise strong::after { animation: confessionInk 1.45s .55s cubic-bezier(.2,.75,.2,1) both; }
+.confession {
+  position: relative;
+  min-height: max(760px, 100svh);
+  overflow: hidden;
+  background: #101014;
+  color: #fffaf4;
+  isolation: isolate;
+}
+.confession-media,
+.confession-media video,
+.confession-veil,
+.confession-frame { position: absolute; inset: 0; width: 100%; height: 100%; }
+.confession-media {
+  z-index: -3;
+  overflow: hidden;
+  background: #101014 url("assets/video/confession-poster.jpg") center / cover no-repeat;
+}
+.confession-media video {
+  display: block;
+  object-fit: cover;
+  object-position: center;
+  filter: saturate(.82) brightness(.82) contrast(1.06);
+  transform: scale(1.012);
+  transition: filter 1.4s ease, transform 14s cubic-bezier(.18,.74,.22,1);
+}
+.confession.is-video-active .confession-media video {
+  filter: saturate(.93) brightness(.88) contrast(1.04);
+  transform: scale(1.035);
+}
+.confession-veil {
+  z-index: -2;
+  background:
+    linear-gradient(90deg, rgba(9,8,12,.82) 0%, rgba(10,9,14,.64) 31%, rgba(10,9,14,.22) 61%, rgba(10,9,14,.34) 100%),
+    linear-gradient(180deg, rgba(9,8,12,.62) 0%, transparent 28%, transparent 67%, rgba(9,8,12,.7) 100%);
+  pointer-events: none;
+}
+.confession-veil::after {
+  position: absolute;
+  content: "";
+  inset: 0;
+  background: radial-gradient(circle at 28% 48%, rgba(228,167,181,.12), transparent 38%);
+  opacity: 0;
+  transition: opacity 2.2s ease;
+}
+.confession.is-video-active .confession-veil::after { opacity: 1; }
+.confession-veil::before {
+  position: absolute;
+  content: "";
+  inset: 0;
+  background: rgba(4,10,17,.42);
+  opacity: 0;
+  transition: opacity 2.8s ease;
+}
+.confession.is-video-ended .confession-veil::before { opacity: 1; }
+.confession-frame {
+  z-index: 4;
+  inset: 27px;
+  width: auto;
+  height: auto;
+  border: 1px solid rgba(244,153,171,.24);
+  pointer-events: none;
+}
+.confession-stage {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  width: min(100%, 1480px);
+  min-height: max(760px, 100svh);
+  margin: 0 auto;
+  padding: 99px clamp(42px, 7vw, 116px) 49px;
+}
+.confession-rail {
+  display: flex;
+  justify-content: space-between;
+  gap: 30px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid rgba(244,153,171,.3);
+  color: rgba(245,180,193,.72);
+}
+.confession-rail span { font-size: 11px; }
+.confession-sequence {
+  align-self: center;
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+  width: min(750px, 64vw);
+  margin: 32px 0 28px;
+  font-size: inherit;
+  line-height: 1;
+}
+.confession-line {
+  position: relative;
+  display: grid;
+  width: max-content;
+  max-width: 100%;
+  opacity: 0;
+  filter: blur(10px);
+  transform: translate3d(0, 22px, 0);
+}
+.confession-line b {
+  color: #f2a8b8;
+  font-family: var(--art-serif);
+  font-size: clamp(32px, 2.8vw, 48px);
+  font-weight: 400;
+  line-height: 1.18;
+  letter-spacing: 0;
+  text-shadow: 0 2px 24px rgba(39,8,17,.62), 0 0 20px rgba(234,99,130,.08);
+}
+.confession-line small {
+  margin-top: 2px;
+  color: rgba(244,171,187,.76);
+  font-family: var(--jp-serif);
+  font-size: clamp(11px, .92vw, 14px);
+  font-weight: 400;
+  line-height: 1.55;
+  text-shadow: 0 1px 10px rgba(0,0,0,.62);
+}
+.confession-line:nth-child(2) b { color: #f6bdc7; }
+.confession-line:nth-child(3) b { color: #f1aa9d; }
+.confession-line-heart { margin: 5px 0 3px; }
+.confession-line-heart b {
+  position: relative;
+  color: #ff6f91;
+  font-size: clamp(54px, 5.35vw, 84px);
+  text-shadow: 0 2px 30px rgba(64,8,25,.82), 0 0 26px rgba(255,105,145,.19);
+}
+.confession-line-heart b::after {
+  position: absolute;
+  content: "";
+  right: -3%;
+  bottom: -3px;
+  left: 2%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,101,137,.9) 18%, rgba(255,185,199,.82) 76%, transparent);
+  transform: scaleX(0);
+  transform-origin: left;
+}
+.confession-line-final b { color: #f5a5b7; font-size: clamp(38px, 3.55vw, 57px); }
+.confession.is-video-active .confession-sequence { animation: confessionSequenceFade 3.5s 10.6s cubic-bezier(.4,0,.2,1) forwards; }
+.confession.is-video-active .confession-line { animation: confessionLineReveal 1.75s cubic-bezier(.18,.72,.2,1) forwards; }
+.confession.is-video-active .confession-line:nth-child(1) { animation-delay: .6s; }
+.confession.is-video-active .confession-line:nth-child(2) { animation-delay: 2.3s; }
+.confession.is-video-active .confession-line:nth-child(3) { animation-delay: 4s; }
+.confession.is-video-active .confession-line:nth-child(4) { animation-delay: 5.7s; }
+.confession.is-video-active .confession-line:nth-child(5) { animation-delay: 7.4s; }
+.confession.is-video-active .confession-line-heart b::after { animation: confessionInk 1.4s 7s cubic-bezier(.2,.75,.2,1) forwards; }
+.confession.is-video-paused .confession-sequence,
+.confession.is-video-paused .confession-line,
+.confession.is-video-paused .confession-line-heart b::after { animation-play-state: paused; }
+@keyframes confessionLineReveal {
+  0% { opacity: 0; filter: blur(10px); transform: translate3d(0, 22px, 0); }
+  56% { opacity: .88; }
+  100% { opacity: 1; filter: blur(0); transform: translate3d(0, 0, 0); }
+}
+@keyframes confessionSequenceFade {
+  0%, 10% { opacity: 1; filter: blur(0); transform: translateY(0); }
+  100% { opacity: 0; filter: blur(8px); transform: translateY(-12px); }
+}
 @keyframes confessionInk { to { transform: scaleX(1); } }
-.confession-promise > span:last-child { max-width: 860px; margin-top: 0; color: var(--paper); font-size: 42px; line-height: 1.5; }
-.confession-side { align-self: stretch; display: flex; flex-direction: column; align-items: center; justify-content: space-between; min-height: 520px; margin: 52px 0; padding: 24px 0; border-left: 1px solid rgba(243,239,231,.28); }
-.confession-side > span { color: rgba(243,239,231,.76); font-family: var(--jp-serif); font-size: 16px; line-height: 1.8; writing-mode: vertical-rl; }
-.confession-side b { color: rgba(243,239,231,.35); font-size: 54px; font-weight: 400; line-height: 1; }
-.confession-side i { display: grid; place-items: center; width: 72px; height: 72px; background: var(--paper); color: #8d302c; font-family: var(--jp-serif); font-size: 21px; font-style: normal; transform: rotate(-7deg); }
-.confession-foot { position: relative; z-index: 2; display: flex; align-items: end; justify-content: space-between; gap: 45px; max-width: 1240px; margin: 0 auto; padding-top: 20px; border-top: 1px solid rgba(243,239,231,.3); }
-.confession-foot p { margin: 0; color: rgba(243,239,231,.76); font-family: var(--jp-serif); font-size: 16px; line-height: 1.85; }
-.confession-foot span { color: rgba(243,239,231,.56); font-size: 11px; }
+.confession-closing {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  padding: 84px 24px 54px;
+  opacity: 0;
+  visibility: hidden;
+  filter: blur(14px);
+  text-align: center;
+  transform: translateY(18px) scale(1.035);
+  pointer-events: none;
+}
+.confession-closing p {
+  margin: 0;
+  color: #82c9e7;
+  font-family: var(--art-serif);
+  font-size: clamp(72px, 9.5vw, 158px);
+  font-weight: 400;
+  font-synthesis: none;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+  text-shadow: 0 3px 34px rgba(13,73,108,.78), 0 0 28px rgba(123,205,238,.24);
+}
+.confession-closing > span {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 24px;
+  color: rgba(167,218,238,.86);
+  font-family: var(--jp-serif);
+  font-size: clamp(12px, 1vw, 16px);
+  font-weight: 400;
+  line-height: 1.5;
+  text-shadow: 0 2px 16px rgba(0,19,31,.82);
+}
+.confession-closing > span::before,
+.confession-closing > span::after {
+  width: clamp(38px, 5vw, 76px);
+  height: 1px;
+  content: "";
+  background: linear-gradient(90deg, transparent, rgba(130,201,231,.72));
+}
+.confession-closing > span::after { transform: rotate(180deg); }
+.confession.is-video-ended .confession-closing {
+  visibility: visible;
+  animation: confessionClosingReveal 3.8s .4s cubic-bezier(.18,.72,.2,1) forwards;
+}
+@keyframes confessionClosingReveal {
+  0% { opacity: 0; filter: blur(14px); transform: translateY(18px) scale(1.035); }
+  58% { opacity: .88; }
+  100% { opacity: 1; filter: blur(0); transform: translateY(0) scale(1); }
+}
+.confession-signature {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  color: rgba(244,171,187,.72);
+}
+.confession-signature > span { font-family: var(--jp-serif); font-size: 17px; }
+.confession-signature i { width: 46px; height: 1px; background: rgba(255,111,145,.48); }
+.confession-signature small { font-size: 10px; }
 
 .future { position: relative; min-height: 670px; overflow: hidden; background: var(--ink); color: var(--paper); text-align: center; }
 .future .section-kicker { color: #e9b4a8; margin-bottom: 45px; }
@@ -1137,10 +1342,80 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
 .future-button:hover { background: var(--paper); color: var(--ink); }
 .future-button .button-seal { display: grid; place-items: center; width: 26px; height: 26px; border: 1px solid currentColor; border-radius: 50%; color: #e9b4a8; }
 .future-button b { color: #e9b4a8; font-size: 17px; font-weight: 400; }
-.future-note { position: relative; z-index: 1; width: min(100%, 425px); margin: 30px auto 0; padding: 23px 25px; background: #ece4d6; color: var(--ink); text-align: left; animation: revealNote .6s ease both; }
-.future-note-top { color: var(--red); font-size: 13px; }
-.future-note p { margin: 22px 0 14px; font-family: var(--serif); font-size: 18px; line-height: 1.8; }
-.future-note span:last-child { color: var(--muted); font-family: var(--serif); font-size: 14px; }
+.future-note {
+  position: relative;
+  z-index: 1;
+  width: min(100%, 570px);
+  margin: 31px auto 0;
+  overflow: hidden;
+  border: 1px solid rgba(118,74,65,.13);
+  padding: 28px 34px 30px;
+  background: #f0e9dc;
+  box-shadow: 0 19px 48px rgba(0,0,0,.18), inset 0 1px rgba(255,255,255,.7);
+  color: var(--ink);
+  text-align: left;
+  animation: revealNote .6s ease both;
+}
+.future-note::before {
+  position: absolute;
+  content: "";
+  top: 0;
+  right: 0;
+  width: 82px;
+  height: 82px;
+  border-bottom: 1px solid rgba(194,72,58,.12);
+  background: rgba(255,255,255,.22);
+  transform: translate(43px, -43px) rotate(45deg);
+  pointer-events: none;
+}
+.future-note-top {
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(194,72,58,.18);
+  color: #b74d43;
+  font-size: 12px;
+}
+.future-note p {
+  margin: 26px 0 0;
+  color: #292526;
+  font-family: var(--uniform-art-serif);
+  font-size: clamp(29px, 2.45vw, 38px);
+  font-weight: 400;
+  font-synthesis: none;
+  line-height: 1.58;
+  letter-spacing: 0;
+}
+.future-note p em {
+  position: relative;
+  color: #9f443f;
+  font-style: normal;
+  font-weight: 400;
+}
+.future-note p em::after {
+  position: absolute;
+  content: "";
+  right: 0;
+  bottom: -4px;
+  left: 0;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(194,72,58,.72), rgba(194,72,58,.16), transparent);
+}
+.future-note-sign {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 11px;
+  min-height: 27px;
+  margin-top: 25px;
+  padding-right: 3px;
+  color: #69615e;
+  font-family: var(--uniform-art-serif);
+  font-size: 20px;
+  font-weight: 400;
+  font-synthesis: none;
+  line-height: 1;
+}
+.future-note-sign i { width: 46px; height: 1px; background: rgba(159,68,63,.42); }
+.future-note-sign span { transform: rotate(-2deg); transform-origin: right center; }
 @keyframes revealNote { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
 .constellation-shell { position: relative; z-index: 2; width: min(100%, 770px); margin: 47px auto 35px; border-top: 1px solid rgba(243,239,231,.24); border-bottom: 1px solid rgba(243,239,231,.24); padding: 16px 0 21px; text-align: left; }
 .constellation-head { display: flex; justify-content: space-between; align-items: center; color: rgba(243,239,231,.66); }
@@ -1204,17 +1479,17 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
 .letter-reveal-all small { color: var(--muted); font-family: var(--jp-serif); font-size: 10px; }
 .letter-reveal-all:hover, .letter-reveal-all:focus-visible { border-color: var(--red); color: var(--ink); }
 .letter-reveal-all:focus-visible { outline: 1px solid var(--red); outline-offset: 6px; }
-.letter-inside h2 { margin-top: 56px; font-family: var(--art-serif); font-size: clamp(46px, 5vw, 70px); font-weight: 400; line-height: 1.25; }
-.letter-body { max-width: 580px; margin-top: 39px; color: #433e38; font-family: var(--art-serif); font-size: 23px; line-height: 1.95; }
-.letter-body p { margin: 0 0 28px; }
-.letter-glyph { position: relative; display: inline-block; opacity: 0; filter: blur(2.4px); transform: translateY(calc(5px + var(--ink-rise))) rotate(var(--ink-turn)); }
-.letter-glyph.is-visible { opacity: 1; filter: blur(0); transform: translateY(var(--ink-rise)) rotate(var(--ink-turn)); transition: opacity .24s ease, filter .34s ease, transform .38s cubic-bezier(.2,.75,.2,1); }
+.letter-inside h2 { margin-top: 56px; font-family: var(--uniform-art-serif); font-size: clamp(46px, 5vw, 70px); font-weight: 400; font-synthesis: none; line-height: 1.25; }
+.letter-body { max-width: 580px; margin-top: 39px; color: #433e38; font-family: var(--uniform-art-serif); font-size: 23px; font-weight: 400; font-synthesis: none; line-height: 1.95; }
+.letter-body p { margin: 0 0 28px; font-weight: 400; }
+.letter-glyph { position: relative; display: inline-block; opacity: 0; font-weight: 400; filter: blur(2.4px); transform: translateY(calc(5px + var(--ink-rise))) rotate(var(--ink-turn)); }
+.letter-glyph.is-visible { opacity: 1; filter: blur(0); transform: none; transition: opacity .24s ease, filter .34s ease, transform .38s cubic-bezier(.2,.75,.2,1); }
 .letter-glyph.is-writing-tip::after { position: absolute; content: ""; right: -3px; bottom: .16em; width: 2px; height: .78em; background: rgba(194,72,58,.72); box-shadow: 0 0 8px rgba(194,72,58,.22); animation: inkCursor .72s ease-in-out infinite; }
 @keyframes inkCursor { 50% { opacity: .2; transform: scaleY(.72); } }
-.letter-sign { margin-top: 50px; color: var(--muted); font-family: var(--art-serif); font-size: 22px; line-height: 1.65; opacity: 1; text-align: right; transition: opacity .7s ease, transform .7s cubic-bezier(.2,.75,.2,1); }
+.letter-sign { margin-top: 50px; color: var(--muted); font-family: var(--uniform-art-serif); font-size: 22px; font-weight: 400; font-synthesis: none; line-height: 1.65; opacity: 1; text-align: right; transition: opacity .7s ease, transform .7s cubic-bezier(.2,.75,.2,1); }
 .letter-inside.is-writing .letter-sign { opacity: 0; transform: translateY(14px) rotate(-2deg); }
 .letter-sign.is-visible { opacity: 1; transform: translateY(0) rotate(-2deg); }
-.letter-sign strong { color: var(--ink); font-weight: 500; }
+.letter-sign strong { color: var(--ink); font-weight: 400; }
 
 .birthday-finale { position: relative; min-height: 100svh; overflow: hidden; padding: 92px clamp(28px, 6vw, 96px) 62px; background: #171818; color: var(--paper); isolation: isolate; }
 .birthday-finale::before { position: absolute; z-index: -1; content: "07"; left: -18px; bottom: -92px; color: rgba(240,181,184,.055); font-family: var(--serif); font-size: 330px; line-height: 1; pointer-events: none; }
@@ -1299,10 +1574,8 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
 [hidden] { display: none !important; }
 @media (min-width: 821px) and (max-width: 1100px) {
   .chat-gallery { columns: 2 280px; max-width: 760px; }
-  .confession-layout { grid-template-columns: minmax(0, 1fr) 110px; gap: 40px; }
-  .confession-promise strong { font-size: 74px; }
-  .confession-promise > span:last-child { font-size: 36px; }
-  .confession-side { min-height: 480px; }
+  .confession-stage { padding-right: 50px; padding-left: 50px; }
+  .confession-sequence { width: min(610px, 68vw); }
   .finale-layout { grid-template-columns: .75fr 1.25fr; gap: 38px; }
   .finale-title { font-size: 50px; }
   .finale-title strong { font-size: 66px; }
@@ -1486,27 +1759,66 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
   .chat-frame:nth-child(odd), .chat-frame:nth-child(even) { --waterfall-x: 0px; }
   .chat-photo-head b, .chat-photo-head small { font-size: 12px; }
   .chat-photo-foot em { font-size: 16px; }
-  .confession { min-height: 0; padding: 93px 20px 66px; }
-  .confession::before { inset: 12px; }
-  .confession::after { right: -4px; bottom: -29px; font-size: 122px; }
-  .confession-rail { display: grid; gap: 7px; padding: 0 3px 14px; }
+  .confession { min-height: max(760px, 100svh); }
+  .confession-media {
+    background-position: center;
+    background-size: cover;
+  }
+  .confession-media::before {
+    position: absolute;
+    z-index: -1;
+    content: "";
+    inset: -24px;
+    background: url("assets/video/confession-poster.jpg") center / cover no-repeat;
+    filter: blur(18px) brightness(.48) saturate(.82);
+    transform: scale(1.12);
+  }
+  .confession-media video {
+    object-fit: contain;
+    object-position: center;
+    filter: saturate(.84) brightness(.72) contrast(1.04);
+    transform: none;
+  }
+  .confession.is-video-active .confession-media video {
+    filter: saturate(.92) brightness(.78) contrast(1.03);
+    transform: none;
+  }
+  .confession-veil {
+    background:
+      linear-gradient(180deg, rgba(9,8,12,.89) 0%, rgba(9,8,12,.54) 26%, rgba(9,8,12,.23) 51%, rgba(9,8,12,.68) 77%, rgba(9,8,12,.88) 100%),
+      linear-gradient(90deg, rgba(9,8,12,.42), transparent 76%);
+  }
+  .confession-veil::before {
+    inset: 0;
+    height: auto;
+    background: rgba(4,10,17,.48);
+  }
+  .confession-frame { inset: 12px; }
+  .confession-stage { min-height: max(760px, 100svh); padding: 76px 22px 27px; }
+  .confession-rail { display: grid; gap: 6px; padding: 0 2px 12px; }
   .confession-rail span { font-size: 10px; }
-  .confession-layout { display: block; min-height: 0; }
-  .confession-promise { padding: 54px 3px 45px; }
-  .confession-promise small { font-size: 24px; line-height: 1.6; }
-  .confession-promise > span { margin-top: 34px; font-size: 22px; }
-  .confession-promise strong { margin: 13px 0 20px; font-size: 46px; line-height: 1.2; white-space: normal; }
-  .confession-promise > span:last-child { max-width: 10em; margin-top: 0; font-size: 28px; line-height: 1.55; }
-  .confession-side { flex-direction: row; min-height: 0; margin: 0; padding: 22px 2px 23px; border-top: 1px solid rgba(243,239,231,.28); border-left: 0; }
-  .confession-side > span { font-size: 14px; writing-mode: horizontal-tb; }
-  .confession-side b { font-size: 36px; }
-  .confession-side i { width: 58px; height: 58px; font-size: 18px; }
-  .confession-foot { display: block; padding: 20px 3px 0; }
-  .confession-foot p { font-size: 15px; line-height: 1.85; }
-  .confession-foot span { display: block; margin-top: 21px; font-size: 10px; }
+  .confession-sequence { align-self: center; gap: 9px; width: 100%; margin: 24px 0 20px; padding-right: 5px; }
+  .confession-line b { font-size: clamp(27px, 8.7vw, 35px); }
+  .confession-line small { margin-top: 1px; font-size: 11px; line-height: 1.45; }
+  .confession-line-heart { margin: 4px 0 2px; }
+  .confession-line-heart b { font-size: clamp(39px, 12vw, 49px); }
+  .confession-line-final b { font-size: clamp(27px, 8.72vw, 36px); }
+  .confession-closing { padding: 70px 22px 38px; }
+  .confession-closing p { font-size: clamp(54px, 17vw, 70px); }
+  .confession-closing > span { gap: 10px; margin-top: 18px; font-size: 11px; }
+  .confession-closing > span::before,
+  .confession-closing > span::after { width: 28px; }
+  .confession-signature { gap: 9px; padding-right: 55px; }
+  .confession-signature > span { font-size: 14px; }
+  .confession-signature i { width: 27px; }
   .future { min-height: 620px; padding-top: 94px; padding-bottom: 94px; }
   .future h2 { font-size: clamp(44px, 13vw, 72px); }
   .future-lead { font-size: 16px; }
+  .future-note { margin-top: 27px; padding: 23px 20px 24px; }
+  .future-note-top { padding-bottom: 13px; font-size: 10px; }
+  .future-note p { margin-top: 21px; font-size: clamp(28px, 8.4vw, 34px); line-height: 1.56; }
+  .future-note-sign { margin-top: 21px; padding-right: 2px; font-size: 18px; }
+  .future-note-sign i { width: 39px; }
   .constellation-shell { margin-top: 40px; }
   .constellation-head { align-items: flex-start; gap: 18px; }
   .constellation-head .mono { font-size: 11px; }
@@ -1608,4 +1920,10 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
   .portrait-stage .portrait-seated { transform: rotate(-1.35deg) !important; }
   .portrait-stage .portrait-full { transform: rotate(2deg) !important; }
   .portrait-stage .portrait-rem { transform: rotate(-1.7deg) !important; }
+  .confession-line { opacity: 1 !important; filter: none !important; transform: none !important; animation: none !important; }
+  .confession-line-heart b::after { transform: scaleX(1) !important; animation: none !important; }
+  .confession-sequence { opacity: 1 !important; filter: none !important; transform: none !important; animation: none !important; }
+  .confession.is-video-ended .confession-sequence { opacity: 0 !important; }
+  .confession.is-video-ended .confession-closing { visibility: visible !important; opacity: 1 !important; filter: none !important; transform: none !important; animation: none !important; }
+  .confession-media video { transform: none !important; }
 }

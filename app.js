@@ -399,7 +399,12 @@ const soundControl = $("#soundControl");
 const soundLabel = $("#soundLabel");
 const backgroundMusic = $("#backgroundMusic");
 const birthdayRecording = $("#birthdayRecording");
+const confessionSection = $("#confession");
+const confessionVideo = $("#confessionVideo");
 let birthdayRecordingActive = false;
+let confessionVideoActive = false;
+let confessionSoundtrackWasPlaying = false;
+let confessionSnapArmed = true;
 let birthdayAudioContext = null;
 let birthdayAudioGraphReady = false;
 let fireworkAudioBus = null;
@@ -604,6 +609,11 @@ function playWishChime(index = 0) {
 
 function updateSoundState(isPlaying) {
   soundControl.classList.toggle("is-playing", isPlaying);
+  if (confessionVideoActive) {
+    soundLabel.textContent = isPlaying ? "暂停视频" : confessionVideo.ended ? "重播视频" : "继续视频";
+    soundControl.setAttribute("aria-label", isPlaying ? "暂停告白视频" : confessionVideo.ended ? "重播告白视频" : "继续播放告白视频");
+    return;
+  }
   if (birthdayRecordingActive) {
     soundLabel.textContent = isPlaying ? "暂停录音" : "继续录音";
     soundControl.setAttribute("aria-label", isPlaying ? "暂停生日录音" : "继续播放生日录音");
@@ -625,6 +635,7 @@ async function startBackgroundMusic() {
 }
 
 function activeSoundtrack() {
+  if (confessionVideoActive) return confessionVideo;
   return birthdayRecordingActive ? birthdayRecording : backgroundMusic;
 }
 
@@ -643,7 +654,7 @@ function finishBirthdayRecording() {
   birthdayRecordingActive = false;
   birthdayRecording.currentTime = 0;
   updateSoundState(false);
-  void startBackgroundMusic();
+  if (!confessionVideoActive) void startBackgroundMusic();
 }
 
 async function playBirthdayRecording() {
@@ -664,7 +675,13 @@ async function playBirthdayRecording() {
 
 soundControl.addEventListener("click", async () => {
   const soundtrack = activeSoundtrack();
-  if (soundtrack.paused) await startActiveSoundtrack();
+  if (soundtrack.paused) {
+    if (soundtrack === confessionVideo && confessionVideo.ended) {
+      confessionVideo.currentTime = 0;
+      restartConfessionVisuals();
+    }
+    await startActiveSoundtrack();
+  }
   else {
     soundtrack.pause();
     updateSoundState(false);
@@ -672,19 +689,107 @@ soundControl.addEventListener("click", async () => {
 });
 
 backgroundMusic.addEventListener("play", () => {
-  if (!birthdayRecordingActive) updateSoundState(true);
+  if (!birthdayRecordingActive && !confessionVideoActive) updateSoundState(true);
 });
 backgroundMusic.addEventListener("pause", () => {
-  if (!birthdayRecordingActive) updateSoundState(false);
+  if (!birthdayRecordingActive && !confessionVideoActive) updateSoundState(false);
 });
 birthdayRecording.addEventListener("play", () => {
-  if (birthdayRecordingActive) updateSoundState(true);
+  if (birthdayRecordingActive && !confessionVideoActive) updateSoundState(true);
 });
 birthdayRecording.addEventListener("pause", () => {
-  if (birthdayRecordingActive && !birthdayRecording.ended) updateSoundState(false);
+  if (birthdayRecordingActive && !birthdayRecording.ended && !confessionVideoActive) updateSoundState(false);
 });
 birthdayRecording.addEventListener("ended", finishBirthdayRecording);
 birthdayRecording.addEventListener("error", finishBirthdayRecording);
+
+function restartConfessionVisuals() {
+  confessionSection.classList.remove("is-video-active", "is-video-ended", "is-video-paused");
+  void confessionSection.offsetWidth;
+  confessionSection.classList.add("is-video-active");
+}
+
+async function startConfessionVideo() {
+  if (confessionVideoActive) return;
+  const soundtrack = activeSoundtrack();
+  confessionSoundtrackWasPlaying = !soundtrack.paused;
+  confessionVideoActive = true;
+  soundtrack.pause();
+  confessionVideo.currentTime = 0;
+  confessionVideo.muted = false;
+  confessionVideo.volume = .88;
+  restartConfessionVisuals();
+
+  try {
+    await confessionVideo.play();
+    updateSoundState(true);
+  } catch {
+    confessionSection.classList.add("is-video-paused");
+    updateSoundState(false);
+  }
+}
+
+function stopConfessionVideo({ restoreSoundtrack = true } = {}) {
+  if (!confessionVideoActive) return;
+  confessionVideoActive = false;
+  confessionSection.classList.remove("is-video-active", "is-video-ended", "is-video-paused");
+  confessionVideo.pause();
+  confessionVideo.currentTime = 0;
+  updateSoundState(false);
+  if (restoreSoundtrack && confessionSoundtrackWasPlaying) void startActiveSoundtrack();
+  confessionSoundtrackWasPlaying = false;
+}
+
+confessionVideo.addEventListener("play", () => {
+  if (!confessionVideoActive) return;
+  if (confessionSection.classList.contains("is-video-ended") && confessionVideo.currentTime < .35) {
+    restartConfessionVisuals();
+  } else {
+    confessionSection.classList.remove("is-video-paused");
+  }
+  updateSoundState(true);
+});
+confessionVideo.addEventListener("pause", () => {
+  if (confessionVideoActive && !confessionVideo.ended) {
+    confessionSection.classList.add("is-video-paused");
+    updateSoundState(false);
+  }
+});
+confessionVideo.addEventListener("ended", () => {
+  if (!confessionVideoActive) return;
+  confessionSection.classList.remove("is-video-paused");
+  confessionSection.classList.add("is-video-ended");
+  updateSoundState(false);
+});
+
+function alignConfessionViewport() {
+  if (
+    !confessionSnapArmed
+    || document.body.classList.contains("ceremony-pending")
+    || document.body.classList.contains("ceremony-opening")
+  ) return;
+  confessionSnapArmed = false;
+  const distanceFromTop = confessionSection.getBoundingClientRect().top;
+  if (Math.abs(distanceFromTop) < 2) return;
+  confessionSection.scrollIntoView({
+    behavior: prefersReducedMotion ? "auto" : "smooth",
+    block: "start",
+  });
+}
+
+if ("IntersectionObserver" in window) {
+  const confessionObserver = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.intersectionRatio >= .28) alignConfessionViewport();
+      if (entry.intersectionRatio >= .42) void startConfessionVideo();
+      else if (entry.intersectionRatio <= .14) {
+        confessionSnapArmed = true;
+        stopConfessionVideo();
+      }
+    });
+  }, { threshold: [0, .14, .28, .42, .7] });
+  confessionObserver.observe(confessionSection);
+}
 void startBackgroundMusic();
 
 const openingCeremony = $("#openingCeremony");
@@ -698,7 +803,7 @@ async function openCeremony() {
   ceremonyOpened = true;
   enterCeremony.disabled = true;
 
-  await startBackgroundMusic();
+  await startActiveSoundtrack();
   document.body.classList.add("ceremony-opening");
   openingCeremony.classList.add("is-opening");
   burstFromElement(enterCeremony, prefersReducedMotion ? 0 : 42);
@@ -1640,7 +1745,7 @@ resizeConstellation();
 window.addEventListener("resize", resizeConstellation);
 
 const revealTargets = $$(
-  ".birthday-opening-mark, .birthday-art, .birthday-opening-copy > *, .favorite-page-head > *, .favorite-universe, .page-turn-copy > *, .portrait-edition-meta, .manifesto-grid > *, .portrait-stage .image-card, .conversation-intro > *, .chat-frame, .confession-rail > *, .confession-promise > *, .confession-side > *, .confession-foot > *, .future > h2, .future-title-ja, .future-lead, .constellation-shell, .letter-cover > *, .finale-copy > *, .finale-visual, .finale-end"
+  ".birthday-opening-mark, .birthday-art, .birthday-opening-copy > *, .favorite-page-head > *, .favorite-universe, .page-turn-copy > *, .portrait-edition-meta, .manifesto-grid > *, .portrait-stage .image-card, .conversation-intro > *, .chat-frame, .future > h2, .future-title-ja, .future-lead, .constellation-shell, .letter-cover > *, .finale-copy > *, .finale-visual, .finale-end"
 );
 revealTargets.forEach((target, index) => {
   target.classList.add("reveal-on-scroll");

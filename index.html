@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Serif+JP:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700;900&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=20260731-lighter-sakura-shadow" />
+    <link rel="stylesheet" href="styles.css?v=20260801-confession-finale" />
   </head>
   <body class="ceremony-pending">
     <div class="noise" aria-hidden="true"></div>
@@ -58,7 +58,7 @@
     </div>
     <div class="fairytale-celebration" id="fairytaleCelebration" aria-hidden="true">
       <div class="fairytale-backdrop" aria-hidden="true">
-        <img src="assets/hero/huazidie-fairytale-night.png" alt="" />
+        <img src="assets/hero/rem-castle-night.png" alt="" />
       </div>
       <div class="fairytale-veil" aria-hidden="true"></div>
       <div class="fairytale-stars" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
@@ -79,7 +79,7 @@
         <span>HUAZIDIE / 2026.08.07</span>
       </div>
       <div class="meteor-shower-copy">
-        <p><span>一起去看</span><strong>流星雨。</strong></p>
+        <p><span>一起去看</span><strong>流星雨</strong></p>
         <span lang="ja">一緒に、流星群を見に行こう。</span>
       </div>
     </div>
@@ -403,34 +403,61 @@
       </section>
 
       <section class="confession" id="confession" aria-labelledby="confessionTitle">
-        <div class="confession-rail">
-          <span class="mono" lang="ja">04 / あの日、言いたかったこと</span>
-          <span class="mono">HUAZIDIE / 2026.08.07</span>
+        <div class="confession-media" aria-hidden="true">
+          <video id="confessionVideo" poster="assets/video/confession-poster.jpg" preload="metadata" playsinline>
+            <source src="assets/video/confession-rezero.mp4" type="video/mp4" />
+          </video>
         </div>
-        <div class="confession-layout">
-          <h2 class="confession-promise" id="confessionTitle" aria-label="其实那天，我想说的是：如果可以的话，以后我养你吧，你做你喜欢做的事情就好。">
-            <small>其实那天，<br /><em>我想说的是：</em></small>
-            <span>如果可以的话，</span>
-            <strong>以后我养你吧。</strong>
-            <span>你做你喜欢做的事情就好。</span>
-          </h2>
-          <div class="confession-side" aria-hidden="true">
-            <span lang="ja">ほんとうは、あの日。</span>
-            <b class="mono">04</b>
-            <i lang="ja">本音</i>
+        <div class="confession-veil" aria-hidden="true"></div>
+        <div class="confession-frame" aria-hidden="true"></div>
+
+        <div class="confession-stage">
+          <div class="confession-rail" aria-hidden="true">
+            <span class="mono">04 / VIDEO LETTER</span>
+            <span class="mono" lang="ja">あの日、言いたかったこと</span>
           </div>
-        </div>
-        <div class="confession-foot">
-          <p lang="ja">もしよかったら、これからは私があなたを支えたい。<br />あなたは、好きなことをしていて。</p>
-          <span class="mono">FOR HUAZIDIE / BIRTHDAY EDITION</span>
+
+          <h2 class="confession-sequence" id="confessionTitle" aria-label="其实那天，我想说的是：如果可以的话，以后我养你吧！你做你喜欢的事就好。">
+            <span class="confession-line">
+              <b>其实那天，</b>
+              <small lang="ja">ほんとうは、あの日。</small>
+            </span>
+            <span class="confession-line">
+              <b>我想说的是：</b>
+              <small lang="ja">私が言いたかったのは、</small>
+            </span>
+            <span class="confession-line">
+              <b>如果可以的话，</b>
+              <small lang="ja">もしよかったら、</small>
+            </span>
+            <span class="confession-line confession-line-heart">
+              <b>以后我养你吧！</b>
+              <small lang="ja">これからは、私があなたを養うよ！</small>
+            </span>
+            <span class="confession-line confession-line-final">
+              <b>你做你喜欢的事就好。</b>
+              <small lang="ja">あなたは、好きなことをしていればいい。</small>
+            </span>
+          </h2>
+
+          <div class="confession-closing" aria-hidden="true">
+            <p>我喜欢你</p>
+            <span lang="ja">あなたが好きです。</span>
+          </div>
+
+          <div class="confession-signature" aria-hidden="true">
+            <span lang="ja">本音</span>
+            <i></i>
+            <small class="mono">2026.08.07</small>
+          </div>
         </div>
       </section>
 
       <section class="future section-pad" id="future" aria-labelledby="futureTitle">
         <div class="future-orbit" aria-hidden="true"><span></span><span></span><span></span></div>
         <div class="section-kicker mono" lang="ja">05 / 2026年8月7日の、その先へ</div>
-        <h2 id="futureTitle">一起去看<br /><em>流星雨。</em></h2>
-        <p class="future-title-ja" lang="ja">一緒に、流星群を見に行こう。</p>
+        <h2 id="futureTitle">我想和你<br /><em>一起</em></h2>
+        <p class="future-title-ja" lang="ja">あなたと一緒にいたい。</p>
         <p class="future-lead">我们认识的时间不长，所以这本摄影集最珍贵的地方，<br />是它还有很多空白，等我们一起把它变成照片。</p>
         <div class="constellation-shell" id="constellationShell">
           <div class="constellation-head">
@@ -450,8 +477,8 @@
         <button class="future-button" id="futureButton" type="button"><span class="button-seal">✦</span><span id="futureButtonText">拆开这份预告</span><b>↗</b></button>
         <div class="future-note" id="futureNote" hidden>
           <div class="future-note-top mono" lang="ja">次の一枚 / まだ撮られていない</div>
-          <p>我想成为你将来的专属摄影师，当你笑着回头，我刚好在按下快门。</p>
-          <span>— 你的摄影师</span>
+          <p>我想成为你将来的专属摄影师，<br /><em>当你笑着回头，</em><br />我刚好在按下快门。</p>
+          <div class="future-note-sign"><i aria-hidden="true"></i><span>你的摄影师</span></div>
         </div>
       </section>
 
@@ -520,6 +547,6 @@
       <button class="lightbox-arrow lightbox-next" id="lightboxNext" type="button" aria-label="下一张">→</button>
     </div>
 
-    <script src="app.js?v=20260731-fairytale-fireworks"></script>
+    <script src="app.js?v=20260801-confession-finale"></script>
   </body>
 </html>
