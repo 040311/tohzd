@@ -42,14 +42,14 @@ function syncLightbox() {
   }
 
   const caption = $(".image-caption", item)?.firstChild?.textContent?.trim()
-    || $(".chat-foot", item)?.textContent?.trim()
+    || $(".chat-photo-foot", item)?.textContent?.trim()
     || item.dataset.title
     || "未命名的一页";
   $("#lightboxCaption").textContent = caption;
   const lightboxCounter = $("#lightboxCounter");
-  lightboxCounter.hidden = activeGallery === "chats";
+  lightboxCounter.hidden = false;
   lightboxCounter.textContent = activeGallery === "chats"
-    ? ""
+    ? `CHAT ${String(activeIndex + 1).padStart(2, "0")} / ${String(items.length).padStart(2, "0")}`
     : `${String(activeIndex + 1).padStart(2, "0")} / ${String(items.length).padStart(2, "0")}`;
 }
 
@@ -2154,8 +2154,142 @@ constellationNodes.forEach((node, nodeIndex) => {
 resizeConstellation();
 window.addEventListener("resize", resizeConstellation);
 
+const chatGallery = $("#chatGallery");
+const chatHeartItems = chatGallery ? $$(".chat-heart-item", chatGallery) : [];
+const chatHeartSkip = $("#chatHeartSkip");
+
+function setChatHeartItemInteractive(item, isInteractive) {
+  item.inert = !isInteractive;
+  item.setAttribute("aria-hidden", String(!isInteractive));
+}
+
+function completeChatHeartImmediately() {
+  if (!chatGallery) return;
+  chatGallery.classList.remove("is-heart-enhanced");
+  chatGallery.classList.add("is-heart-complete");
+  chatGallery.dataset.heartProgress = `${String(chatHeartItems.length).padStart(2, "0")} / ${String(chatHeartItems.length).padStart(2, "0")}`;
+  chatGallery.dataset.heartState = "complete";
+  if (chatHeartSkip) chatHeartSkip.hidden = true;
+  chatHeartItems.forEach((item) => {
+    item.classList.remove("is-arriving", "is-reading");
+    item.classList.add("is-settled");
+    setChatHeartItemInteractive(item, true);
+  });
+}
+
+function isChatHeartPaused() {
+  const focusedElement = document.activeElement;
+  const hasFocusedCard = focusedElement instanceof HTMLElement
+    && focusedElement.matches(":focus-visible")
+    && chatHeartItems.some((item) => item.contains(focusedElement));
+  return document.hidden
+    || !lightbox.hidden
+    || document.body.classList.contains("ceremony-pending")
+    || document.body.classList.contains("ceremony-opening")
+    || hasFocusedCard
+    || (hasFinePointer && chatHeartItems.some((item) => item.matches(":hover")));
+}
+
+function waitForChatHeart(duration) {
+  return new Promise((resolve) => {
+    let remaining = duration;
+    let previousTime = performance.now();
+
+    function countDown(currentTime) {
+      if (chatGallery?.dataset.heartState === "complete") {
+        resolve();
+        return;
+      }
+      if (!isChatHeartPaused()) remaining -= Math.min(currentTime - previousTime, 64);
+      previousTime = currentTime;
+      if (remaining <= 0) {
+        resolve();
+        return;
+      }
+      window.requestAnimationFrame(countDown);
+    }
+
+    window.requestAnimationFrame(countDown);
+  });
+}
+
+function waitForChatHeartImage(image, maxWait = 1200) {
+  if (!image || (image.complete && image.naturalWidth > 0)) return Promise.resolve();
+  const ready = typeof image.decode === "function"
+    ? image.decode().catch(() => {})
+    : new Promise((resolve) => {
+      image.addEventListener("load", resolve, { once: true });
+      image.addEventListener("error", resolve, { once: true });
+    });
+  return Promise.race([
+    ready,
+    new Promise((resolve) => window.setTimeout(resolve, maxWait)),
+  ]);
+}
+
+async function prepareChatHeartImages() {
+  const images = $$("img", chatGallery);
+  images.forEach((image) => { image.loading = "eager"; });
+  await Promise.all(images.slice(0, 2).map((image) => waitForChatHeartImage(image)));
+}
+
+async function runChatHeartSequence() {
+  if (!chatGallery || chatGallery.dataset.heartState !== "waiting") return;
+  chatGallery.dataset.heartState = "preparing";
+  await prepareChatHeartImages();
+  chatGallery.dataset.heartState = "running";
+  await waitForChatHeart(40);
+  if (chatGallery.dataset.heartState !== "running") return;
+  if (chatHeartSkip) chatHeartSkip.hidden = false;
+
+  for (const [index, item] of chatHeartItems.entries()) {
+    await waitForChatHeartImage($("img", item), 1800);
+    if (chatGallery.dataset.heartState !== "running") return;
+    setChatHeartItemInteractive(item, true);
+    item.classList.add("is-arriving");
+    chatGallery.dataset.heartProgress = `${String(index + 1).padStart(2, "0")} / ${String(chatHeartItems.length).padStart(2, "0")}`;
+    await waitForChatHeart(820);
+    if (chatGallery.dataset.heartState !== "running") return;
+    item.classList.add("is-reading");
+    await waitForChatHeart(1250);
+    if (chatGallery.dataset.heartState !== "running") return;
+    item.classList.remove("is-reading");
+    item.classList.replace("is-arriving", "is-settled");
+    await waitForChatHeart(index === chatHeartItems.length - 1 ? 820 : 280);
+    if (chatGallery.dataset.heartState !== "running") return;
+  }
+
+  chatGallery.classList.add("is-heart-complete");
+  chatGallery.dataset.heartState = "complete";
+  if (chatHeartSkip) chatHeartSkip.hidden = true;
+}
+
+if (chatGallery && chatHeartItems.length) {
+  chatHeartItems.forEach((item) => {
+    const image = $("img", item);
+    if (image) item.style.setProperty("--chat-preview", `url("${image.src}")`);
+  });
+  chatHeartSkip?.addEventListener("click", completeChatHeartImmediately);
+  chatGallery.addEventListener("focusin", (event) => {
+    if (event.target instanceof Element && event.target.closest(".chat-frame")) completeChatHeartImmediately();
+  });
+  if (prefersReducedMotion || !("IntersectionObserver" in window)) {
+    completeChatHeartImmediately();
+  } else {
+    chatGallery.classList.add("is-heart-enhanced");
+    chatGallery.dataset.heartState = "waiting";
+    chatHeartItems.forEach((item) => setChatHeartItemInteractive(item, false));
+    const chatHeartObserver = new IntersectionObserver(([entry]) => {
+      if (!entry?.isIntersecting) return;
+      chatHeartObserver.disconnect();
+      void runChatHeartSequence();
+    }, { threshold: 0, rootMargin: "-12% 0px -12%" });
+    chatHeartObserver.observe($(".chat-heart-trigger", chatGallery) || chatGallery);
+  }
+}
+
 const revealTargets = $$(
-  ".birthday-opening-mark, .birthday-art, .birthday-opening-copy > *, .favorite-page-head > *, .favorite-universe, .page-turn-copy > *, .portrait-edition-meta, .manifesto-grid > *, .portrait-stage .image-card, .conversation-intro > *, .chat-frame, .future > h2, .future-title-ja, .future-lead, .constellation-shell, .letter-cover > *, .finale-copy > *, .finale-visual, .finale-end"
+  ".birthday-opening-mark, .birthday-art, .birthday-opening-copy > *, .favorite-page-head > *, .favorite-universe, .page-turn-copy > *, .portrait-edition-meta, .manifesto-grid > *, .portrait-stage .image-card, .conversation-intro > *, .future > h2, .future-title-ja, .future-lead, .constellation-shell, .letter-cover > *, .finale-copy > *, .finale-visual, .finale-end"
 );
 revealTargets.forEach((target, index) => {
   target.classList.add("reveal-on-scroll");

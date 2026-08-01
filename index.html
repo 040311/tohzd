@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Serif+JP:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700;900&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=20260801-letter-warm-pink" />
+    <link rel="stylesheet" href="styles.css?v=20260801-chat-heart" />
   </head>
   <body class="ceremony-pending">
     <div class="noise" aria-hidden="true"></div>
@@ -363,42 +363,88 @@
           <h2 id="conversationTitle">我们说过的，<br /><em>比时间更早。</em></h2>
           <p>把聊天截图单独留一间展厅。因为有些心动，只有对话框知道。</p>
         </div>
-        <div class="chat-gallery" id="chatGallery">
-          <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="0" data-title="如果可以的话 · 聊天存档 01" aria-label="查看真实聊天截图：如果可以的话">
-            <span class="chat-photo-head"><b class="mono">CHAT / 001</b><small lang="ja">ことばの記録</small></span>
-            <span class="chat-photo-mat"><img src="assets/chats/chat-01.jpg" width="1080" height="764" alt="真实聊天截图第一张：如果可以的话" loading="lazy" decoding="async" /></span>
-            <span class="chat-photo-foot"><em>如果可以的话</em></span>
-          </button>
-          <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="1" data-title="慢慢了解你 · 聊天存档 02" aria-label="查看真实聊天截图：慢慢了解你">
-            <span class="chat-photo-head"><b class="mono">CHAT / 002</b><small lang="ja">ふたりの会話</small></span>
-            <span class="chat-photo-mat"><img src="assets/chats/chat-02.jpg" width="1079" height="1495" alt="真实聊天截图第二张：慢慢了解你" loading="lazy" decoding="async" /></span>
-            <span class="chat-photo-foot"><em>慢慢了解你</em></span>
-          </button>
-          <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="2" data-title="生日礼物的认真 · 聊天存档 03" aria-label="查看真实聊天截图：生日礼物的认真">
-            <span class="chat-photo-head"><b class="mono">CHAT / 003</b><small lang="ja">大切なことば</small></span>
-            <span class="chat-photo-mat"><img src="assets/chats/chat-03.jpg" width="1080" height="1633" alt="真实聊天截图第三张：生日礼物的认真" loading="lazy" decoding="async" /></span>
-            <span class="chat-photo-foot"><em>生日礼物的认真</em></span>
-          </button>
-          <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="3" data-title="只是想多说说话 · 聊天存档 04" aria-label="查看真实聊天截图：只是想多说说话">
-            <span class="chat-photo-head"><b class="mono">CHAT / 004</b><small lang="ja">もっと話したい</small></span>
-            <span class="chat-photo-mat"><img src="assets/chats/chat-04.jpg" width="1080" height="850" alt="真实聊天截图第四张：只是想多说说话" loading="lazy" decoding="async" /></span>
-            <span class="chat-photo-foot"><em>只是想多说说话</em></span>
-          </button>
-          <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="4" data-title="我想给你的更多 · 聊天存档 05" aria-label="查看真实聊天截图：我想给你的更多">
-            <span class="chat-photo-head"><b class="mono">CHAT / 005</b><small lang="ja">贈りたい気持ち</small></span>
-            <span class="chat-photo-mat"><img src="assets/chats/chat-05.jpg" width="1080" height="1716" alt="真实聊天截图第五张：我想给你的更多" loading="lazy" decoding="async" /></span>
-            <span class="chat-photo-foot"><em>我想给你的更多</em></span>
-          </button>
-          <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="5" data-title="喜欢的角色 · 聊天存档 06" aria-label="查看真实聊天截图：喜欢的角色">
-            <span class="chat-photo-head"><b class="mono">CHAT / 006</b><small lang="ja">好きなもの</small></span>
-            <span class="chat-photo-mat"><img src="assets/chats/chat-06.jpg" width="1080" height="1148" alt="真实聊天截图第六张：喜欢的角色" loading="lazy" decoding="async" /></span>
-            <span class="chat-photo-foot"><em>喜欢的角色</em></span>
-          </button>
-          <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="6" data-title="有缘自会相见 · 聊天存档 07" aria-label="查看真实聊天截图：有缘自会相见">
-            <span class="chat-photo-head"><b class="mono">CHAT / 007</b><small lang="ja">また会える日まで</small></span>
-            <span class="chat-photo-mat"><img src="assets/chats/chat-07.jpg" width="1079" height="1484" alt="真实聊天截图第七张：有缘自会相见" loading="lazy" decoding="async" /></span>
-            <span class="chat-photo-foot"><em>有缘自会相见</em></span>
-          </button>
+        <button class="chat-heart-skip" id="chatHeartSkip" type="button" aria-label="跳过聊天截图动画，直接显示完整心形" hidden>
+          <span>直接看心形</span><i aria-hidden="true">↘</i>
+        </button>
+        <div class="chat-gallery" id="chatGallery" role="list" aria-label="11 张真实聊天截图组成的心形存档" data-heart-progress="00 / 11">
+          <div class="chat-heart-item" role="listitem">
+            <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="0" data-title="如果可以的话 · 聊天存档 01" aria-label="查看真实聊天截图：如果可以的话">
+              <span class="chat-photo-head"><b class="mono">CHAT / 001</b><small lang="ja">ことばの記録</small></span>
+              <span class="chat-photo-mat"><img src="assets/chats/chat-01.jpg" width="1080" height="764" alt="真实聊天截图第一张：如果可以的话" loading="lazy" decoding="async" /></span>
+              <span class="chat-photo-foot"><em>如果可以的话</em></span>
+            </button>
+          </div>
+          <div class="chat-heart-item" role="listitem">
+            <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="1" data-title="慢慢了解你 · 聊天存档 02" aria-label="查看真实聊天截图：慢慢了解你">
+              <span class="chat-photo-head"><b class="mono">CHAT / 002</b><small lang="ja">ふたりの会話</small></span>
+              <span class="chat-photo-mat"><img src="assets/chats/chat-02.jpg" width="1079" height="1495" alt="真实聊天截图第二张：慢慢了解你" loading="lazy" decoding="async" /></span>
+              <span class="chat-photo-foot"><em>慢慢了解你</em></span>
+            </button>
+          </div>
+          <div class="chat-heart-item" role="listitem">
+            <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="2" data-title="生日礼物的认真 · 聊天存档 03" aria-label="查看真实聊天截图：生日礼物的认真">
+              <span class="chat-photo-head"><b class="mono">CHAT / 003</b><small lang="ja">大切なことば</small></span>
+              <span class="chat-photo-mat"><img src="assets/chats/chat-03.jpg" width="1080" height="1633" alt="真实聊天截图第三张：生日礼物的认真" loading="lazy" decoding="async" /></span>
+              <span class="chat-photo-foot"><em>生日礼物的认真</em></span>
+            </button>
+          </div>
+          <div class="chat-heart-item" role="listitem">
+            <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="3" data-title="只是想多说说话 · 聊天存档 04" aria-label="查看真实聊天截图：只是想多说说话">
+              <span class="chat-photo-head"><b class="mono">CHAT / 004</b><small lang="ja">もっと話したい</small></span>
+              <span class="chat-photo-mat"><img src="assets/chats/chat-04.jpg" width="1080" height="850" alt="真实聊天截图第四张：只是想多说说话" loading="lazy" decoding="async" /></span>
+              <span class="chat-photo-foot"><em>只是想多说说话</em></span>
+            </button>
+          </div>
+          <div class="chat-heart-item" role="listitem">
+            <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="4" data-title="我想给你的更多 · 聊天存档 05" aria-label="查看真实聊天截图：我想给你的更多">
+              <span class="chat-photo-head"><b class="mono">CHAT / 005</b><small lang="ja">贈りたい気持ち</small></span>
+              <span class="chat-photo-mat"><img src="assets/chats/chat-05.jpg" width="1080" height="1716" alt="真实聊天截图第五张：我想给你的更多" loading="lazy" decoding="async" /></span>
+              <span class="chat-photo-foot"><em>我想给你的更多</em></span>
+            </button>
+          </div>
+          <div class="chat-heart-item" role="listitem">
+            <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="5" data-title="喜欢的角色 · 聊天存档 06" aria-label="查看真实聊天截图：喜欢的角色">
+              <span class="chat-photo-head"><b class="mono">CHAT / 006</b><small lang="ja">好きなもの</small></span>
+              <span class="chat-photo-mat"><img src="assets/chats/chat-06.jpg" width="1080" height="1148" alt="真实聊天截图第六张：喜欢的角色" loading="lazy" decoding="async" /></span>
+              <span class="chat-photo-foot"><em>喜欢的角色</em></span>
+            </button>
+          </div>
+          <div class="chat-heart-item" role="listitem">
+            <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="6" data-title="有缘自会相见 · 聊天存档 07" aria-label="查看真实聊天截图：有缘自会相见">
+              <span class="chat-photo-head"><b class="mono">CHAT / 007</b><small lang="ja">また会える日まで</small></span>
+              <span class="chat-photo-mat"><img src="assets/chats/chat-07.jpg" width="1079" height="1484" alt="真实聊天截图第七张：有缘自会相见" loading="lazy" decoding="async" /></span>
+              <span class="chat-photo-foot"><em>有缘自会相见</em></span>
+            </button>
+          </div>
+          <div class="chat-heart-item" role="listitem">
+            <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="7" data-title="怎样都好看 · 聊天存档 08" aria-label="查看真实聊天截图：怎样都好看">
+              <span class="chat-photo-head"><b class="mono">CHAT / 008</b><small lang="ja">どんな姿も素敵</small></span>
+              <span class="chat-photo-mat"><img src="assets/chats/chat-08.jpg" width="1080" height="1796" alt="真实聊天截图第八张：怎样都好看" loading="lazy" decoding="async" /></span>
+              <span class="chat-photo-foot"><em>怎样都好看</em></span>
+            </button>
+          </div>
+          <div class="chat-heart-item" role="listitem">
+            <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="8" data-title="有趣灵魂万里挑一 · 聊天存档 09" aria-label="查看真实聊天截图：有趣灵魂万里挑一">
+              <span class="chat-photo-head"><b class="mono">CHAT / 009</b><small lang="ja">かけがえのない人</small></span>
+              <span class="chat-photo-mat"><img src="assets/chats/chat-09.jpg" width="1080" height="1673" alt="真实聊天截图第九张：有趣灵魂万里挑一" loading="lazy" decoding="async" /></span>
+              <span class="chat-photo-foot"><em>有趣灵魂万里挑一</em></span>
+            </button>
+          </div>
+          <div class="chat-heart-item" role="listitem">
+            <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="9" data-title="给你拼个 486 · 聊天存档 10" aria-label="查看真实聊天截图：给你拼个 486">
+              <span class="chat-photo-head"><b class="mono">CHAT / 010</b><small lang="ja">君への贈りもの</small></span>
+              <span class="chat-photo-mat"><img src="assets/chats/chat-10.jpg" width="1079" height="858" alt="真实聊天截图第十张：给你拼个 486" loading="lazy" decoding="async" /></span>
+              <span class="chat-photo-foot"><em>给你拼个 486</em></span>
+            </button>
+          </div>
+          <div class="chat-heart-item" role="listitem">
+            <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="10" data-title="你认可了，我也认可了 · 聊天存档 11" aria-label="查看真实聊天截图：你认可了，我也认可了">
+              <span class="chat-photo-head"><b class="mono">CHAT / 011</b><small lang="ja">ふたりの答え</small></span>
+              <span class="chat-photo-mat"><img src="assets/chats/chat-11.jpg" width="1080" height="1761" alt="真实聊天截图第十一张：你认可了，我也认可了" loading="lazy" decoding="async" /></span>
+              <span class="chat-photo-foot"><em>你认可了，我也认可了</em></span>
+            </button>
+          </div>
+          <span class="chat-heart-trigger" aria-hidden="true"></span>
         </div>
       </section>
 
@@ -636,6 +682,6 @@
       <button class="lightbox-arrow lightbox-next" id="lightboxNext" type="button" aria-label="下一张">→</button>
     </div>
 
-    <script src="app.js?v=20260801-letter-warm-pink"></script>
+    <script src="app.js?v=20260801-chat-heart"></script>
   </body>
 </html>

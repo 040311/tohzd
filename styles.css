@@ -1029,65 +1029,164 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
 }
 .film-break-foot { justify-content: flex-start; }
 .film-break-foot i { display: block; width: min(32vw, 260px); height: 1px; background: rgba(243, 239, 231, .32); }
-.chat-gallery { position: relative; }
-.chat-gallery::before {
-  position: absolute;
-  top: -24px;
-  right: 8px;
-  content: "CHAT / WATERFALL";
-  color: rgba(57, 48, 38, .42);
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: .12em;
-}
 .conversation-intro { display: grid; grid-template-columns: 1fr 1.2fr .7fr; gap: 28px; align-items: end; margin-bottom: 74px; }
 .conversation-intro .section-kicker { align-self: start; margin: 5px 0 0; }
 .conversation-intro h2 { font-size: clamp(42px, 5.4vw, 78px); }
 .conversation-intro > p { max-width: 245px; margin: 0 0 7px; color: var(--muted); font-family: var(--serif); font-size: 16px; line-height: 1.85; }
-.chat-gallery { columns: 3 270px; column-gap: clamp(24px, 3.5vw, 54px); max-width: 1120px; margin: 0 auto; padding: 8px 8px 0; }
-.chat-frame {
-  --chat-rotate: 0deg;
+.chat-heart-skip {
+  position: fixed;
+  z-index: 75;
+  left: clamp(16px, 3vw, 38px);
+  bottom: clamp(18px, 3vw, 34px);
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  border: 1px solid rgba(57,48,38,.18);
+  border-radius: 2px;
+  padding: 9px 10px 9px 13px;
+  background: rgba(255,253,249,.9);
+  box-shadow: 5px 7px 18px rgba(57,48,38,.12);
+  color: rgba(57,48,38,.78);
+  font-family: var(--serif);
+  font-size: 12px;
+  letter-spacing: 0;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+.chat-heart-skip i { color: var(--red); font-family: var(--sans); font-size: 14px; font-style: normal; }
+.chat-heart-skip:hover,
+.chat-heart-skip:focus-visible { border-color: rgba(194,72,58,.42); color: var(--red); transform: translateY(-2px); }
+.chat-gallery {
+  --chat-card-width: clamp(136px, 16vw, 190px);
+  --chat-arrival-scale: 2.05;
   position: relative;
-  display: inline-block;
-  width: calc(100% - 8px);
-  margin: 0 4px 44px;
-  break-inside: avoid;
+  width: min(100%, 1120px);
+  height: clamp(780px, 72vw, 1030px);
+  margin: 0 auto;
+  overflow: hidden;
+  overflow: clip;
+  isolation: isolate;
+  border-top: 1px solid rgba(57,48,38,.11);
+}
+.chat-gallery::before,
+.chat-gallery::after {
+  position: absolute;
+  z-index: 70;
+  top: 14px;
+  color: rgba(57,48,38,.48);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0;
+  pointer-events: none;
+}
+.chat-gallery::before { right: 8px; content: "CHAT / HEART ARCHIVE"; }
+.chat-gallery::after { left: 8px; content: attr(data-heart-progress); }
+.chat-heart-trigger { position: absolute; left: 50%; top: 50%; width: 1px; height: 1px; pointer-events: none; }
+.chat-heart-item {
+  --heart-x: 50%;
+  --heart-y: 50%;
+  --heart-rotate: 0deg;
+  --heart-entry-x: -115vw;
+  --heart-entry-y: 0vh;
+  --heart-entry-rotate: -12deg;
+  position: absolute;
+  z-index: var(--heart-z, 1);
+  left: var(--heart-x);
+  top: var(--heart-y);
+  width: var(--chat-card-width);
+  opacity: 1;
+  transform: translate(-50%, -50%) rotate(var(--heart-rotate));
+  transform-origin: center;
+  transition:
+    left .82s cubic-bezier(.18,.78,.24,1),
+    top .82s cubic-bezier(.18,.78,.24,1),
+    opacity .48s ease,
+    transform .82s cubic-bezier(.18,.78,.24,1);
+  will-change: left, top, opacity, transform;
+}
+.chat-heart-item::before {
+  position: absolute;
+  z-index: 4;
+  top: -7px;
+  left: 50%;
+  width: 45px;
+  height: 13px;
+  border: 1px solid rgba(129,111,94,.08);
+  content: "";
+  background: rgba(225,218,202,.86);
+  box-shadow: 0 2px 5px rgba(57,48,38,.08);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateX(-50%) rotate(var(--tape-rotate, -1deg));
+  transition: opacity .38s ease .38s;
+}
+.chat-heart-item:nth-child(3n + 2)::before { background: rgba(216,226,229,.88); }
+.chat-heart-item:nth-child(4n)::before { background: rgba(238,215,216,.84); }
+.chat-heart-item:nth-child(1) { --heart-x: 37%; --heart-y: 18%; --heart-rotate: -2deg; --heart-entry-x: -116vw; --heart-entry-y: -14vh; --heart-z: 1; --tape-rotate: -2deg; }
+.chat-heart-item:nth-child(2) { --heart-x: 63%; --heart-y: 18%; --heart-rotate: 2deg; --heart-entry-x: 116vw; --heart-entry-y: -12vh; --heart-entry-rotate: 12deg; --heart-z: 2; --tape-rotate: 1.5deg; }
+.chat-heart-item:nth-child(3) { --heart-x: 15%; --heart-y: 34%; --heart-rotate: -2.4deg; --heart-entry-x: -120vw; --heart-entry-y: -4vh; --heart-z: 3; }
+.chat-heart-item:nth-child(4) { --heart-x: 38%; --heart-y: 34%; --heart-rotate: -.8deg; --heart-entry-x: 118vw; --heart-entry-y: -2vh; --heart-entry-rotate: 10deg; --heart-z: 4; --tape-rotate: 2deg; }
+.chat-heart-item:nth-child(5) { --heart-x: 62%; --heart-y: 34%; --heart-rotate: .8deg; --heart-entry-x: -118vw; --heart-entry-y: 7vh; --heart-z: 5; }
+.chat-heart-item:nth-child(6) { --heart-x: 85%; --heart-y: 34%; --heart-rotate: 2.4deg; --heart-entry-x: 120vw; --heart-entry-y: 8vh; --heart-entry-rotate: 13deg; --heart-z: 6; --tape-rotate: -2deg; }
+.chat-heart-item:nth-child(7) { --heart-x: 28%; --heart-y: 53%; --heart-rotate: -1.6deg; --heart-entry-x: -116vw; --heart-entry-y: 17vh; --heart-z: 7; --tape-rotate: 1deg; }
+.chat-heart-item:nth-child(8) { --heart-x: 50%; --heart-y: 53%; --heart-entry-x: 116vw; --heart-entry-y: 19vh; --heart-entry-rotate: 11deg; --heart-z: 8; }
+.chat-heart-item:nth-child(9) { --heart-x: 72%; --heart-y: 53%; --heart-rotate: 1.6deg; --heart-entry-x: -108vw; --heart-entry-y: 28vh; --heart-z: 9; --tape-rotate: -1.5deg; }
+.chat-heart-item:nth-child(10) { --heart-x: 43%; --heart-y: 72%; --heart-rotate: -.7deg; --heart-entry-x: 108vw; --heart-entry-y: 38vh; --heart-entry-rotate: 9deg; --heart-z: 10; --tape-rotate: 1.5deg; }
+.chat-heart-item:nth-child(11) { --heart-x: 57%; --heart-y: calc(100% - clamp(119px, 13.5vw, 157px)); --heart-rotate: .7deg; --heart-entry-x: 0vw; --heart-entry-y: 112vh; --heart-entry-rotate: -7deg; --heart-z: 11; --tape-rotate: -1deg; }
+.chat-gallery.is-heart-enhanced .chat-heart-item:not(.is-arriving):not(.is-settled) {
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(calc(-50% + var(--heart-entry-x)), calc(-50% + var(--heart-entry-y))) rotate(var(--heart-entry-rotate)) scale(.82);
+}
+.chat-gallery.is-heart-enhanced .chat-heart-item.is-arriving {
+  z-index: 50;
+  left: 50%;
+  top: 50%;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, -50%) rotate(0deg) scale(var(--chat-arrival-scale));
+}
+.chat-gallery.is-heart-enhanced .chat-heart-item.is-settled { opacity: 1; pointer-events: auto; }
+.chat-gallery.is-heart-complete .chat-heart-item { will-change: auto; }
+.chat-heart-item.is-settled::before { opacity: .82; }
+.chat-heart-item.is-arriving .chat-frame { box-shadow: 0 24px 58px rgba(57,48,38,.23); }
+.chat-heart-item.is-reading .chat-frame { box-shadow: 0 30px 72px rgba(57,48,38,.28); }
+.chat-heart-item:hover,
+.chat-heart-item:focus-within { z-index: 60; }
+.chat-frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  margin: 0;
   border: 1px solid rgba(23,24,24,.14);
-  border-radius: 0;
-  padding: 12px 12px 17px;
+  border-radius: 2px;
+  padding: 9px 9px 12px;
   background: #fffdf9;
   box-shadow: 10px 14px 30px rgba(57,48,38,.09);
   color: var(--ink);
+  appearance: none;
   cursor: zoom-in;
   text-align: left;
-  transform: perspective(1100px) rotate(var(--chat-rotate)) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
+  transform: perspective(1100px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg));
   transform-style: preserve-3d;
   transition: transform .4s cubic-bezier(.2,.75,.2,1), box-shadow .4s ease;
-  vertical-align: top;
 }
-.chat-frame:nth-child(1) { --chat-rotate: -1.2deg; margin-top: 11px; }
-.chat-frame:nth-child(2) { --chat-rotate: 1.35deg; }
-.chat-frame:nth-child(3) { --chat-rotate: -.7deg; margin-top: 26px; }
-.chat-frame:nth-child(4) { --chat-rotate: 1deg; }
-.chat-frame:nth-child(5) { --chat-rotate: -1.45deg; margin-top: 18px; }
-.chat-frame:nth-child(6) { --chat-rotate: .65deg; }
-.chat-frame:nth-child(7) { --chat-rotate: -1deg; margin-top: 15px; }
-.chat-frame:nth-child(odd) { --waterfall-x: -34px; }
-.chat-frame:nth-child(even) { --waterfall-x: 29px; }
 .chat-frame:hover,
-.chat-frame:focus-visible { box-shadow: 15px 22px 42px rgba(57,48,38,.15); transform: perspective(1100px) translateY(-7px) rotate(0deg) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)); }
-.chat-photo-head { display: flex; align-items: center; justify-content: space-between; padding: 2px 2px 11px; border-bottom: 1px solid rgba(23,24,24,.12); color: var(--muted); }
-.chat-photo-head b { font-size: 11px; font-weight: 400; }
-.chat-photo-head small { color: var(--red); font-family: var(--jp-serif); font-size: 11px; }
-.chat-photo-mat { display: block; margin-top: 11px; overflow: hidden; background: #e9e7e3; }
-.chat-photo-mat { position: relative; }
-.chat-photo-mat::after { position: absolute; content: ""; inset: 0; background: radial-gradient(circle at var(--pointer-x, 50%) var(--pointer-y, 50%), rgba(255,243,220,.24), transparent 37%); mix-blend-mode: screen; opacity: 0; pointer-events: none; transition: opacity .35s ease; }
+.chat-frame:focus-visible { box-shadow: 15px 22px 42px rgba(57,48,38,.15); transform: perspective(1100px) translateY(-5px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)); }
+.chat-photo-head { display: flex; align-items: center; justify-content: space-between; padding: 1px 1px 8px; border-bottom: 1px solid rgba(23,24,24,.12); color: var(--muted); }
+.chat-photo-head b { font-size: 9px; font-weight: 400; }
+.chat-photo-head small { color: var(--red); font-family: var(--jp-serif); font-size: 9px; }
+.chat-photo-mat { position: relative; display: block; aspect-ratio: 3 / 4; margin-top: 8px; overflow: hidden; background: #efeeeb; isolation: isolate; }
+.chat-photo-mat::before,
+.chat-photo-mat::after { position: absolute; content: ""; pointer-events: none; }
+.chat-photo-mat::before { z-index: 0; inset: -12%; background: var(--chat-preview) center / cover no-repeat; filter: blur(15px) saturate(.72); opacity: .16; transform: scale(1.08); }
+.chat-photo-mat::after { z-index: 2; inset: 0; background: radial-gradient(circle at var(--pointer-x, 50%) var(--pointer-y, 50%), rgba(255,243,220,.24), transparent 37%); mix-blend-mode: screen; opacity: 0; transition: opacity .35s ease; }
 .chat-frame:hover .chat-photo-mat::after, .chat-frame:focus-visible .chat-photo-mat::after, .chat-frame.is-tilting .chat-photo-mat::after { opacity: 1; }
-.chat-photo-mat img { width: 100%; height: auto; filter: saturate(.92) contrast(.98); transition: filter .45s ease, transform .65s cubic-bezier(.2,.72,.2,1); }
+.chat-photo-mat img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: contain; object-position: top center; filter: saturate(.92) contrast(.98); transition: filter .45s ease, transform .65s cubic-bezier(.2,.72,.2,1); }
 .chat-frame:hover .chat-photo-mat img,
 .chat-frame:focus-visible .chat-photo-mat img { filter: saturate(1) contrast(1); transform: scale(1.012); }
-.chat-photo-foot { display: flex; align-items: baseline; justify-content: space-between; gap: 15px; padding: 15px 3px 0; }
-.chat-photo-foot em { color: var(--red); font-family: var(--serif); font-size: 15px; font-style: normal; }
+.chat-photo-foot { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 10px 2px 0; }
+.chat-photo-foot em { overflow: hidden; color: var(--red); font-family: var(--serif); font-size: 12px; font-style: normal; text-overflow: ellipsis; white-space: nowrap; }
 .chat-photo-foot small { flex: none; color: var(--muted); font-size: 10px; }
 
 .confession {
@@ -1973,12 +2072,9 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
 .reveal-on-scroll.reveal-delay-one { transition-delay: .08s; }
 .reveal-on-scroll.reveal-delay-two { transition-delay: .16s; }
 .reveal-on-scroll.is-visible { opacity: 1; translate: 0 0; }
-.chat-frame.reveal-on-scroll { translate: var(--waterfall-x, 0px) 42px; }
-.chat-frame.reveal-on-scroll.is-visible { translate: 0 0; }
 
 [hidden] { display: none !important; }
 @media (min-width: 821px) and (max-width: 1100px) {
-  .chat-gallery { columns: 2 280px; max-width: 760px; }
   .confession-stage { padding-right: 50px; padding-left: 50px; }
   .confession-sequence { width: min(610px, 68vw); }
   .finale-layout { grid-template-columns: .75fr 1.25fr; gap: 38px; }
@@ -2158,12 +2254,29 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
   .conversation-intro { display: block; margin-bottom: 46px; }
   .conversation-intro h2 { font-size: clamp(42px, 13vw, 68px); }
   .conversation-intro > p { margin-top: 27px; }
-  .chat-gallery { columns: 1; max-width: 410px; padding: 5px 3px 0; }
-  .chat-gallery::before { top: -20px; right: 3px; font-size: 9px; }
-  .chat-frame { width: calc(100% - 8px); min-height: 0; margin-right: 4px; margin-bottom: 29px; margin-left: 4px; }
-  .chat-frame:nth-child(odd), .chat-frame:nth-child(even) { --waterfall-x: 0px; }
-  .chat-photo-head b, .chat-photo-head small { font-size: 12px; }
-  .chat-photo-foot em { font-size: 16px; }
+  .chat-gallery {
+    --chat-card-width: clamp(68px, 22vw, 88px);
+    --chat-arrival-scale: 3.35;
+    width: calc(100% + 24px);
+    height: clamp(540px, 152vw, 660px);
+    margin-left: -12px;
+  }
+  .chat-gallery::before,
+  .chat-gallery::after { top: 9px; font-size: 8px; }
+  .chat-gallery::before { right: 5px; }
+  .chat-gallery::after { left: 5px; }
+  .chat-frame { padding: 5px; }
+  .chat-photo-head { padding: 0 0 4px; }
+  .chat-photo-head b { font-size: 7px; }
+  .chat-photo-head small,
+  .chat-photo-foot { display: none; }
+  .chat-photo-mat { margin-top: 5px; }
+  .chat-heart-item::before { top: -5px; width: 28px; height: 8px; }
+  .chat-heart-item:nth-child(1),
+  .chat-heart-item:nth-child(2) { --heart-y: 16%; }
+  .chat-heart-item:nth-child(10),
+  .chat-heart-item:nth-child(11) { --heart-x: 50%; }
+  .chat-heart-item:nth-child(11) { --heart-y: 89%; }
   .confession { min-height: max(760px, 100svh); }
   .confession-media {
     background-position: center;
@@ -2351,6 +2464,7 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
   .grand-celebration, .fairytale-celebration, .meteor-shower { display: none !important; }
   .kinetic-ribbon-track { animation: none !important; }
+  .chat-heart-item { will-change: auto; }
   .chapter-compass { transition: none !important; }
   .film-break-sakura-scene img { animation: none !important; transform: scale(1.06) !important; }
   .sakura-petals { display: none !important; }
