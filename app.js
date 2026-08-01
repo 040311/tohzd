@@ -810,10 +810,32 @@ const backgroundMusic = $("#backgroundMusic");
 const birthdayRecording = $("#birthdayRecording");
 const confessionSection = $("#confession");
 const confessionVideo = $("#confessionVideo");
+const confessionClosing = $(".confession-closing", confessionSection);
+const confessionClosingTitle = $("p", confessionClosing);
+const confessionButterflyCanvas = $("#confessionButterflyTrail");
+const confessionButterflyField = $("#confessionButterflyField");
+const confessionButterflyContext = confessionButterflyCanvas?.getContext("2d", { alpha: true });
 let birthdayRecordingActive = false;
 let confessionVideoActive = false;
 let confessionSoundtrackWasPlaying = false;
 let confessionSnapArmed = true;
+let confessionButterflyActive = false;
+let confessionButterflyFrame = 0;
+let confessionButterflyLastFrame = 0;
+let confessionButterflyStartedAt = 0;
+let confessionButterflyWidth = 1;
+let confessionButterflyHeight = 1;
+let confessionButterflyDpr = 1;
+let confessionButterflyHistory = [];
+let confessionButterflyParticles = [];
+let confessionButterflyLastEmission = 0;
+let confessionButterflyOrbit = { centerX: 0, centerY: 0, radiusX: 1, radiusY: 1, size: 88 };
+const confessionButterfly = {
+  element: null,
+  bankElement: null,
+  leftWing: null,
+  rightWing: null,
+};
 let birthdayAudioContext = null;
 let birthdayAudioGraphReady = false;
 let fireworkAudioBus = null;
@@ -1112,7 +1134,287 @@ birthdayRecording.addEventListener("pause", () => {
 birthdayRecording.addEventListener("ended", finishBirthdayRecording);
 birthdayRecording.addEventListener("error", finishBirthdayRecording);
 
+function createConfessionButterfly() {
+  if (!confessionButterflyField) return;
+  const element = document.createElement("div");
+  element.className = "letter-butterfly confession-butterfly";
+  element.innerHTML = `<div class="letter-butterfly__bank"><div class="letter-butterfly__visual">
+    <div class="letter-butterfly__wing letter-butterfly__wing--left">${letterButterflyWingSvg("confession", "left")}</div>
+    <div class="letter-butterfly__wing letter-butterfly__wing--right">${letterButterflyWingSvg("confession", "right")}</div>
+    <div class="letter-butterfly__body">${letterButterflyBodySvg("confession")}</div>
+  </div></div>`;
+  confessionButterfly.element = element;
+  confessionButterfly.bankElement = element.querySelector(".letter-butterfly__bank");
+  confessionButterfly.leftWing = element.querySelector(".letter-butterfly__wing--left");
+  confessionButterfly.rightWing = element.querySelector(".letter-butterfly__wing--right");
+  confessionButterflyField.replaceChildren(element);
+}
+
+function updateConfessionButterflyOrbit() {
+  if (!confessionClosingTitle || !confessionButterfly.element) return;
+  const mobile = confessionButterflyWidth < 640;
+  const size = mobile ? 58 : 92;
+  const titleWidth = confessionClosingTitle.offsetWidth;
+  const titleHeight = confessionClosingTitle.offsetHeight;
+  const maxRadiusX = Math.max(1, confessionButterflyWidth * .5 - size * .55);
+  confessionButterflyOrbit = {
+    centerX: confessionClosingTitle.offsetLeft + titleWidth * .5,
+    centerY: confessionClosingTitle.offsetTop + titleHeight * .5 - (mobile ? 9 : 17),
+    radiusX: Math.min(maxRadiusX, titleWidth * .63 + size * .85),
+    radiusY: Math.min(
+      confessionButterflyHeight * .22,
+      Math.max(mobile ? 86 : 142, titleHeight * .95 + size * .32),
+    ),
+    size,
+  };
+  confessionButterfly.element.style.setProperty("--butterfly-size", `${size}px`);
+}
+
+function resizeConfessionButterflyCanvas() {
+  if (!confessionButterflyContext || !confessionButterflyCanvas) return;
+  const width = confessionButterflyCanvas.clientWidth;
+  const height = confessionButterflyCanvas.clientHeight;
+  if (!width || !height) return;
+  confessionButterflyWidth = width;
+  confessionButterflyHeight = height;
+  confessionButterflyDpr = Math.min(window.devicePixelRatio || 1, width < 640 ? 1.5 : 2);
+  confessionButterflyCanvas.width = Math.max(1, Math.round(width * confessionButterflyDpr));
+  confessionButterflyCanvas.height = Math.max(1, Math.round(height * confessionButterflyDpr));
+  confessionButterflyContext.setTransform(confessionButterflyDpr, 0, 0, confessionButterflyDpr, 0, 0);
+  confessionButterflyHistory = [];
+  confessionButterflyParticles = [];
+  updateConfessionButterflyOrbit();
+}
+
+function confessionButterflyPoint(angle) {
+  const { centerX, centerY, radiusX, radiusY } = confessionButterflyOrbit;
+  const ripple = 1 + Math.sin(angle * 3 + .45) * .035 + Math.sin(angle * 5 - .8) * .018;
+  return {
+    x: centerX + Math.cos(angle) * radiusX * ripple + Math.sin(angle * 2) * radiusX * .026,
+    y: centerY + Math.sin(angle) * radiusY * (.92 + Math.cos(angle * 2) * .055)
+      + Math.cos(angle * 2 - .4) * radiusY * .055,
+  };
+}
+
+function confessionButterflyPose(now) {
+  const duration = confessionButterflyWidth < 640 ? 8.2 : 9.4;
+  const progress = ((now - confessionButterflyStartedAt) / 1000 / duration + .61) % 1;
+  const angle = progress * Math.PI * 2;
+  const step = .012;
+  const point = confessionButterflyPoint(angle);
+  const before = confessionButterflyPoint(angle - step);
+  const after = confessionButterflyPoint(angle + step);
+  return {
+    ...point,
+    angle: Math.atan2(after.y - before.y, after.x - before.x),
+    orbitAngle: angle,
+  };
+}
+
+function drawConfessionButterflyTrail() {
+  const context = confessionButterflyContext;
+  const history = confessionButterflyHistory;
+  if (history.length < 2) return;
+  const first = history[0];
+  const last = history[history.length - 1];
+  context.save();
+  context.globalCompositeOperation = "lighter";
+  context.lineCap = "round";
+  context.lineJoin = "round";
+
+  const layers = [
+    { width: 12, alpha: .1, blur: 21 },
+    { width: 5.2, alpha: .22, blur: 12 },
+    { width: 1.35, alpha: .82, blur: 5 },
+  ];
+  layers.forEach((layer) => {
+    const gradient = context.createLinearGradient(first.x, first.y, last.x, last.y);
+    gradient.addColorStop(0, "rgba(8,38,178,0)");
+    gradient.addColorStop(.38, `rgba(10,76,225,${layer.alpha * .28})`);
+    gradient.addColorStop(.74, `rgba(22,158,255,${layer.alpha * .72})`);
+    gradient.addColorStop(1, `rgba(91,231,255,${layer.alpha})`);
+    context.strokeStyle = gradient;
+    context.lineWidth = layer.width;
+    context.shadowColor = `rgba(21,151,255,${layer.alpha * .9})`;
+    context.shadowBlur = layer.blur;
+    context.beginPath();
+    context.moveTo(first.x, first.y);
+    for (let index = 1; index < history.length - 1; index += 1) {
+      const current = history[index];
+      const next = history[index + 1];
+      context.quadraticCurveTo(current.x, current.y, (current.x + next.x) * .5, (current.y + next.y) * .5);
+    }
+    context.lineTo(last.x, last.y);
+    context.stroke();
+  });
+  context.restore();
+}
+
+function emitConfessionButterflyParticles(pose, now) {
+  if (now - confessionButterflyLastEmission < (confessionButterflyWidth < 640 ? 38 : 26)) return;
+  confessionButterflyLastEmission = now;
+  const { size } = confessionButterflyOrbit;
+  const count = confessionButterflyWidth < 640 ? 1 : (Math.random() > .64 ? 2 : 1);
+  const tailX = pose.x - Math.cos(pose.angle) * size * .2;
+  const tailY = pose.y - Math.sin(pose.angle) * size * .2;
+  for (let index = 0; index < count; index += 1) {
+    const normal = (Math.random() - .5) * size * .2;
+    const life = .72 + Math.random() * 1.15;
+    const speed = 9 + Math.random() * 24;
+    confessionButterflyParticles.push({
+      x: tailX + Math.sin(pose.angle) * normal,
+      y: tailY - Math.cos(pose.angle) * normal,
+      vx: -Math.cos(pose.angle) * speed + (Math.random() - .5) * 11,
+      vy: -Math.sin(pose.angle) * speed - 3 - Math.random() * 8,
+      life,
+      maxLife: life,
+      size: .55 + Math.random() * 1.45,
+      tone: Math.random(),
+      glint: Math.random() > .88,
+    });
+  }
+  const limit = confessionButterflyWidth < 640 ? 92 : 170;
+  if (confessionButterflyParticles.length > limit) {
+    confessionButterflyParticles.splice(0, confessionButterflyParticles.length - limit);
+  }
+}
+
+function drawConfessionButterflyParticles(delta) {
+  const context = confessionButterflyContext;
+  context.save();
+  context.globalCompositeOperation = "lighter";
+  confessionButterflyParticles.forEach((particle) => {
+    particle.life -= delta;
+    particle.x += particle.vx * delta;
+    particle.y += particle.vy * delta;
+    particle.vx *= Math.pow(.975, delta * 60);
+    particle.vy -= 2.2 * delta;
+    const remaining = Math.max(0, particle.life / particle.maxLife);
+    const alpha = Math.pow(remaining, 1.3) * (.24 + particle.tone * .48);
+    const red = Math.round(23 + particle.tone * 72);
+    const green = Math.round(104 + particle.tone * 126);
+    context.fillStyle = `rgba(${red},${green},255,${alpha})`;
+    context.shadowColor = `rgba(23,143,255,${alpha})`;
+    context.shadowBlur = 5 + particle.size * 5;
+    if (particle.glint) {
+      context.fillRect(particle.x - particle.size * 2.2, particle.y - .35, particle.size * 4.4, .7);
+      context.fillRect(particle.x - .35, particle.y - particle.size * 2.2, .7, particle.size * 4.4);
+    } else {
+      context.beginPath();
+      context.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+      context.fill();
+    }
+  });
+  context.restore();
+  confessionButterflyParticles = confessionButterflyParticles.filter((particle) => particle.life > 0);
+}
+
+function placeConfessionButterfly(pose, now) {
+  const { element, bankElement } = confessionButterfly;
+  if (!element || !bankElement) return;
+  const { size } = confessionButterflyOrbit;
+  const elapsed = (now - confessionButterflyStartedAt) / 1000;
+  const behavior = (elapsed + .35) % 3.15;
+  const flap = behavior < 1.08
+    ? .16 + .84 * Math.pow((1 - Math.cos(behavior * Math.PI * 9.2)) * .5, .65)
+    : .91 + Math.sin(elapsed * 1.45) * .04;
+  const fold = 7 + (1 - flap) * 66;
+  const depth = (Math.sin(pose.orbitAngle) + 1) * .5;
+  const scale = .86 + depth * .18;
+  const heading = pose.angle * 180 / Math.PI + 90;
+  const bank = Math.sin(pose.orbitAngle) * 10 + Math.sin(pose.orbitAngle * 2) * 4;
+  element.style.opacity = Math.min(.96, Math.max(0, elapsed * 1.4)).toFixed(3);
+  element.style.transform = `translate3d(${(pose.x - size * .5).toFixed(2)}px, ${(pose.y - size * .375).toFixed(2)}px, ${(depth * 28).toFixed(2)}px) rotateZ(${heading.toFixed(2)}deg) scale(${scale.toFixed(3)})`;
+  element.style.setProperty("--wing-fold", `${fold.toFixed(2)}deg`);
+  element.style.setProperty("--wing-fold-right", `${(-fold).toFixed(2)}deg`);
+  element.style.setProperty("--pitch", `${(-5 + depth * 9).toFixed(2)}deg`);
+  bankElement.style.transform = `rotateY(${bank.toFixed(2)}deg) rotateZ(${(bank * .22).toFixed(2)}deg)`;
+}
+
+function animateConfessionButterfly(now) {
+  if (!confessionButterflyActive || !confessionButterflyContext || document.hidden) {
+    confessionButterflyFrame = 0;
+    return;
+  }
+  const delta = Math.min(.05, Math.max(.001, (now - confessionButterflyLastFrame) / 1000 || .0167));
+  confessionButterflyLastFrame = now;
+  const pose = confessionButterflyPose(now);
+  const { size } = confessionButterflyOrbit;
+  const tail = {
+    x: pose.x - Math.cos(pose.angle) * size * .18,
+    y: pose.y - Math.sin(pose.angle) * size * .18,
+  };
+  confessionButterflyHistory.push(tail);
+  const historyLimit = confessionButterflyWidth < 640 ? 42 : 66;
+  if (confessionButterflyHistory.length > historyLimit) confessionButterflyHistory.shift();
+
+  confessionButterflyContext.clearRect(0, 0, confessionButterflyWidth, confessionButterflyHeight);
+  drawConfessionButterflyTrail();
+  emitConfessionButterflyParticles(pose, now);
+  drawConfessionButterflyParticles(delta);
+  placeConfessionButterfly(pose, now);
+  confessionButterflyFrame = window.requestAnimationFrame(animateConfessionButterfly);
+}
+
+function placeStaticConfessionButterfly() {
+  if (!confessionButterfly.element || !confessionButterfly.bankElement) return;
+  updateConfessionButterflyOrbit();
+  const pose = confessionButterflyPoint(-.72);
+  const { size } = confessionButterflyOrbit;
+  confessionButterfly.element.style.opacity = ".9";
+  confessionButterfly.element.style.transform = `translate3d(${(pose.x - size * .5).toFixed(2)}px, ${(pose.y - size * .375).toFixed(2)}px, 0) rotateZ(122deg) scale(.94)`;
+  confessionButterfly.element.style.setProperty("--wing-fold", "19deg");
+  confessionButterfly.element.style.setProperty("--wing-fold-right", "-19deg");
+  confessionButterfly.bankElement.style.transform = "rotateY(-6deg)";
+}
+
+function setConfessionButterflyActive(active) {
+  const shouldShow = Boolean(active && confessionButterflyContext && confessionButterfly.element);
+  confessionButterflyActive = shouldShow && !prefersReducedMotion;
+  if (!shouldShow) {
+    if (confessionButterflyFrame) window.cancelAnimationFrame(confessionButterflyFrame);
+    confessionButterflyFrame = 0;
+    confessionButterflyHistory = [];
+    confessionButterflyParticles = [];
+    confessionButterflyContext?.clearRect(0, 0, confessionButterflyWidth, confessionButterflyHeight);
+    if (confessionButterfly.element) confessionButterfly.element.style.opacity = "0";
+    return;
+  }
+
+  resizeConfessionButterflyCanvas();
+  if (prefersReducedMotion) {
+    placeStaticConfessionButterfly();
+    return;
+  }
+  if (!confessionButterflyFrame) {
+    confessionButterflyStartedAt = performance.now();
+    confessionButterflyLastFrame = confessionButterflyStartedAt;
+    confessionButterflyLastEmission = 0;
+    confessionButterflyFrame = window.requestAnimationFrame(animateConfessionButterfly);
+  }
+}
+
+createConfessionButterfly();
+if ("ResizeObserver" in window && confessionClosing) {
+  const confessionButterflyResizeObserver = new ResizeObserver(() => {
+    if (!confessionButterflyActive && !prefersReducedMotion) return;
+    resizeConfessionButterflyCanvas();
+    if (prefersReducedMotion && confessionSection.classList.contains("is-video-ended")) {
+      placeStaticConfessionButterfly();
+    }
+  });
+  confessionButterflyResizeObserver.observe(confessionClosing);
+} else {
+  window.addEventListener("resize", resizeConfessionButterflyCanvas);
+}
+document.addEventListener("visibilitychange", () => {
+  if (!document.hidden && confessionSection.classList.contains("is-video-ended")) {
+    setConfessionButterflyActive(true);
+  }
+});
+
 function restartConfessionVisuals() {
+  setConfessionButterflyActive(false);
   confessionSection.classList.remove("is-video-active", "is-video-ended", "is-video-paused");
   void confessionSection.offsetWidth;
   confessionSection.classList.add("is-video-active");
@@ -1141,6 +1443,7 @@ async function startConfessionVideo() {
 function stopConfessionVideo({ restoreSoundtrack = true } = {}) {
   if (!confessionVideoActive) return;
   confessionVideoActive = false;
+  setConfessionButterflyActive(false);
   confessionSection.classList.remove("is-video-active", "is-video-ended", "is-video-paused");
   confessionVideo.pause();
   confessionVideo.currentTime = 0;
@@ -1168,6 +1471,7 @@ confessionVideo.addEventListener("ended", () => {
   if (!confessionVideoActive) return;
   confessionSection.classList.remove("is-video-paused");
   confessionSection.classList.add("is-video-ended");
+  setConfessionButterflyActive(true);
   updateSoundState(false);
 });
 

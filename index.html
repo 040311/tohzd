@@ -10,7 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Serif+JP:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700;900&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=20260801-chat-heart" />
+    <link rel="stylesheet" href="styles.css?v=20260801-confession-butterfly" />
   </head>
   <body class="ceremony-pending">
     <div class="noise" aria-hidden="true"></div>
@@ -487,6 +487,10 @@
           </h2>
 
           <div class="confession-closing" aria-hidden="true">
+            <div class="confession-butterfly-scene" aria-hidden="true">
+              <canvas class="confession-butterfly-trail" id="confessionButterflyTrail"></canvas>
+              <div class="confession-butterfly-field" id="confessionButterflyField"></div>
+            </div>
             <p>我喜欢你</p>
             <span lang="ja">あなたが好きです。</span>
           </div>
@@ -538,10 +542,11 @@
           <div class="letter-envelope">
             <div class="letter-envelope__back" aria-hidden="true"></div>
             <div class="letter-envelope__paper" aria-hidden="true">
-              <span>FOR HUAZIDIE</span><i></i><small>2026.08.07</small>
+              <span>FOR HUAZIDIE</span><i></i><small>2026.08.07</small><b>蝶</b>
             </div>
             <div class="letter-envelope__face" aria-hidden="true"></div>
             <div class="letter-envelope__flap" aria-hidden="true"></div>
+            <span class="letter-envelope__edition mono" aria-hidden="true">PRIVATE LETTER / 06</span>
             <span class="letter-label mono" lang="ja">誕生日の手紙 / 封をした言葉</span>
             <svg class="envelope-line-art envelope-line-art--butterfly" viewBox="0 0 180 160" aria-hidden="true">
               <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
@@ -594,14 +599,25 @@
         </div>
         <div class="letter-inside" id="letterInside" tabindex="-1" hidden>
           <div class="letter-paper-texture" aria-hidden="true"></div>
+          <div class="letter-paper-border" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
           <div class="letter-paper-art" aria-hidden="true">
-            <svg class="letter-paper-butterfly" viewBox="0 0 180 160">
+            <svg class="letter-paper-butterfly letter-paper-butterfly--low" viewBox="0 0 180 160">
               <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M88 80C69 50 49 27 28 29C7 31 12 58 31 72C48 85 69 86 88 80Z" />
                 <path d="M92 80C111 50 131 27 152 29C173 31 168 58 149 72C132 85 111 86 92 80Z" />
                 <path d="M87 83C66 82 44 90 36 109C29 127 47 136 62 124C76 113 84 96 87 83Z" />
                 <path d="M93 83C114 82 136 90 144 109C151 127 133 136 118 124C104 113 96 96 93 83Z" />
                 <path d="M90 66C86 78 86 104 90 129C94 104 94 78 90 66Z" />
+              </g>
+            </svg>
+            <svg class="letter-paper-butterfly letter-paper-butterfly--flight" viewBox="0 0 180 160">
+              <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M88 80C69 50 49 27 28 29C7 31 12 58 31 72C48 85 69 86 88 80Z" />
+                <path d="M92 80C111 50 131 27 152 29C173 31 168 58 149 72C132 85 111 86 92 80Z" />
+                <path d="M87 83C66 82 44 90 36 109C29 127 47 136 62 124C76 113 84 96 87 83Z" />
+                <path d="M93 83C114 82 136 90 144 109C151 127 133 136 118 124C104 113 96 96 93 83Z" />
+                <path d="M90 66C86 78 86 104 90 129C94 104 94 78 90 66Z" />
+                <path d="M87 66C78 50 67 46 59 48M93 66C102 50 113 46 121 48" />
               </g>
             </svg>
             <svg class="letter-paper-bow" viewBox="0 0 430 310">
@@ -623,7 +639,10 @@
             </svg>
             <span class="paper-sparkle paper-sparkle--one">+</span><span class="paper-sparkle paper-sparkle--two">✦</span><span class="paper-sparkle paper-sparkle--three">×</span>
           </div>
-          <p class="letter-paper-whisper" aria-hidden="true">I hope you're here<br />for me</p>
+          <div class="letter-paper-prologue" aria-hidden="true">
+            <p class="letter-paper-whisper">I hope you're here<br />for me</p>
+            <span class="letter-paper-monogram"><b>蝶</b><small>PRIVATE LETTER<br />2026.08.07</small></span>
+          </div>
           <p class="letter-paper-fortune" aria-hidden="true">Fortune favors<br />the bold</p>
           <div class="letter-inside-head">
             <div class="letter-inside-meta mono" lang="ja">あなたへ / 2026.08.07</div>
@@ -682,6 +701,6 @@
       <button class="lightbox-arrow lightbox-next" id="lightboxNext" type="button" aria-label="下一张">→</button>
     </div>
 
-    <script src="app.js?v=20260801-chat-heart"></script>
+    <script src="app.js?v=20260801-confession-butterfly"></script>
   </body>
 </html>
