@@ -7,10 +7,11 @@
     <meta name="description" content="一整本写给华紫蝶的未出版生日摄影集" />
     <title>献给华紫蝶</title>
     <link rel="icon" href="assets/hero/birthday-portrait-mobile.jpg" type="image/jpeg" />
+    <link rel="preload" as="image" href="assets/backgrounds/sanrio-birthday-party.webp?v=20260802-sanrio-opening" fetchpriority="high" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Serif+JP:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700;900&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=20260801-constellation-auto" />
+    <link rel="stylesheet" href="styles.css?v=20260802-sanrio-opening" />
   </head>
   <body class="ceremony-pending">
     <div class="noise" aria-hidden="true"></div>
@@ -143,72 +144,63 @@
       </div>
 
       <section class="birthday-opening section-pad" id="birthdayOpening" aria-labelledby="birthdayOpeningTitle">
-        <div class="birthday-date-monument" aria-hidden="true"><span>07</span><i>08</i><b>2026</b></div>
-        <div class="birthday-opening-mark mono" lang="ja">00 / 誕生日、はじまりの頁 / 2026.08.07</div>
+        <picture class="birthday-scene-media" aria-hidden="true">
+          <img src="assets/backgrounds/sanrio-birthday-party.webp?v=20260802-sanrio-opening" alt="" />
+        </picture>
+        <div class="birthday-scene-wash" aria-hidden="true"></div>
+        <div class="birthday-scene-sparkles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="birthday-opening-mark mono"><span>00 / BIRTHDAY MORNING</span><i></i><span>FOR HUAZIDIE · 2026.08.07</span></div>
         <div class="birthday-opening-grid">
-          <div class="birthday-art" id="birthdayCake" aria-label="一只等待点亮的生日蜡烛">
-            <div class="art-panel-blue" aria-hidden="true"></div>
-            <div class="art-panel-coral" aria-hidden="true"></div>
-            <div class="art-sun" aria-hidden="true"></div>
-            <div class="art-ribbon ribbon-one" aria-hidden="true"></div>
-            <div class="art-ribbon ribbon-two" aria-hidden="true"></div>
-            <figure class="birthday-still-life">
-              <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?auto=format&fit=crop&w=1200&q=88" alt="生日蛋糕静物" />
-              <figcaption class="mono" lang="ja">小さな誕生日の儀式 / あなたへ</figcaption>
-            </figure>
-            <div class="birthday-sculpture" aria-hidden="true">
-              <div class="birthday-candle"><span class="candle-flame"></span><i></i></div>
-              <div class="sculpture-top"></div>
-              <div class="sculpture-layer layer-one"></div>
-              <div class="sculpture-layer layer-two"></div>
-              <div class="sculpture-plinth"></div>
-            </div>
-            <div class="paper-flower" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></div>
-            <div class="birthday-art-type" lang="ja" aria-hidden="true"><span>お誕生日</span><strong>おめでとう</strong></div>
-            <div class="birthday-art-stamp"><span>07</span><small lang="ja">八月 / 2026</small></div>
-            <span class="birthday-art-label mono" lang="ja">願いごと / 2026.08.07</span>
-          </div>
           <div class="birthday-opening-copy">
-            <div class="section-kicker mono" lang="ja">新しい一年、あなたのために</div>
-            <h2 id="birthdayOpeningTitle">今天，<br /><em>世界为你<br />多亮一盏灯。</em></h2>
-            <p>愿你新的一岁，更加美丽、幸福、自由。</p>
+            <div class="section-kicker mono" lang="ja">好きな世界が、あなたを祝う日。</div>
+            <h2 id="birthdayOpeningTitle">今天，<br /><em>你喜欢的世界</em><br /><strong>都来陪你<br class="birthday-title-break" />过生日。</strong></h2>
+            <p class="birthday-opening-lead">把最柔软的颜色、最熟悉的可爱和最认真的祝福，都放进这一场只属于你的生日小聚。</p>
             <blockquote class="birthday-quote">
-              <p>愿好事找到你，<br />而我继续在你身边。</p>
-              <footer class="mono" lang="ja">すべての幸せが、あなたを見つけますように。</footer>
+              <p>愿每一件好事都找到你，<br />愿我也一直在你身边。</p>
+              <footer class="mono" lang="ja">やさしい幸せが、あなたを見つけますように。</footer>
             </blockquote>
             <div class="birthday-indexes">
-              <span><b>01</b> 常欢喜</span>
-              <span><b>02</b> 有自由</span>
-              <span><b>03</b> 被偏爱</span>
+              <span><b>01</b> 常欢喜</span><span><b>02</b> 有自由</span><span><b>03</b> 被偏爱</span>
             </div>
+          </div>
+
+          <div class="birthday-art birthday-wish-card" id="birthdayCake" aria-label="等待点亮的生日祝福">
+            <div class="birthday-wish-card-meta mono"><span>PRIVATE WISH</span><span>08 — 07</span></div>
+            <div class="birthday-wish-emblem" aria-hidden="true"><i></i><span>✦</span><b></b></div>
+            <p class="birthday-wish-kicker mono" lang="ja">あなたの瞬間 / 2026.08.07</p>
+            <h3>把今天的快乐，<br /><em>亲手点亮。</em></h3>
             <div class="wish-action-row">
               <div class="wish-cta-copy">
-                <span class="wish-cta-kicker mono" lang="ja">あなたの瞬間 / 2026.08.07</span>
                 <button class="wish-button" id="birthdayWish" type="button"><span>点这里，点亮这一岁</span><b>✦</b></button>
-                <small>这一刻，交给你亲手开启。</small>
+                <small>这一刻，只需要轻轻按下。</small>
               </div>
               <p class="wish-note" id="birthdayWishNote" hidden>华紫蝶，眼里有光，身边有爱，脚下有想走的路。</p>
             </div>
-            <div class="birthday-blessing-picker" aria-labelledby="blessingPickerTitle">
-              <p class="mono" id="blessingPickerTitle" lang="ja">新しい一年へ、ことばをひとつ</p>
-              <div class="blessing-options">
-                <button class="blessing-option" type="button" data-blessing="愿你的快乐不需要理由，也不必向谁解释。" aria-label="选择祝福：快乐">
-                  <span aria-hidden="true">✦</span><em>快乐</em><small lang="ja">よろこび</small>
-                </button>
-                <button class="blessing-option" type="button" data-blessing="愿你想走的路都有光，想停的时候也有拥抱。" aria-label="选择祝福：勇气">
-                  <span aria-hidden="true">↗</span><em>勇气</em><small lang="ja">ゆうき</small>
-                </button>
-                <button class="blessing-option" type="button" data-blessing="愿命运偶尔偏心，把好消息一件件放到你手里。" aria-label="选择祝福：好运">
-                  <span aria-hidden="true">◎</span><em>好运</em><small lang="ja">こううん</small>
-                </button>
-                <button class="blessing-option" type="button" data-blessing="愿你一直被世界温柔接住，也一直被我明目张胆地偏爱。" aria-label="选择祝福：偏爱">
-                  <span aria-hidden="true">♡</span><em>偏爱</em><small lang="ja">とくべつ</small>
-                </button>
-              </div>
-              <p class="blessing-result" id="blessingResult" aria-live="polite">愿你拥有以上的所有。</p>
-            </div>
+            <div class="birthday-wish-card-footer mono"><span>THE DAY IS YOURS</span><span>01 / 04</span></div>
           </div>
         </div>
+
+        <div class="birthday-blessing-picker" aria-labelledby="blessingPickerTitle">
+          <div class="birthday-blessing-copy">
+            <p class="mono" id="blessingPickerTitle" lang="ja">新しい一年へ、ことばをひとつ</p>
+            <p class="blessing-result" id="blessingResult" aria-live="polite">愿你拥有以上的所有。</p>
+          </div>
+          <div class="blessing-options">
+            <button class="blessing-option" type="button" data-blessing="愿你的快乐不需要理由，也不必向谁解释。" aria-label="选择祝福：快乐">
+              <span aria-hidden="true">✦</span><em>快乐</em><small lang="ja">よろこび</small>
+            </button>
+            <button class="blessing-option" type="button" data-blessing="愿你想走的路都有光，想停的时候也有拥抱。" aria-label="选择祝福：勇气">
+              <span aria-hidden="true">↗</span><em>勇气</em><small lang="ja">ゆうき</small>
+            </button>
+            <button class="blessing-option" type="button" data-blessing="愿命运偶尔偏心，把好消息一件件放到你手里。" aria-label="选择祝福：好运">
+              <span aria-hidden="true">◎</span><em>好运</em><small lang="ja">こううん</small>
+            </button>
+            <button class="blessing-option" type="button" data-blessing="愿你一直被世界温柔接住，也一直被我明目张胆地偏爱。" aria-label="选择祝福：偏爱">
+              <span aria-hidden="true">♡</span><em>偏爱</em><small lang="ja">とくべつ</small>
+            </button>
+          </div>
+        </div>
+        <div class="birthday-scene-footer mono" aria-hidden="true"><span>WELCOME TO YOUR LITTLE PARTY</span><span>HUAZIDIE / 2026</span></div>
       </section>
 
       <section class="favorite-page section-pad" id="favorites" aria-labelledby="favoriteUniverseTitle">
