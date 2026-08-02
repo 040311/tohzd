@@ -2287,7 +2287,7 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
 @media (max-width: 820px) {
   .chapter-compass { top: auto; right: 13px; bottom: 14px; display: grid; place-items: center; width: 42px; height: 42px; border: 1px solid rgba(23,24,24,.16); background: rgba(243,239,231,.78); color: var(--ink); transform: none; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
   .chapter-compass.on-dark { border-color: rgba(243,239,231,.24); background: rgba(18,21,20,.58); color: var(--paper); }
-  .chapter-compass[data-chapter="letter"], .chapter-compass[data-chapter="finale"] { opacity: 0; }
+  .chapter-compass[data-chapter="birthdayOpening"], .chapter-compass[data-chapter="letter"], .chapter-compass[data-chapter="finale"] { opacity: 0; }
   .chapter-compass > i, .chapter-compass > div { display: none; }
   .chapter-compass > span { font-size: 12px; }
   .fairytale-backdrop img { object-position: 61% 40%; }

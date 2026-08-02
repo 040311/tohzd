@@ -172,7 +172,6 @@ $("#birthdayWish").addEventListener("click", () => {
   $("#birthdayWish").firstChild.textContent = isLit ? "华紫蝶，这一岁已经点亮 " : "点这里，点亮这一岁 ";
   if (isLit) {
     burstFromElement($("#birthdayCake"), 54);
-    runFairytaleCelebration();
   } else {
     stopFairytaleCelebration();
     document.body.classList.remove("celebration-live");
