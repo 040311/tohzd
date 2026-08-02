@@ -295,27 +295,23 @@ body.fairytale-live .particle-canvas { z-index: 151; mix-blend-mode: screen; opa
 @keyframes fairytaleImage { from { transform: scale(1.055); filter: saturate(.94) brightness(.62) contrast(1.12); } 16%, 80% { transform: scale(1.025); filter: saturate(1.08) brightness(.78) contrast(1.07); } to { transform: scale(1.012); filter: saturate(1) brightness(.67) contrast(1.09); } }
 @keyframes fairytaleCopyIn { 0%, 10% { opacity: 0; translate: -22px 18px; } 22%, 78% { opacity: 1; translate: 0 0; } 100% { opacity: 0; translate: 0 -12px; } }
 @keyframes fairytaleTwinkle { 0%,100% { opacity: .2; transform: scale(.75); } 45% { opacity: 1; transform: scale(1.45); } }
-.meteor-shower { position: fixed; z-index: 85; inset: 0; overflow: hidden; background: rgba(4,9,13,.78); color: #fff8ec; opacity: 0; visibility: hidden; pointer-events: none; isolation: isolate; }
-.meteor-shower.is-active { visibility: visible; animation: meteorSceneReveal 8.6s cubic-bezier(.2,.72,.2,1) both; }
-.meteor-shower canvas,
-.meteor-shower-veil { position: absolute; inset: 0; width: 100%; height: 100%; }
-.meteor-shower canvas { z-index: 1; }
-.meteor-shower-veil { z-index: 2; background: radial-gradient(ellipse at 50% 42%, transparent 0 25%, rgba(2,8,12,.18) 62%, rgba(2,6,10,.58) 100%), linear-gradient(180deg, rgba(4,10,15,.24), transparent 34%, rgba(3,8,12,.42)); }
-.meteor-shower-meta { position: absolute; z-index: 3; top: clamp(78px, 10vh, 104px); right: clamp(28px, 5vw, 76px); left: clamp(28px, 5vw, 76px); display: flex; justify-content: space-between; padding-bottom: 13px; border-bottom: 1px solid rgba(255,240,220,.28); color: rgba(255,240,220,.68); font-size: 11px; letter-spacing: 0; opacity: 0; }
-.meteor-shower-copy { position: absolute; z-index: 3; right: 24px; bottom: clamp(74px, 13vh, 138px); left: 24px; text-align: center; text-shadow: 0 4px 28px rgba(0,5,9,.75); opacity: 0; transform: translateY(18px); }
-.meteor-shower-copy p { display: flex; align-items: baseline; justify-content: center; gap: .2em; width: max-content; max-width: 100%; margin: 0 auto; font-family: var(--art-serif); font-size: clamp(44px, 6.2vw, 88px); font-weight: 400; line-height: 1; transform: rotate(-.7deg); }
-.meteor-shower-copy p > span { color: #fff8ed; font-size: .78em; }
-.meteor-shower-copy strong { position: relative; color: #f4bdb2; font-weight: 400; }
-.meteor-shower-copy strong::after { position: absolute; right: 2%; bottom: -.12em; left: 18%; height: 1px; content: ""; background: linear-gradient(90deg, rgba(255,218,203,.08), rgba(255,218,203,.82) 38%, transparent); transform: rotate(-2deg); transform-origin: right center; }
-.meteor-shower-copy > span { display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 22px; color: rgba(255,235,214,.82); font-family: var(--jp-serif); font-size: clamp(13px, 1.2vw, 17px); letter-spacing: 0; }
-.meteor-shower-copy > span::before,
-.meteor-shower-copy > span::after { width: clamp(34px, 4.8vw, 72px); height: 1px; content: ""; background: linear-gradient(90deg, transparent, rgba(244,189,178,.62)); }
-.meteor-shower-copy > span::after { transform: rotate(180deg); }
-.meteor-shower.is-active .meteor-shower-meta { animation: meteorMetaReveal 8.6s ease both; }
-.meteor-shower.is-active .meteor-shower-copy { animation: meteorCopyReveal 8.6s cubic-bezier(.2,.72,.2,1) both; }
-@keyframes meteorSceneReveal { 0% { opacity: 0; } 7%, 88% { opacity: 1; } 100% { opacity: 0; } }
-@keyframes meteorMetaReveal { 0%, 7% { opacity: 0; } 14%, 83% { opacity: 1; } 94%, 100% { opacity: 0; } }
-@keyframes meteorCopyReveal { 0%, 24% { opacity: 0; transform: translateY(18px); } 36%, 76% { opacity: 1; transform: translateY(0); } 91%, 100% { opacity: 0; transform: translateY(-12px); } }
+.together-gate { position: fixed; z-index: 85; inset: 0; display: grid; place-items: center; overflow: hidden; padding: 24px; background: #faf1e1; color: #775550; isolation: isolate; }
+.together-gate[hidden] { display: none; }
+.together-gate-inner { display: flex; flex-direction: column; align-items: center; justify-content: center; width: min(100%, 560px); min-height: 100%; text-align: center; }
+.together-gate img { width: min(240px, 52vw); height: auto; aspect-ratio: 1; object-fit: contain; transition: transform .3s ease; }
+.together-gate-text { margin: 18px 0 20px; color: #775550; font-family: var(--art-serif); font-size: clamp(28px, 4.2vw, 42px); font-weight: 700; line-height: 1.2; transition: transform .3s ease; }
+.together-gate-actions { display: flex; align-items: center; justify-content: center; gap: 12px; min-height: 60px; }
+.together-button { margin: 10px; border: 0; border-radius: 5px; padding: 10px 20px; color: #fff; font-family: var(--sans); font-size: 18px; transition: transform .3s ease, filter .3s ease; }
+.together-button:hover, .together-button:focus-visible { filter: brightness(.96); }
+.together-button:focus-visible { outline: 2px solid #775550; outline-offset: 4px; }
+.together-button-yes { background: #f7b1ae; }
+.together-button-no { background: #b3c9f1; }
+.together-gate:not([hidden]) { animation: togetherGateReveal .35s ease both; }
+.together-gate.is-accepted .together-gate-inner { animation: togetherSuccessIn .55s cubic-bezier(.2,.72,.2,1) both; }
+.together-gate.is-leaving { pointer-events: none; animation: togetherGateExit .42s ease both; }
+@keyframes togetherGateReveal { from { opacity: 0; } to { opacity: 1; } }
+@keyframes togetherSuccessIn { from { opacity: .5; transform: scale(.94); } to { opacity: 1; transform: scale(1); } }
+@keyframes togetherGateExit { from { opacity: 1; } to { opacity: 0; } }
 .reading-progress { position: fixed; z-index: 50; top: 0; left: 0; width: 100%; height: 3px; pointer-events: none; }
 .reading-progress span { display: block; height: 100%; width: 0; background: var(--red); transition: width .1s linear; }
 .mono { font-family: var(--mono); font-size: 13px; letter-spacing: 0; text-transform: uppercase; }
@@ -2300,15 +2296,10 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
   .fairytale-copy small { margin-top: 15px; font-size: 14px; }
   .fairytale-copy time { margin-top: 18px; font-size: 10px; }
   .fairytale-caption { right: 18px; bottom: 24px; left: 18px; text-align: center; font-size: 11px; }
-  .meteor-shower-meta { top: 76px; right: 20px; left: 20px; gap: 18px; font-size: 8px; line-height: 1.5; }
-  .meteor-shower-meta span:last-child { text-align: right; }
-  .meteor-shower-copy { right: 20px; bottom: 14vh; left: 20px; }
-  .meteor-shower-copy p { display: grid; justify-items: center; gap: 2px; width: 100%; font-size: clamp(38px, 12vw, 52px); line-height: 1.08; }
-  .meteor-shower-copy p > span { font-size: .74em; }
-  .meteor-shower-copy strong { display: block; }
-  .meteor-shower-copy > span { gap: 10px; margin-top: 18px; font-size: 12px; }
-  .meteor-shower-copy > span::before,
-  .meteor-shower-copy > span::after { width: 27px; }
+  .together-gate { padding: 18px; }
+  .together-gate-text { margin-top: 12px; font-size: clamp(27px, 8vw, 38px); }
+  .together-gate-actions { gap: 4px; }
+  .together-button { margin: 8px; padding: 9px 16px; font-size: 17px; }
   .opening-ceremony { background: #211f1e; }
   .ceremony-media { bottom: auto; height: 54%; }
   .ceremony-media img { object-position: center 34%; }
@@ -2743,7 +2734,7 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
-  .grand-celebration, .fairytale-celebration, .meteor-shower { display: none !important; }
+  .grand-celebration, .fairytale-celebration { display: none !important; }
   .birthday-scene-sparkles { display: none !important; }
   .wish-button:not(.is-lit) b { animation: none !important; }
   .kinetic-ribbon-track { animation: none !important; }

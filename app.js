@@ -1039,7 +1039,7 @@ function playWishChime(index = 0) {
 
 function updateSoundState(isPlaying) {
   soundControl.classList.toggle("is-playing", isPlaying);
-  if (confessionVideoActive) {
+  if (confessionVideoActive && !confessionVideo.ended) {
     soundLabel.textContent = isPlaying ? "暂停视频" : confessionVideo.ended ? "重播视频" : "继续视频";
     soundControl.setAttribute("aria-label", isPlaying ? "暂停告白视频" : confessionVideo.ended ? "重播告白视频" : "继续播放告白视频");
     return;
@@ -1065,7 +1065,8 @@ async function startBackgroundMusic() {
 }
 
 function activeSoundtrack() {
-  if (confessionVideoActive) return confessionVideo;
+  if (confessionVideoActive && !confessionVideo.ended) return confessionVideo;
+  if (confessionVideoActive) return backgroundMusic;
   return birthdayRecordingActive ? birthdayRecording : backgroundMusic;
 }
 
@@ -1073,9 +1074,10 @@ async function startActiveSoundtrack() {
   const soundtrack = activeSoundtrack();
   try {
     await soundtrack.play();
+    if (soundtrack !== activeSoundtrack() || soundtrack.paused) return;
     updateSoundState(true);
   } catch {
-    updateSoundState(false);
+    if (soundtrack === activeSoundtrack()) updateSoundState(false);
   }
 }
 
@@ -1447,7 +1449,7 @@ function stopConfessionVideo({ restoreSoundtrack = true } = {}) {
   confessionSection.classList.remove("is-video-active", "is-video-ended", "is-video-paused");
   confessionVideo.pause();
   confessionVideo.currentTime = 0;
-  updateSoundState(false);
+  updateSoundState(!activeSoundtrack().paused);
   if (restoreSoundtrack && confessionSoundtrackWasPlaying) void startActiveSoundtrack();
   confessionSoundtrackWasPlaying = false;
 }
@@ -1472,7 +1474,13 @@ confessionVideo.addEventListener("ended", () => {
   confessionSection.classList.remove("is-video-paused");
   confessionSection.classList.add("is-video-ended");
   setConfessionButterflyActive(true);
+  if (birthdayRecordingActive) {
+    birthdayRecordingActive = false;
+    birthdayRecording.currentTime = 0;
+  }
   updateSoundState(false);
+  if (confessionSoundtrackWasPlaying) void startActiveSoundtrack();
+  confessionSoundtrackWasPlaying = false;
 });
 
 function alignConfessionViewport() {
@@ -2207,187 +2215,112 @@ $$('.blessing-option').forEach((option, optionIndex) => {
   });
 });
 
-// The completed constellation opens a short, full-screen meteor scene.
-const meteorShower = $("#meteorShower");
-const meteorShowerCanvas = $("#meteorShowerCanvas");
-const meteorShowerContext = meteorShowerCanvas.getContext("2d");
-let meteorShowerDpr = 1;
-let meteorShowerWidth = 1;
-let meteorShowerHeight = 1;
-let meteorShowerFrame = 0;
-let meteorShowerStartedAt = 0;
-let meteorShowerStopTimer = 0;
-let meteorShowerPlayed = false;
-let meteorStars = [];
-let meteorTracks = [];
-const meteorPalette = [
-  { primary: "255,102,174", secondary: "255,190,216" },
-  { primary: "255,204,94", secondary: "255,137,102" },
-  { primary: "84,221,255", secondary: "116,151,255" },
-  { primary: "82,238,176", secondary: "93,205,255" },
-  { primary: "185,117,255", secondary: "255,112,219" },
-  { primary: "255,104,88", secondary: "255,191,92" },
+// The completed constellation opens a local copy of the together confirmation effect.
+const togetherGate = $("#togetherGate");
+const togetherImage = $("#togetherImage");
+const togetherQuestion = $("#togetherQuestion");
+const togetherYes = $("#togetherYes");
+const togetherNo = $("#togetherNo");
+const togetherNoImages = [
+  "assets/together/wronged.png",
+  "assets/together/sad.png",
+  "assets/together/beg.png",
+  "assets/together/shock.png",
+  "assets/together/no.png",
+  "assets/together/really.png",
 ];
+const togetherNoTexts = ["诶嘿~", "点这我会伤心", "求你别点", "再想想吧", "不要啊！", "真的吗？"];
+const togetherGateBackground = $$('body > .noise, body > .particle-canvas, body > .reading-progress, body > .site-header, body > main, body > .site-footer, body > .lightbox');
+let togetherGateOpen = false;
+let togetherGateAccepted = false;
+let togetherNoClicks = 0;
+let togetherCloseTimer = 0;
 
-function resizeMeteorShowerCanvas() {
-  meteorShowerWidth = Math.max(1, window.innerWidth);
-  meteorShowerHeight = Math.max(1, window.innerHeight);
-  meteorShowerDpr = Math.min(window.devicePixelRatio || 1, 2);
-  meteorShowerCanvas.width = Math.round(meteorShowerWidth * meteorShowerDpr);
-  meteorShowerCanvas.height = Math.round(meteorShowerHeight * meteorShowerDpr);
-  meteorShowerContext.setTransform(meteorShowerDpr, 0, 0, meteorShowerDpr, 0, 0);
+function setTogetherBackgroundInert(isInert) {
+  togetherGateBackground.forEach((element) => { element.inert = isInert; });
 }
 
-function buildMeteorShowerScene() {
-  const isMobile = meteorShowerWidth < 640;
-  const starCount = isMobile ? 46 : 92;
-  meteorStars = Array.from({ length: starCount }, () => ({
-    x: Math.random(),
-    y: Math.random() * .82,
-    radius: .35 + Math.random() * 1.15,
-    alpha: .12 + Math.random() * .42,
-    phase: Math.random() * Math.PI * 2,
-    speed: .0008 + Math.random() * .0015,
-    color: Math.floor(Math.random() * meteorPalette.length),
-  }));
-
-  meteorTracks = [];
-  const waves = isMobile
-    ? [{ start: 520, count: 7 }, { start: 1880, count: 9 }, { start: 3400, count: 11 }, { start: 5050, count: 8 }]
-    : [{ start: 480, count: 11 }, { start: 1740, count: 14 }, { start: 3200, count: 17 }, { start: 4920, count: 13 }];
-
-  waves.forEach((wave, waveIndex) => {
-    for (let index = 0; index < wave.count; index += 1) {
-      const depth = .5 + Math.random() * .85;
-      meteorTracks.push({
-        start: wave.start + Math.random() * 740,
-        duration: (980 + Math.random() * 780) / (.78 + depth * .28),
-        x: .18 + Math.random() * 1.15,
-        y: -.14 + Math.random() * .5,
-        distance: .5 + Math.random() * .64,
-        slope: .36 + Math.random() * .22,
-        length: (.075 + Math.random() * .105) * (.82 + depth * .25),
-        width: .55 + depth * 1.15,
-        alpha: .68 + Math.random() * .3,
-        color: (index + waveIndex * 2 + Math.floor(Math.random() * 3)) % meteorPalette.length,
-        fragments: Math.random() > .58 ? 3 : 0,
-      });
-    }
-  });
-
-  meteorTracks.push(
-    { start: 1450, duration: 1650, x: 1.16, y: .08, distance: 1.28, slope: .54, length: .23, width: 2.2, alpha: 1, color: 4, fragments: 6 },
-    { start: 3920, duration: 1780, x: .94, y: -.02, distance: 1.12, slope: .6, length: .27, width: 2.45, alpha: 1, color: 2, fragments: 7 },
-    { start: 5350, duration: 1580, x: 1.08, y: .18, distance: 1.18, slope: .48, length: .24, width: 2.25, alpha: 1, color: 1, fragments: 6 },
-  );
+function resetTogetherGate() {
+  togetherNoClicks = 0;
+  togetherImage.src = "assets/together/default.png";
+  togetherImage.alt = "询问";
+  togetherQuestion.textContent = "可以和我在一起吗？";
+  togetherQuestion.style.transform = "translateY(0)";
+  togetherImage.style.transform = "translateY(0)";
+  togetherYes.hidden = false;
+  togetherNo.hidden = false;
+  togetherYes.style.transform = "scale(1)";
+  togetherNo.style.transform = "translateX(0)";
+  togetherNo.textContent = "不可以";
+  togetherGate.classList.remove("is-accepted", "is-leaving");
 }
 
-function drawMeteorStar(star, elapsed) {
-  const twinkle = .62 + Math.sin(elapsed * star.speed + star.phase) * .38;
-  meteorShowerContext.beginPath();
-  meteorShowerContext.arc(star.x * meteorShowerWidth, star.y * meteorShowerHeight, star.radius, 0, Math.PI * 2);
-  const color = meteorPalette[star.color].primary;
-  meteorShowerContext.fillStyle = `rgba(${color},${star.alpha * twinkle})`;
-  meteorShowerContext.fill();
+function openTogetherGate() {
+  if (togetherGateOpen || togetherGateAccepted) return;
+  resetTogetherGate();
+  togetherGateOpen = true;
+  togetherGate.hidden = false;
+  togetherGate.setAttribute("aria-hidden", "false");
+  document.body.classList.add("is-locked", "together-gate-open");
+  setTogetherBackgroundInert(true);
+  togetherYes.focus({ preventScroll: true });
 }
 
-function drawMeteor(track, elapsed) {
-  const progress = (elapsed - track.start) / track.duration;
-  if (progress <= 0 || progress >= 1) return;
+function closeTogetherGate() {
+  window.clearTimeout(togetherCloseTimer);
+  togetherGateOpen = false;
+  togetherGate.hidden = true;
+  togetherGate.setAttribute("aria-hidden", "true");
+  togetherGate.classList.remove("is-accepted", "is-leaving");
+  document.body.classList.remove("is-locked", "together-gate-open");
+  setTogetherBackgroundInert(false);
+  futureSection.classList.add("is-together-accepted");
+}
 
-  const x = (track.x - track.distance * progress) * meteorShowerWidth;
-  const y = (track.y + track.distance * track.slope * progress) * meteorShowerHeight;
-  const vx = -track.distance * meteorShowerWidth;
-  const vy = track.distance * track.slope * meteorShowerHeight;
-  const velocity = Math.hypot(vx, vy) || 1;
-  const ux = vx / velocity;
-  const uy = vy / velocity;
-  const tailLength = Math.hypot(meteorShowerWidth, meteorShowerHeight) * track.length;
-  const tailX = x - ux * tailLength;
-  const tailY = y - uy * tailLength;
-  const fade = Math.min(1, progress * 7, (1 - progress) * 5) * track.alpha;
-  const palette = meteorPalette[track.color];
-  const color = palette.primary;
-  const accent = palette.secondary;
+function acceptTogether() {
+  if (!togetherGateOpen || togetherGateAccepted) return;
+  togetherGateAccepted = true;
+  togetherGate.classList.add("is-accepted");
+  togetherImage.src = "assets/together/happy.png";
+  togetherImage.alt = "开心";
+  togetherQuestion.textContent = "爱你哟~！";
+  togetherYes.hidden = true;
+  togetherNo.hidden = true;
+  togetherCloseTimer = window.setTimeout(() => {
+    togetherGate.classList.add("is-leaving");
+    togetherCloseTimer = window.setTimeout(closeTogetherGate, prefersReducedMotion ? 0 : 420);
+  }, prefersReducedMotion ? 0 : 760);
+}
 
-  meteorShowerContext.save();
-  meteorShowerContext.globalCompositeOperation = "lighter";
-  meteorShowerContext.lineCap = "round";
-  const glow = meteorShowerContext.createLinearGradient(tailX, tailY, x, y);
-  glow.addColorStop(0, `rgba(${color},0)`);
-  glow.addColorStop(.48, `rgba(${color},${fade * .1})`);
-  glow.addColorStop(.78, `rgba(${color},${fade * .48})`);
-  glow.addColorStop(.94, `rgba(${accent},${fade * .86})`);
-  glow.addColorStop(1, `rgba(255,250,240,${fade})`);
-  meteorShowerContext.strokeStyle = glow;
-  meteorShowerContext.lineWidth = track.width * 4.2;
-  meteorShowerContext.shadowColor = `rgba(${color},${fade * .8})`;
-  meteorShowerContext.shadowBlur = 18 * track.width;
-  meteorShowerContext.beginPath();
-  meteorShowerContext.moveTo(tailX, tailY);
-  meteorShowerContext.lineTo(x, y);
-  meteorShowerContext.stroke();
+togetherYes.addEventListener("click", acceptTogether);
+togetherNo.addEventListener("click", () => {
+  if (!togetherGateOpen || togetherGateAccepted) return;
+  togetherNoClicks += 1;
+  const imageIndex = Math.min(togetherNoClicks - 1, togetherNoImages.length - 1);
+  togetherImage.src = togetherNoImages[imageIndex];
+  togetherNo.textContent = togetherNoTexts[imageIndex] || togetherNoTexts[togetherNoTexts.length - 1];
+  togetherYes.style.transform = `scale(${1 + togetherNoClicks * 1.2})`;
+  togetherNo.style.transform = `translateX(${togetherNoClicks * 50}px)`;
+  togetherImage.style.transform = `translateY(-${togetherNoClicks * 25}px)`;
+  togetherQuestion.style.transform = `translateY(-${togetherNoClicks * 25}px)`;
+});
 
-  meteorShowerContext.lineWidth = Math.max(.7, track.width * .72);
-  meteorShowerContext.shadowBlur = 4;
-  meteorShowerContext.beginPath();
-  meteorShowerContext.moveTo(tailX + (x - tailX) * .22, tailY + (y - tailY) * .22);
-  meteorShowerContext.lineTo(x, y);
-  meteorShowerContext.stroke();
+function preventTogetherGateScroll(event) {
+  if (!togetherGateOpen) return;
+  event.preventDefault();
+}
 
-  const headRadius = 6 + track.width * 3.8;
-  const headGlow = meteorShowerContext.createRadialGradient(x, y, 0, x, y, headRadius);
-  headGlow.addColorStop(0, `rgba(255,255,247,${fade})`);
-  headGlow.addColorStop(.2, `rgba(${accent},${fade * .9})`);
-  headGlow.addColorStop(1, `rgba(${color},0)`);
-  meteorShowerContext.fillStyle = headGlow;
-  meteorShowerContext.beginPath();
-  meteorShowerContext.arc(x, y, headRadius, 0, Math.PI * 2);
-  meteorShowerContext.fill();
-
-  for (let index = 1; index <= track.fragments; index += 1) {
-    const distance = tailLength * (.16 + index * .1);
-    const drift = Math.sin(track.start * .01 + index * 1.7) * 5;
-    meteorShowerContext.beginPath();
-    meteorShowerContext.arc(x - ux * distance - uy * drift, y - uy * distance + ux * drift, Math.max(.45, track.width * .38), 0, Math.PI * 2);
-    const fragmentColor = index % 2 ? color : accent;
-    meteorShowerContext.fillStyle = `rgba(${fragmentColor},${fade * (.42 - index * .038)})`;
-    meteorShowerContext.fill();
+window.addEventListener("wheel", preventTogetherGateScroll, { passive: false });
+window.addEventListener("touchmove", preventTogetherGateScroll, { passive: false });
+window.addEventListener("keydown", (event) => {
+  if (!togetherGateOpen) return;
+  if (["ArrowDown", "ArrowUp", "PageDown", "PageUp", "Home", "End", " "].includes(event.key)) {
+    event.preventDefault();
   }
-  meteorShowerContext.restore();
-}
-
-function stopMeteorShower() {
-  window.cancelAnimationFrame(meteorShowerFrame);
-  window.clearTimeout(meteorShowerStopTimer);
-  meteorShowerFrame = 0;
-  meteorShower.classList.remove("is-active");
-  meteorShowerContext.clearRect(0, 0, meteorShowerWidth, meteorShowerHeight);
-}
-
-function animateMeteorShower(time) {
-  if (!meteorShowerStartedAt) meteorShowerStartedAt = time;
-  const elapsed = time - meteorShowerStartedAt;
-  meteorShowerContext.clearRect(0, 0, meteorShowerWidth, meteorShowerHeight);
-  meteorStars.forEach((star) => drawMeteorStar(star, elapsed));
-  meteorTracks.forEach((track) => drawMeteor(track, elapsed));
-  if (elapsed < 8600) meteorShowerFrame = window.requestAnimationFrame(animateMeteorShower);
-}
-
-function launchMeteorShower() {
-  if (meteorShowerPlayed || prefersReducedMotion) return;
-  meteorShowerPlayed = true;
-  resizeMeteorShowerCanvas();
-  buildMeteorShowerScene();
-  meteorShower.classList.remove("is-active");
-  void meteorShower.offsetWidth;
-  meteorShower.classList.add("is-active");
-  meteorShowerStartedAt = 0;
-  meteorShowerFrame = window.requestAnimationFrame(animateMeteorShower);
-  meteorShowerStopTimer = window.setTimeout(stopMeteorShower, 8700);
-}
-
-window.addEventListener("resize", resizeMeteorShowerCanvas);
+  if (event.key !== "Tab" || togetherGateAccepted) return;
+  event.preventDefault();
+  (event.shiftKey ? togetherNo : togetherYes).focus();
+});
 
 const constellationStage = $("#constellationStage");
 const constellationCanvas = $("#constellationCanvas");
@@ -2500,7 +2433,7 @@ function finishConstellation() {
   constellationStage.classList.remove("is-auto-connecting");
   futureSection.classList.add("is-constellation-complete");
   burstFromElement(constellationStage, 72);
-  window.setTimeout(launchMeteorShower, prefersReducedMotion ? 0 : 900);
+  window.setTimeout(openTogetherGate, prefersReducedMotion ? 0 : 900);
 }
 
 async function runConstellationAutoSequence() {
