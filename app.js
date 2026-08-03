@@ -163,24 +163,66 @@ if (hasFinePointer) {
   }, { passive: false });
 }
 
-const birthdayWish = $("#birthdayWish");
-const birthdayRitual = $("#birthdayCake");
-const birthdayWishNote = $("#birthdayWishNote");
-if (birthdayWish && birthdayRitual && birthdayWishNote) {
-  birthdayWish.addEventListener("click", () => {
-    const isLit = birthdayRitual.classList.toggle("is-lit");
-    birthdayWishNote.hidden = !isLit;
-    birthdayWish.classList.toggle("is-lit", isLit);
-    birthdayWish.setAttribute("aria-pressed", String(isLit));
-    $("span", birthdayWish).textContent = isLit ? "这句祝福，已经送达" : "点亮这句祝福";
-    if (isLit) {
-      burstFromElement(birthdayRitual, 36);
-      playWishChime(2);
-    } else {
-      stopFairytaleCelebration();
-      document.body.classList.remove("celebration-live");
-    }
-  });
+const birthdayOpeningScene = $("#birthdayOpening");
+const birthdayBalloonField = $("#birthdayBalloonField");
+const birthdayOpeningAnnouncement = $("#birthdayOpeningAnnouncement");
+let birthdayOpeningFallbackTimer = 0;
+
+function revealBirthdayOpeningWish() {
+  if (!birthdayOpeningScene || birthdayOpeningScene.dataset.birthdayState === "complete") return;
+  window.clearTimeout(birthdayOpeningFallbackTimer);
+  birthdayOpeningScene.dataset.birthdayState = "complete";
+  birthdayOpeningScene.classList.remove("is-balloon-playing");
+  birthdayOpeningScene.classList.add("is-wish-visible");
+  if (birthdayBalloonField) birthdayBalloonField.hidden = true;
+  if (birthdayOpeningAnnouncement) {
+    birthdayOpeningAnnouncement.textContent = "华紫蝶，20岁生日快乐！愿美好的事物在新的一岁如约而至。";
+  }
+}
+
+function playBirthdayOpeningScene() {
+  if (!birthdayOpeningScene || !birthdayBalloonField || birthdayOpeningScene.dataset.birthdayState !== "waiting") return;
+  birthdayOpeningScene.dataset.birthdayState = "playing";
+  birthdayBalloonField.hidden = false;
+  const activeBalloons = $$(".birthday-balloon", birthdayBalloonField)
+    .filter((balloon) => window.getComputedStyle(balloon).display !== "none");
+
+  if (!activeBalloons.length) {
+    revealBirthdayOpeningWish();
+    return;
+  }
+
+  let finishedBalloons = 0;
+  const finishBalloon = (event) => {
+    if (event.animationName !== "birthdayBalloonRise") return;
+    finishedBalloons += 1;
+    if (finishedBalloons === activeBalloons.length) revealBirthdayOpeningWish();
+  };
+  activeBalloons.forEach((balloon) => balloon.addEventListener("animationend", finishBalloon, { once: true }));
+  window.requestAnimationFrame(() => birthdayOpeningScene.classList.add("is-balloon-playing"));
+  birthdayOpeningFallbackTimer = window.setTimeout(revealBirthdayOpeningWish, 6800);
+}
+
+if (birthdayOpeningScene && birthdayBalloonField) {
+  if (prefersReducedMotion || !("IntersectionObserver" in window)) {
+    revealBirthdayOpeningWish();
+  } else {
+    birthdayOpeningScene.classList.add("is-animation-ready");
+    birthdayOpeningScene.dataset.birthdayState = "waiting";
+    const birthdayOpeningObserver = new IntersectionObserver(([entry]) => {
+      if (!entry?.isIntersecting) return;
+      birthdayOpeningObserver.disconnect();
+      const startWhenCeremonyEnds = () => {
+        if (document.body.classList.contains("ceremony-pending") || document.body.classList.contains("ceremony-opening")) {
+          window.setTimeout(startWhenCeremonyEnds, 160);
+          return;
+        }
+        playBirthdayOpeningScene();
+      };
+      startWhenCeremonyEnds();
+    }, { threshold: .35, rootMargin: "-6% 0px -6%" });
+    birthdayOpeningObserver.observe(birthdayOpeningScene);
+  }
 }
 
 $(".cover-cta").addEventListener("click", () => runGrandCelebration(false));
@@ -1685,7 +1727,7 @@ function bindTilt(card) {
 
 function bindMagneticControls() {
   if (!hasFinePointer || prefersReducedMotion) return;
-  const controls = $$(".ceremony-enter, .birthday-opening-button, .page-turn-button, .future-button, .letter-open, .finale-wish-button, .cover-cta");
+  const controls = $$(".ceremony-enter, .page-turn-button, .future-button, .letter-open, .finale-wish-button, .cover-cta");
   controls.forEach((control) => {
     control.classList.add("magnetic-control");
     control.addEventListener("pointermove", (event) => {
@@ -2601,7 +2643,7 @@ if (chatGallery && chatHeartItems.length) {
 }
 
 const revealTargets = $$(
-  ".birthday-opening-topline, .birthday-opening-copy > *, .birthday-opening-ritual > *, .birthday-opening-wishes, .favorite-page-head > *, .favorite-universe, .page-turn-copy > *, .portrait-edition-meta, .manifesto-grid > *, .portrait-stage .image-card, .conversation-intro > *, .future > h2, .future-title-ja, .future-lead, .constellation-shell, .letter-cover > *, .finale-copy > *, .finale-visual, .finale-end"
+  ".birthday-wish-title, .birthday-doodle-cake, .favorite-page-head > *, .favorite-universe, .page-turn-copy > *, .portrait-edition-meta, .manifesto-grid > *, .portrait-stage .image-card, .conversation-intro > *, .future > h2, .future-title-ja, .future-lead, .constellation-shell, .letter-cover > *, .finale-copy > *, .finale-visual, .finale-end"
 );
 revealTargets.forEach((target, index) => {
   target.classList.add("reveal-on-scroll");
