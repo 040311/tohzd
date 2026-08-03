@@ -1633,6 +1633,7 @@ function updateChapterExperience() {
   const localProgress = Math.max(0, Math.min(1, (checkpoint - activeChapter.element.offsetTop) / Math.max(1, activeChapter.element.offsetHeight)));
   chapterCompass.style.setProperty("--chapter-fill", `${(localProgress * 100).toFixed(1)}%`);
   chapterCompass.dataset.chapter = activeChapter.id;
+  document.body.dataset.activeChapter = activeChapter.id;
 
   if (currentChapterId === activeChapter.id) return;
   currentChapterId = activeChapter.id;
