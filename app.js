@@ -2563,7 +2563,7 @@ async function runChatHeartSequence() {
     await waitForChatHeart(820);
     if (chatGallery.dataset.heartState !== "running") return;
     item.classList.add("is-reading");
-    await waitForChatHeart(1250);
+    await waitForChatHeart(index === 0 ? 700 : 1250);
     if (chatGallery.dataset.heartState !== "running") return;
     item.classList.remove("is-reading");
     item.classList.replace("is-arriving", "is-settled");

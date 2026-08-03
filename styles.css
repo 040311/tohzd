@@ -1141,7 +1141,7 @@ h2 span, h2 em { color: var(--red); font-style: italic; font-weight: 400; }
 .chat-heart-item:nth-child(10) { --heart-x: 36%; --heart-y: 72%; --heart-rotate: -.7deg; --heart-entry-x: 108vw; --heart-entry-y: 38vh; --heart-entry-rotate: 9deg; --heart-z: 10; --tape-rotate: 1.5deg; }
 .chat-heart-item:nth-child(11) { --heart-x: 50%; --heart-y: calc(100% - clamp(119px, 13.5vw, 157px)); --heart-rotate: 0deg; --heart-entry-x: 0vw; --heart-entry-y: 112vh; --heart-entry-rotate: -7deg; --heart-z: 13; --tape-rotate: -1deg; }
 .chat-heart-item:nth-child(12) { --heart-x: 64%; --heart-y: 72%; --heart-rotate: .7deg; --heart-entry-x: 116vw; --heart-entry-y: 42vh; --heart-entry-rotate: 8deg; --heart-z: 12; --tape-rotate: 1deg; }
-.chat-gallery.is-heart-enhanced .chat-heart-item:nth-child(1) { transition-duration: .52s, .28s, .32s, .52s; }
+.chat-gallery.is-heart-enhanced .chat-heart-item:nth-child(1) { transition-duration: .52s, .52s, .32s, .52s; }
 .chat-gallery.is-heart-enhanced .chat-heart-item:not(.is-arriving):not(.is-settled) {
   opacity: 0;
   pointer-events: none;
