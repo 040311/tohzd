@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Serif+JP:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700;900&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=20260802-sanrio-opening" />
+    <link rel="stylesheet" href="styles.css?v=20260803-birthday-refresh" />
   </head>
   <body class="ceremony-pending">
     <div class="noise" aria-hidden="true"></div>
@@ -145,60 +145,51 @@
         <picture class="birthday-scene-media" aria-hidden="true">
           <img src="assets/backgrounds/sanrio-birthday-party.webp?v=20260802-sanrio-opening" alt="" />
         </picture>
-        <div class="birthday-scene-wash" aria-hidden="true"></div>
-        <div class="birthday-scene-sparkles" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
-        <div class="birthday-opening-mark mono"><span>00 / BIRTHDAY MORNING</span><i></i><span>FOR HUAZIDIE · 2026.08.07</span></div>
-        <div class="birthday-opening-grid">
-          <div class="birthday-opening-copy">
-            <div class="section-kicker mono" lang="ja">好きな世界が、あなたを祝う日。</div>
-            <h2 id="birthdayOpeningTitle">今天，<br /><em>你喜欢的世界</em><br /><strong>都来陪你<br class="birthday-title-break" />过生日。</strong></h2>
-            <p class="birthday-opening-lead">把最柔软的颜色、最熟悉的可爱和最认真的祝福，都放进这一场只属于你的生日小聚。</p>
-            <blockquote class="birthday-quote">
-              <p>愿每一件好事都找到你，<br />愿我也一直在你身边。</p>
-              <footer class="mono" lang="ja">やさしい幸せが、あなたを見つけますように。</footer>
-            </blockquote>
-            <div class="birthday-indexes">
-              <span><b>01</b> 常欢喜</span><span><b>02</b> 有自由</span><span><b>03</b> 被偏爱</span>
-            </div>
+        <div class="birthday-opening-veil" aria-hidden="true"></div>
+        <div class="birthday-opening-glints" aria-hidden="true"><i>✦</i><i>·</i><i>✦</i><i>+</i><i>·</i></div>
+        <div class="birthday-opening-inner">
+          <div class="birthday-opening-topline mono">
+            <span>THE LITTLE PARTY / 01</span>
+            <span>08.07 / 2026</span>
           </div>
 
-          <div class="birthday-art birthday-wish-card" id="birthdayCake" aria-label="等待点亮的生日祝福">
-            <div class="birthday-wish-card-meta mono"><span>PRIVATE WISH</span><span>08 — 07</span></div>
-            <div class="birthday-wish-emblem" aria-hidden="true"><i></i><span>✦</span><b></b></div>
-            <p class="birthday-wish-kicker mono" lang="ja">あなたの瞬間 / 2026.08.07</p>
-            <h3>把今天的快乐，<br /><em>亲手点亮。</em></h3>
-            <div class="wish-action-row">
-              <div class="wish-cta-copy">
-                <button class="wish-button" id="birthdayWish" type="button"><span>点这里，点亮这一岁</span><b>✦</b></button>
-                <small>这一刻，只需要轻轻按下。</small>
+          <div class="birthday-opening-layout">
+            <div class="birthday-opening-copy">
+              <p class="birthday-opening-eyebrow mono" lang="ja">今日の主役へ / FOR THE BIRTHDAY GIRL</p>
+              <h2 id="birthdayOpeningTitle">今天，<br /><em>所有可爱</em><br /><strong>都偏向你。</strong></h2>
+              <p class="birthday-opening-lead">把喜欢的颜色、熟悉的角色和一点点惊喜，拼成一页只给你的生日。</p>
+              <div class="birthday-opening-signature">
+                <span>华紫蝶</span><i></i><small class="mono">YOUR DAY / 2026</small>
               </div>
-              <p class="wish-note" id="birthdayWishNote" hidden>华紫蝶，眼里有光，身边有爱，脚下有想走的路。</p>
             </div>
-            <div class="birthday-wish-card-footer mono"><span>THE DAY IS YOURS</span><span>01 / 04</span></div>
-          </div>
-        </div>
 
-        <div class="birthday-blessing-picker" aria-labelledby="blessingPickerTitle">
-          <div class="birthday-blessing-copy">
-            <p class="mono" id="blessingPickerTitle" lang="ja">新しい一年へ、ことばをひとつ</p>
-            <p class="blessing-result" id="blessingResult" aria-live="polite">愿你拥有以上的所有。</p>
+            <div class="birthday-opening-ritual" id="birthdayCake" aria-label="一份等待点亮的生日祝福">
+              <div class="birthday-opening-ritual-meta mono"><span>WISH NOTE</span><span>NO. 01</span></div>
+              <div class="birthday-opening-orbit" aria-hidden="true">
+                <i></i><i></i><i></i><span>✦</span>
+              </div>
+              <p class="birthday-opening-ritual-kicker mono" lang="ja">あなたのための小さな願い</p>
+              <h3>愿今天<br /><em>被快乐找到。</em></h3>
+              <p class="birthday-opening-ritual-lead">轻轻按下，把这一句祝福交给你。</p>
+              <button class="birthday-opening-button" id="birthdayWish" type="button" aria-pressed="false">
+                <span>点亮这句祝福</span><b aria-hidden="true">↗</b>
+              </button>
+              <p class="birthday-opening-note" id="birthdayWishNote" aria-live="polite" hidden>愿新的一岁，喜欢的事都有回音，想去的地方都在路上。</p>
+              <div class="birthday-opening-ritual-foot mono"><span>THIS MOMENT IS YOURS</span><span>01 / 03</span></div>
+            </div>
           </div>
-          <div class="blessing-options">
-            <button class="blessing-option" type="button" data-blessing="愿你的快乐不需要理由，也不必向谁解释。" aria-label="选择祝福：快乐">
-              <span aria-hidden="true">✦</span><em>快乐</em><small lang="ja">よろこび</small>
-            </button>
-            <button class="blessing-option" type="button" data-blessing="愿你想走的路都有光，想停的时候也有拥抱。" aria-label="选择祝福：勇气">
-              <span aria-hidden="true">↗</span><em>勇气</em><small lang="ja">ゆうき</small>
-            </button>
-            <button class="blessing-option" type="button" data-blessing="愿命运偶尔偏心，把好消息一件件放到你手里。" aria-label="选择祝福：好运">
-              <span aria-hidden="true">◎</span><em>好运</em><small lang="ja">こううん</small>
-            </button>
-            <button class="blessing-option" type="button" data-blessing="愿你一直被世界温柔接住，也一直被我明目张胆地偏爱。" aria-label="选择祝福：偏爱">
-              <span aria-hidden="true">♡</span><em>偏爱</em><small lang="ja">とくべつ</small>
-            </button>
+
+          <div class="birthday-opening-wishes">
+            <span class="birthday-opening-wishes-label mono">A FEW THINGS TO KEEP</span>
+            <div class="birthday-opening-wishes-list">
+              <span><b>01</b>把今天过得像草莓奶油</span>
+              <span><b>02</b>把喜欢的事留给自己</span>
+              <span><b>03</b>把好消息一件件收好</span>
+            </div>
           </div>
+
+          <div class="birthday-opening-footer mono"><span>HUAZIDIE / BIRTHDAY EDITION</span><span>OPENED WITH LOVE</span></div>
         </div>
-        <div class="birthday-scene-footer mono" aria-hidden="true"><span>WELCOME TO YOUR LITTLE PARTY</span><span>HUAZIDIE / 2026</span></div>
       </section>
 
       <section class="favorite-page section-pad" id="favorites" aria-labelledby="favoriteUniverseTitle">
@@ -500,35 +491,6 @@
         </div>
       </section>
 
-      <section class="future section-pad" id="future" aria-labelledby="futureTitle">
-        <div class="future-orbit" aria-hidden="true"><span></span><span></span><span></span></div>
-        <div class="section-kicker mono" lang="ja">05 / 2026年8月7日の、その先へ</div>
-        <h2 id="futureTitle">我想和你<br /><em>一起</em></h2>
-        <p class="future-title-ja" lang="ja">あなたと一緒にいたい。</p>
-        <p class="future-lead">我们认识的时间不长，所以这本摄影集最珍贵的地方，<br />是它还有很多空白，等我们一起把它变成照片。</p>
-        <div class="constellation-shell" id="constellationShell">
-          <div class="constellation-head">
-            <span class="mono" lang="ja">これからを灯す / 点亮未来星图</span>
-            <span class="mono" id="constellationCount">00 / 05</span>
-          </div>
-          <div class="constellation-stage" id="constellationStage">
-            <canvas id="constellationCanvas" aria-hidden="true"></canvas>
-            <button class="constellation-node node-one" type="button" data-word="美食" aria-label="点亮星星：美食"><span>✦</span><em>美食</em></button>
-            <button class="constellation-node node-two" type="button" data-word="电影" aria-label="点亮星星：电影"><span>✦</span><em>电影</em></button>
-            <button class="constellation-node node-three" type="button" data-word="游戏" aria-label="点亮星星：游戏"><span>✦</span><em>游戏</em></button>
-            <button class="constellation-node node-four" type="button" data-word="旅行" aria-label="点亮星星：旅行"><span>✦</span><em>旅行</em></button>
-            <button class="constellation-node node-five" type="button" data-word="未完待续" aria-label="点亮星星：未完待续"><span>✦</span><em>未完待续</em></button>
-          </div>
-          <p class="constellation-message" id="constellationMessage" aria-live="polite">让未来自己连成一线，流星随后抵达。</p>
-        </div>
-        <button class="future-button" id="futureButton" type="button"><span class="button-seal">✦</span><span id="futureButtonText">拆开这份预告</span><b>↗</b></button>
-        <div class="future-note" id="futureNote" hidden>
-          <div class="future-note-top mono" lang="ja">次の一枚 / まだ撮られていない</div>
-          <p>我想成为你将来的专属摄影师，<br /><em>当你笑着回头，</em><br />我刚好在按下快门。</p>
-          <div class="future-note-sign"><i aria-hidden="true"></i><span>你的摄影师</span></div>
-        </div>
-      </section>
-
       <section class="letter section-pad" id="letter" aria-labelledby="letterTitle">
         <div class="letter-atmosphere" aria-hidden="true">
           <svg class="letter-flight-paths" id="letterFlightPaths" preserveAspectRatio="none"></svg>
@@ -543,7 +505,7 @@
             </div>
             <div class="letter-envelope__face" aria-hidden="true"></div>
             <div class="letter-envelope__flap" aria-hidden="true"></div>
-            <span class="letter-envelope__edition mono" aria-hidden="true">PRIVATE LETTER / 06</span>
+            <span class="letter-envelope__edition mono" aria-hidden="true">PRIVATE LETTER / 05</span>
             <span class="letter-label mono" lang="ja">誕生日の手紙 / 封をした言葉</span>
             <svg class="envelope-line-art envelope-line-art--butterfly" viewBox="0 0 180 160" aria-hidden="true">
               <g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
@@ -659,6 +621,35 @@
         </div>
       </section>
 
+      <section class="future section-pad" id="future" aria-labelledby="futureTitle">
+        <div class="future-orbit" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div class="section-kicker mono" lang="ja">06 / 2026年8月7日の、その先へ</div>
+        <h2 id="futureTitle">我想和你<br /><em>一起</em></h2>
+        <p class="future-title-ja" lang="ja">あなたと一緒にいたい。</p>
+        <p class="future-lead">我们认识的时间不长，所以这本摄影集最珍贵的地方，<br />是它还有很多空白，等我们一起把它变成照片。</p>
+        <div class="constellation-shell" id="constellationShell">
+          <div class="constellation-head">
+            <span class="mono" lang="ja">これからを灯す / 点亮未来星图</span>
+            <span class="mono" id="constellationCount">00 / 05</span>
+          </div>
+          <div class="constellation-stage" id="constellationStage">
+            <canvas id="constellationCanvas" aria-hidden="true"></canvas>
+            <button class="constellation-node node-one" type="button" data-word="美食" aria-label="点亮星星：美食"><span>✦</span><em>美食</em></button>
+            <button class="constellation-node node-two" type="button" data-word="电影" aria-label="点亮星星：电影"><span>✦</span><em>电影</em></button>
+            <button class="constellation-node node-three" type="button" data-word="游戏" aria-label="点亮星星：游戏"><span>✦</span><em>游戏</em></button>
+            <button class="constellation-node node-four" type="button" data-word="旅行" aria-label="点亮星星：旅行"><span>✦</span><em>旅行</em></button>
+            <button class="constellation-node node-five" type="button" data-word="未完待续" aria-label="点亮星星：未完待续"><span>✦</span><em>未完待续</em></button>
+          </div>
+          <p class="constellation-message" id="constellationMessage" aria-live="polite">让未来自己连成一线，流星随后抵达。</p>
+        </div>
+        <button class="future-button" id="futureButton" type="button"><span class="button-seal">✦</span><span id="futureButtonText">拆开这份预告</span><b>↗</b></button>
+        <div class="future-note" id="futureNote" hidden>
+          <div class="future-note-top mono" lang="ja">次の一枚 / まだ撮られていない</div>
+          <p>我想成为你将来的专属摄影师，<br /><em>当你笑着回头，</em><br />我刚好在按下快门。</p>
+          <div class="future-note-sign"><i aria-hidden="true"></i><span>你的摄影师</span></div>
+        </div>
+      </section>
+
       <section class="birthday-finale" id="finale" aria-labelledby="finaleTitle">
         <div class="finale-layout">
           <div class="finale-copy">
@@ -698,6 +689,6 @@
       <button class="lightbox-arrow lightbox-next" id="lightboxNext" type="button" aria-label="下一张">→</button>
     </div>
 
-    <script src="app.js?v=20260801-constellation-auto"></script>
+    <script src="app.js?v=20260803-birthday-refresh"></script>
   </body>
 </html>

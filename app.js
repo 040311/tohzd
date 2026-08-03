@@ -163,20 +163,25 @@ if (hasFinePointer) {
   }, { passive: false });
 }
 
-$("#birthdayWish").addEventListener("click", () => {
-  const cake = $("#birthdayCake");
-  const note = $("#birthdayWishNote");
-  const isLit = cake.classList.toggle("is-lit");
-  note.hidden = !isLit;
-  $("#birthdayWish").classList.toggle("is-lit", isLit);
-  $("#birthdayWish").firstChild.textContent = isLit ? "华紫蝶，这一岁已经点亮 " : "点这里，点亮这一岁 ";
-  if (isLit) {
-    burstFromElement($("#birthdayCake"), 54);
-  } else {
-    stopFairytaleCelebration();
-    document.body.classList.remove("celebration-live");
-  }
-});
+const birthdayWish = $("#birthdayWish");
+const birthdayRitual = $("#birthdayCake");
+const birthdayWishNote = $("#birthdayWishNote");
+if (birthdayWish && birthdayRitual && birthdayWishNote) {
+  birthdayWish.addEventListener("click", () => {
+    const isLit = birthdayRitual.classList.toggle("is-lit");
+    birthdayWishNote.hidden = !isLit;
+    birthdayWish.classList.toggle("is-lit", isLit);
+    birthdayWish.setAttribute("aria-pressed", String(isLit));
+    $("span", birthdayWish).textContent = isLit ? "这句祝福，已经送达" : "点亮这句祝福";
+    if (isLit) {
+      burstFromElement(birthdayRitual, 36);
+      playWishChime(2);
+    } else {
+      stopFairytaleCelebration();
+      document.body.classList.remove("celebration-live");
+    }
+  });
+}
 
 $(".cover-cta").addEventListener("click", () => runGrandCelebration(false));
 
@@ -1571,8 +1576,8 @@ const chapterDefinitions = [
   { id: "her", index: "02", label: "她", japanese: "彼女" },
   { id: "conversations", index: "03", label: "我们说过", japanese: "ことば" },
   { id: "confession", index: "04", label: "想说", japanese: "本音" },
-  { id: "future", index: "05", label: "未来", japanese: "これから" },
-  { id: "letter", index: "06", label: "信件", japanese: "手紙" },
+  { id: "letter", index: "05", label: "信件", japanese: "手紙" },
+  { id: "future", index: "06", label: "未来", japanese: "これから" },
   { id: "finale", index: "07", label: "生日终章", japanese: "誕生日" },
 ].map((chapter) => ({ ...chapter, element: $(`#${chapter.id}`) }));
 let currentChapterId = "";
@@ -1680,7 +1685,7 @@ function bindTilt(card) {
 
 function bindMagneticControls() {
   if (!hasFinePointer || prefersReducedMotion) return;
-  const controls = $$(".ceremony-enter, .wish-button, .page-turn-button, .future-button, .letter-open, .finale-wish-button, .cover-cta");
+  const controls = $$(".ceremony-enter, .birthday-opening-button, .page-turn-button, .future-button, .letter-open, .finale-wish-button, .cover-cta");
   controls.forEach((control) => {
     control.classList.add("magnetic-control");
     control.addEventListener("pointermove", (event) => {
@@ -2196,25 +2201,6 @@ document.addEventListener("pointerdown", (event) => {
   createButterflyTrail(event.clientX, event.clientY, event.pointerType === "touch" ? 4 : 2);
 }, { passive: true });
 
-const blessingResult = $("#blessingResult");
-$$('.blessing-option').forEach((option, optionIndex) => {
-  option.setAttribute("aria-pressed", "false");
-  option.addEventListener("click", () => {
-    $$(".blessing-option").forEach((button) => {
-      button.classList.remove("is-selected");
-      button.setAttribute("aria-pressed", "false");
-    });
-    option.classList.add("is-selected");
-    option.setAttribute("aria-pressed", "true");
-    blessingResult.textContent = option.dataset.blessing;
-    blessingResult.classList.remove("is-written");
-    window.requestAnimationFrame(() => blessingResult.classList.add("is-written"));
-    burstFromElement(option, 22);
-    createButterflyCluster(option, 4);
-    playWishChime(optionIndex);
-  });
-});
-
 // The completed constellation opens a local copy of the together confirmation effect.
 const togetherGate = $("#togetherGate");
 const togetherImage = $("#togetherImage");
@@ -2615,7 +2601,7 @@ if (chatGallery && chatHeartItems.length) {
 }
 
 const revealTargets = $$(
-  ".birthday-opening-mark, .birthday-art, .birthday-opening-copy > *, .favorite-page-head > *, .favorite-universe, .page-turn-copy > *, .portrait-edition-meta, .manifesto-grid > *, .portrait-stage .image-card, .conversation-intro > *, .future > h2, .future-title-ja, .future-lead, .constellation-shell, .letter-cover > *, .finale-copy > *, .finale-visual, .finale-end"
+  ".birthday-opening-topline, .birthday-opening-copy > *, .birthday-opening-ritual > *, .birthday-opening-wishes, .favorite-page-head > *, .favorite-universe, .page-turn-copy > *, .portrait-edition-meta, .manifesto-grid > *, .portrait-stage .image-card, .conversation-intro > *, .future > h2, .future-title-ja, .future-lead, .constellation-shell, .letter-cover > *, .finale-copy > *, .finale-visual, .finale-end"
 );
 revealTargets.forEach((target, index) => {
   target.classList.add("reveal-on-scroll");
