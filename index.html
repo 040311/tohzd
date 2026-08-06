@@ -11,7 +11,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Serif+JP:wght@400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700;900&family=Outfit:wght@400;500;600&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="styles.css?v=20260803-chat-skip-scope" />
+    <link rel="stylesheet" href="styles.css?v=20260806-uniform-notes" />
   </head>
   <body class="ceremony-pending">
     <div class="noise" aria-hidden="true"></div>
@@ -101,6 +101,7 @@
       <button class="sound-control" id="soundControl" type="button" title="播放或暂停背景音乐" aria-label="播放背景音乐">
         <span class="sound-icon" aria-hidden="true"><i></i><i></i><i></i></span>
         <span id="soundLabel">播放音乐</span>
+        <span class="click-note click-note--sound" aria-hidden="true">声音在这里呀~ ♪</span>
       </button>
     </header>
 
@@ -693,7 +694,7 @@
           </div>
           <p class="constellation-message" id="constellationMessage" aria-live="polite">让未来自己连成一线，流星随后抵达。</p>
         </div>
-        <button class="future-button" id="futureButton" type="button"><span class="button-seal">✦</span><span id="futureButtonText">拆开这份预告</span><b>↗</b><span class="click-note click-note--control" aria-hidden="true">这里还有惊喜~</span></button>
+        <button class="future-button" id="futureButton" type="button" aria-controls="futureNote" aria-expanded="false"><span class="button-seal">✦</span><span id="futureButtonText">拆开这份预告</span><b>↗</b><span class="click-note click-note--control" id="futureButtonNote" aria-hidden="true">这里还有惊喜~</span></button>
         <div class="future-note" id="futureNote" hidden>
           <div class="future-note-top mono" lang="ja">次の一枚 / まだ撮られていない</div>
           <p>我想成为你将来的专属摄影师，<br /><em>当你笑着回头，</em><br />我刚好在按下快门。</p>
@@ -711,7 +712,7 @@
             <button class="finale-wish-button" id="finaleWishButton" type="button" aria-label="再许一个生日愿望">
               <i aria-hidden="true">✦</i>
               <span><b id="finaleWishText">再许一个愿望</b><small lang="ja">もう一度、願いを</small></span>
-              <span class="click-note click-note--control" aria-hidden="true">再点一下许愿吧~ ♡</span>
+              <span class="click-note click-note--control" id="finaleWishNote" aria-hidden="true">再点一下许愿吧~ ♡</span>
             </button>
           </div>
           <figure class="finale-visual" id="finaleVisual">
@@ -732,6 +733,7 @@
     </footer>
 
     <div class="lightbox" id="lightbox" hidden aria-modal="true" role="dialog" aria-label="照片预览">
+      <span class="click-note click-note--lightbox" aria-hidden="true">← → 翻翻看，× 关掉~</span>
       <button class="lightbox-close" id="lightboxClose" type="button" aria-label="关闭预览">×</button>
       <button class="lightbox-arrow lightbox-prev" id="lightboxPrev" type="button" aria-label="上一张">←</button>
       <figure>
@@ -741,6 +743,6 @@
       <button class="lightbox-arrow lightbox-next" id="lightboxNext" type="button" aria-label="下一张">→</button>
     </div>
 
-    <script src="app.js?v=20260803-chat-skip-scope"></script>
+    <script src="app.js?v=20260806-click-cues-v4"></script>
   </body>
 </html>

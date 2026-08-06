@@ -258,6 +258,8 @@ $("#futureButton").addEventListener("click", () => {
   const isOpen = !note.hidden;
   note.hidden = isOpen;
   $("#futureButtonText").textContent = isOpen ? "拆开这份预告" : "合上这份预告";
+  $("#futureButtonNote").textContent = isOpen ? "这里还有惊喜~" : "点这里可以收好哦~";
+  $("#futureButton").setAttribute("aria-expanded", String(!isOpen));
   if (!isOpen) burstFromElement($("#futureButton"), 22);
 });
 
@@ -833,7 +835,8 @@ finaleWishButton.addEventListener("click", () => {
   finaleWishButton.classList.add("is-complete");
   $("#finaleWishText").textContent = "愿望已收好";
   finaleWishButton.querySelector("small").textContent = "願いを大切にしまった";
-  finaleWishButton.setAttribute("aria-label", "生日愿望已收好，再次播放生日录音与庆祝特效");
+  $("#finaleWishNote").textContent = "愿望已经收好啦~ ♡";
+  finaleWishButton.setAttribute("aria-label", "生日愿望已收好，可再次播放庆祝特效");
   awakenFinale(54);
   runGrandCelebration(false);
   void playBirthdayRecording();
@@ -1153,6 +1156,7 @@ async function playBirthdayRecording() {
 }
 
 soundControl.addEventListener("click", async () => {
+  soundControl.classList.add("is-note-seen");
   const soundtrack = activeSoundtrack();
   if (soundtrack.paused) {
     if (soundtrack === confessionVideo && confessionVideo.ended) {
@@ -2328,10 +2332,14 @@ togetherNo.addEventListener("click", () => {
   const imageIndex = Math.min(togetherNoClicks - 1, togetherNoImages.length - 1);
   togetherImage.src = togetherNoImages[imageIndex];
   togetherNo.textContent = togetherNoTexts[imageIndex] || togetherNoTexts[togetherNoTexts.length - 1];
-  togetherYes.style.transform = `scale(${1 + togetherNoClicks * 1.2})`;
-  togetherNo.style.transform = `translateX(${togetherNoClicks * 50}px)`;
-  togetherImage.style.transform = `translateY(-${togetherNoClicks * 25}px)`;
-  togetherQuestion.style.transform = `translateY(-${togetherNoClicks * 25}px)`;
+  const isCompactGate = window.innerWidth <= 820;
+  const yesScale = isCompactGate ? Math.min(2.08, 1 + togetherNoClicks * .18) : 1 + togetherNoClicks * 1.2;
+  const noShift = isCompactGate ? Math.min(48, togetherNoClicks * 8) : togetherNoClicks * 50;
+  const contentLift = isCompactGate ? Math.min(36, togetherNoClicks * 6) : togetherNoClicks * 25;
+  togetherYes.style.transform = `scale(${yesScale})`;
+  togetherNo.style.transform = `translateX(${noShift}px)`;
+  togetherImage.style.transform = `translateY(-${contentLift}px)`;
+  togetherQuestion.style.transform = `translateY(-${contentLift}px)`;
 });
 
 function preventTogetherGateScroll(event) {
