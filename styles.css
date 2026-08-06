@@ -2180,20 +2180,41 @@ body:not([data-active-chapter="conversations"]) .chat-heart-skip { display: none
 .letter-reveal-all:hover,
 .letter-reveal-all:focus-visible { border-color: #263b43; color: #172b33; }
 .letter-reveal-all:focus-visible { outline: 1px solid #263b43; outline-offset: 6px; }
-.letter-inside h2 { margin-top: 50px; color: #203d49; font-family: var(--art-serif); font-size: clamp(43px, 4.6vw, 56px); font-weight: 400; font-synthesis: none; line-height: 1.25; text-shadow: 0 8px 24px rgba(38,79,95,.11), 0 1px rgba(255,255,255,.62); }
+.letter-inside h2 { max-width: 100%; margin: 50px 0 0; color: #203d49; font-family: var(--uniform-art-serif); font-size: 52px; font-weight: 400; font-synthesis: none; line-height: 1.28; text-wrap: balance; text-shadow: 0 8px 24px rgba(38,79,95,.11), 0 1px rgba(255,255,255,.62); }
 .letter-inside h2 .letter-glyph { color: inherit; }
 .letter-inside h2 .letter-glyph:nth-child(4),
-.letter-inside h2 .letter-glyph:nth-child(5) { color: #667493; }
-.letter-body { max-width: 650px; margin-top: 36px; color: rgba(30,43,49,.91); font-family: var(--uniform-art-serif); font-size: 21px; font-weight: 400; font-synthesis: none; line-height: 2.08; }
-.letter-body p { margin: 0 0 30px; font-weight: 400; }
+.letter-inside h2 .letter-glyph:nth-child(5),
+.letter-inside h2 .letter-glyph:nth-child(6) { color: #667493; }
+.letter-body { max-width: 650px; margin-top: 36px; color: rgba(30,43,49,.91); font-family: var(--uniform-art-serif); font-size: 22px; font-weight: 400; font-synthesis: none; line-height: 2.04; }
+.letter-body p { margin: 0 0 29px; font-weight: 400; text-indent: 2em; }
+.letter-body .letter-glyph { text-indent: 0; }
+.letter-body .letter-question {
+  position: relative;
+  margin-top: 42px;
+  padding-top: 28px;
+  color: #234957;
+  font-size: 25px;
+  line-height: 1.88;
+  text-indent: 0;
+}
+.letter-body .letter-question::before {
+  position: absolute;
+  content: "";
+  top: 0;
+  left: 0;
+  width: 72px;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(48,80,91,.7), rgba(48,80,91,0));
+}
 .letter-glyph { position: relative; display: inline-block; opacity: 0; font-weight: 400; filter: blur(2.4px); transform: translateY(calc(5px + var(--ink-rise))) rotate(var(--ink-turn)); }
 .letter-glyph.is-visible { opacity: 1; filter: blur(0); transform: none; transition: opacity .24s ease, filter .34s ease, transform .38s cubic-bezier(.2,.75,.2,1); }
 .letter-glyph.is-writing-tip::after { position: absolute; content: ""; right: -3px; bottom: .16em; width: 2px; height: .78em; background: rgba(48,80,91,.72); box-shadow: 0 0 8px rgba(48,80,91,.2); animation: inkCursor .72s ease-in-out infinite; }
 @keyframes inkCursor { 50% { opacity: .2; transform: scaleY(.72); } }
-.letter-sign { margin-top: 48px; color: rgba(47,70,79,.76); font-family: var(--art-serif); font-size: 22px; font-weight: 400; font-synthesis: none; line-height: 1.65; opacity: 1; text-align: right; transition: opacity .7s ease, transform .7s cubic-bezier(.2,.75,.2,1); }
+.letter-sign { display: grid; gap: 2px; justify-items: end; margin-top: 48px; color: rgba(47,70,79,.76); font-family: var(--uniform-art-serif); font-size: 22px; font-weight: 400; font-synthesis: none; line-height: 1.65; opacity: 1; text-align: right; transition: opacity .7s ease, transform .7s cubic-bezier(.2,.75,.2,1); }
 .letter-inside.is-writing .letter-sign { opacity: 0; transform: translateY(14px) rotate(-2deg); }
 .letter-sign.is-visible { opacity: 1; transform: translateY(0) rotate(-2deg); }
-.letter-sign strong { color: #253b44; font-weight: 400; }
+.letter-sign strong { color: #253b44; font-size: 30px; font-weight: 400; }
+.letter-sign time { color: rgba(47,70,79,.68); font-size: 17px; }
 
 .birthday-finale { position: relative; min-height: 100svh; overflow: hidden; padding: 92px clamp(28px, 6vw, 96px) 62px; background: #171818; color: var(--paper); isolation: isolate; }
 .birthday-finale::before { position: absolute; z-index: -1; content: "07"; left: -18px; bottom: -92px; color: rgba(240,181,184,.055); font-family: var(--serif); font-size: 330px; line-height: 1; pointer-events: none; }
@@ -2610,10 +2631,13 @@ body:not([data-active-chapter="conversations"]) .chat-heart-skip { display: none
   .paper-sparkle--two { right: 27%; bottom: 6%; }
   .letter-inside-head { gap: 15px; padding: 11px 1px 10px; }
   .letter-reveal-all span { font-size: 15px; }
-  .letter-inside h2 { margin-top: 42px; font-size: clamp(36px, 10vw, 43px); }
-  .letter-body { font-size: 19px; line-height: 2.1; }
+  .letter-inside h2 { margin-top: 42px; font-size: 36px; }
+  .letter-body { font-size: 20px; line-height: 2.08; }
   .letter-body p { margin-bottom: 27px; }
+  .letter-body .letter-question { margin-top: 36px; padding-top: 24px; font-size: 22px; }
   .letter-sign { margin-top: 42px; font-size: 20px; }
+  .letter-sign strong { font-size: 27px; }
+  .letter-sign time { font-size: 16px; }
   .birthday-finale { min-height: 0; padding: 92px 20px 51px; }
   .birthday-finale::before { left: -8px; bottom: -45px; font-size: 178px; }
   .birthday-finale::after { inset: 12px; }
@@ -2690,8 +2714,8 @@ body:not([data-active-chapter="conversations"]) .chat-heart-skip { display: none
   .letter-paper-butterfly--flight { top: 16px; right: 15px; width: 86px; }
   .letter-paper-bow { left: -78px; bottom: -27px; width: 324px; }
   .letter-paper-rose { right: -13px; bottom: 16px; width: 166px; }
-  .letter-inside h2 { margin-top: 46px; }
-  .letter-body { font-size: 20px; }
+  .letter-inside h2 { margin-top: 46px; font-size: 46px; }
+  .letter-body { font-size: 21px; }
 }
 @media (min-width: 821px) and (max-height: 760px) {
   .ceremony-copy { top: 52%; }
