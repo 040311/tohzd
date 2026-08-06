@@ -3083,3 +3083,116 @@ body:not([data-active-chapter="conversations"]) .chat-heart-skip { display: none
   .birthday-opening .birthday-wish-art { visibility: visible !important; opacity: 1 !important; filter: none !important; transform: none !important; animation: none !important; }
   .birthday-opening .birthday-doodle, .birthday-opening .birthday-doodle-cake path, .birthday-opening .birthday-wish-title, .birthday-opening .birthday-wish-quote, .birthday-opening .birthday-wish-forward { opacity: 1 !important; stroke-dashoffset: 0 !important; transform: none !important; animation: none !important; }
 }
+
+/* Handwritten cues for story controls and clickable collections. */
+.click-note {
+  position: absolute;
+  z-index: 24;
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  max-width: min(280px, calc(100vw - 32px));
+  border: 1px solid rgba(151,72,91,.38);
+  border-radius: 2px;
+  padding: 3px 8px 4px;
+  background: #fde8ec;
+  box-shadow: 2px 3px 0 rgba(118,64,76,.13);
+  color: #78394a;
+  font-family: var(--art-serif);
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 400;
+  font-synthesis: none;
+  line-height: 1.12;
+  letter-spacing: 0;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  transform: rotate(-3deg);
+  animation: clickNoteBreathe 2.8s ease-in-out infinite;
+}
+@keyframes clickNoteBreathe { 50% { translate: 0 -2px; scale: 1.025; } }
+
+.ceremony-enter,
+.together-gate-actions,
+.cover-cta,
+.page-turn-button,
+.letter-reveal-all,
+.future-button,
+.finale-wish-button { position: relative; overflow: visible; }
+
+.ceremony-enter > .click-note,
+.cover-cta > .click-note,
+.page-turn-button > .click-note,
+.chat-heart-skip > .click-note,
+.letter-open > .click-note,
+.letter-reveal-all > .click-note,
+.future-button > .click-note,
+.finale-wish-button > .click-note {
+  display: inline-flex;
+  font-family: var(--art-serif);
+  font-size: 15px;
+  line-height: 1.12;
+}
+.ceremony-enter > .click-note { top: -13px; right: 18px; color: #743747; }
+.cover-cta > .click-note { top: -28px; left: 7px; }
+.page-turn-button > .click-note { top: -14px; right: 18px; }
+.chat-heart-skip > .click-note { top: -20px; right: -3px; }
+.letter-open > .click-note { top: -17px; right: 7px; border-color: rgba(49,89,104,.3); background: #eef8f9; color: #31596a; }
+.letter-reveal-all > .click-note { top: -25px; right: 0; border-color: rgba(49,89,104,.3); background: #eef8f9; color: #31596a; }
+.future-button > .click-note { top: -20px; right: -6px; }
+.finale-wish-button > .click-note { top: -18px; right: 10px; }
+.page-turn-button:disabled .click-note { visibility: hidden; }
+
+.click-note--choice {
+  top: -18px;
+  left: 50%;
+  transform: translateX(-50%) rotate(-2deg);
+}
+.click-note--favorite { top: 56px; right: 22px; }
+.click-note--portrait { top: 67px; right: clamp(50px, 6vw, 78px); }
+.click-note--chat,
+.click-note--constellation {
+  position: relative;
+  display: table;
+  transform: rotate(-2deg);
+}
+.click-note--chat { margin: -48px auto 27px; }
+.click-note--constellation { margin: 12px auto 2px; }
+.future.is-constellation-complete .click-note--constellation {
+  visibility: hidden;
+  opacity: 0;
+}
+
+@media (max-width: 820px) {
+  .click-note { max-width: calc(100vw - 28px); padding: 2px 6px 3px; font-size: 13px; }
+  .ceremony-enter > .click-note,
+  .cover-cta > .click-note,
+  .page-turn-button > .click-note,
+  .chat-heart-skip > .click-note,
+  .letter-open > .click-note,
+  .letter-reveal-all > .click-note,
+  .future-button > .click-note,
+  .finale-wish-button > .click-note { font-size: 13px; }
+  .ceremony-enter > .click-note { top: -10px; right: 10px; }
+  .cover-cta > .click-note { top: -24px; left: 0; }
+  .page-turn-button > .click-note { top: -11px; right: 10px; }
+  .chat-heart-skip > .click-note { top: -17px; right: 0; }
+  .letter-open > .click-note { top: -14px; right: 5px; }
+  .letter-reveal-all > .click-note { top: -22px; right: 0; }
+  .future-button > .click-note { top: -17px; right: 3px; }
+  .finale-wish-button > .click-note { top: -14px; right: 10px; }
+  .click-note--choice { top: -16px; }
+  .click-note--favorite { top: 54px; right: 13px; }
+  .click-note--portrait { top: 68px; right: 23px; }
+  .click-note--chat { margin: -38px auto 23px; }
+  .click-note--constellation { margin-top: 11px; }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .ceremony-enter > .click-note { top: -9px; right: 8px; font-size: 11px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .click-note { animation: none !important; }
+}

@@ -39,6 +39,7 @@
         <button class="ceremony-enter" id="enterCeremony" type="button">
           <span><b>开启生日礼物</b><small lang="ja">誕生日の贈り物をひらく</small></span>
           <i aria-hidden="true">↗</i>
+          <span class="click-note click-note--control" aria-hidden="true">轻轻点这里呀~</span>
         </button>
       </div>
 
@@ -77,6 +78,7 @@
         <img id="togetherImage" src="assets/together/default.png" width="240" height="240" alt="询问" />
         <p class="together-gate-text" id="togetherQuestion">可以和我在一起吗？</p>
         <div class="together-gate-actions">
+          <span class="click-note click-note--choice" aria-hidden="true">选一个答案嘛~ ♡</span>
           <button class="together-button together-button-yes" id="togetherYes" type="button">可以</button>
           <button class="together-button together-button-no" id="togetherNo" type="button">不可以</button>
         </div>
@@ -125,7 +127,7 @@
           <p class="eyebrow" lang="ja">華紫蝶さん、お<ruby>誕生日<rt>たんじょうび</rt></ruby>おめでとう</p>
           <h1 id="coverTitle">这是献给<br /><b class="cover-name">华紫蝶</b><br />的<i class="cover-gift">生日礼物。</i></h1>
           <p class="cover-deck"><time datetime="2026-08-07">2026年8月7日</time>，所有页码都写着华紫蝶的名字，<br />这一册只为你打开。<small lang="ja">華紫蝶さんのためだけの一冊。</small></p>
-          <a class="cover-cta" href="#birthdayOpening"><span>翻开生日特刊 <small lang="ja">ひらく</small></span><b aria-hidden="true">↘</b></a>
+          <a class="cover-cta" href="#birthdayOpening"><span>翻开生日特刊 <small lang="ja">ひらく</small></span><b aria-hidden="true">↘</b><span class="click-note click-note--control" aria-hidden="true">点一下，故事开始 ♡</span></a>
         </div>
         <div class="cover-footer">
           <span>献给今天的寿星 <strong>华紫蝶</strong></span>
@@ -243,8 +245,9 @@
         </div>
         <div class="favorite-universe" id="favoriteUniverse">
           <div class="favorite-rail mono" aria-hidden="true"><span>BIRTHDAY GUESTS / 01—06</span><span>2026.08.07</span></div>
-            <div class="character-wall" aria-label="角色收藏展墙">
-              <div class="character-carousel" id="characterCarousel" aria-hidden="false">
+          <span class="click-note click-note--group click-note--favorite" aria-hidden="true">角色卡都能点开看看哦~ ↘</span>
+          <div class="character-wall" aria-label="角色收藏展墙">
+            <div class="character-carousel" id="characterCarousel" aria-hidden="false">
               <button class="character-card character-card-shinchan" type="button" data-gallery="favorites" data-index="0" data-title="蜡笔小新 · 永远保留一点天真" data-parallax-speed="22" aria-label="放大查看蜡笔小新">
                 <img src="assets/characters/shinchan.jpg" alt="蜡笔小新和朋友们" loading="lazy" decoding="async" />
                 <span class="character-meta"><b>01</b><em>蜡笔小新</em><small lang="ja">ずっと、子どもの心を</small></span>
@@ -269,12 +272,12 @@
                 <img src="assets/characters/klee.jpg" alt="原神可莉" loading="lazy" decoding="async" />
                 <span class="character-meta"><b>06</b><em>可莉</em><small lang="ja">新しい一年に、花火を</small></span>
               </button>
-              </div>
             </div>
-            <div class="universe-foot">
-              <span class="mono" lang="ja">近づいて、写真をひらく</span>
-              <p>靠近一点，每一位生日嘉宾都会从纸上醒来。</p>
-            </div>
+          </div>
+          <div class="universe-foot">
+            <span class="mono" lang="ja">近づいて、写真をひらく</span>
+            <p>靠近一点，每一位生日嘉宾都会从纸上醒来。</p>
+          </div>
         </div>
       </section>
 
@@ -287,6 +290,7 @@
           <p lang="ja">このページには、あなたの「好き」を。<br />次のページには、私の好きなあなたを。</p>
           <button class="page-turn-button" id="pageTurnButton" type="button">
             <span><b>翻到下一页</b><small lang="ja">次のページへ</small></span><i aria-hidden="true">→</i>
+            <span class="click-note click-note--control" aria-hidden="true">下一页在等你哦~</span>
           </button>
         </div>
         <div class="page-turn-sheet" aria-hidden="true"></div>
@@ -312,6 +316,7 @@
               <b>只收藏此刻的你</b>
             </div>
             <span class="portrait-wall-line" aria-hidden="true"><i></i><i></i></span>
+            <span class="click-note click-note--group click-note--portrait" aria-hidden="true">照片都可以点开看看呀 ♡</span>
             <div class="image-card portrait-feature" data-gallery="portraits" data-index="0" data-full-src="assets/portraits/huazidie-portrait-04-original.jpg" tabindex="0" role="button" aria-label="查看照片：光落在你身上">
               <span class="photo-fastener fastener-washi" aria-hidden="true"></span>
               <img src="assets/portraits/huazidie-portrait-04.jpg" width="1446" height="1920" alt="橙发角色装扮的华紫蝶" loading="lazy" decoding="async" />
@@ -383,7 +388,9 @@
         </div>
         <button class="chat-heart-skip" id="chatHeartSkip" type="button" aria-label="跳过聊天截图动画，直接显示完整心形" hidden>
           <span>直接看心形</span><i aria-hidden="true">↘</i>
+          <span class="click-note click-note--control" aria-hidden="true">想快一点就点我~</span>
         </button>
+        <span class="click-note click-note--group click-note--chat" aria-hidden="true">点开聊天卡，就能看清楚啦~ ↓</span>
         <div class="chat-gallery" id="chatGallery" role="list" aria-label="12 张真实聊天截图组成的对称心形存档" data-heart-progress="00 / 12">
           <div class="chat-heart-item" role="listitem">
             <button class="chat-frame chat-photo" type="button" data-gallery="chats" data-index="0" data-title="如果可以的话 · 聊天存档 01" aria-label="查看真实聊天截图：如果可以的话">
@@ -589,6 +596,7 @@
             <button class="letter-open" id="letterOpen" type="button">
               <span class="letter-open-icon" aria-hidden="true">↗</span>
               <span class="letter-open-copy"><b>打开信件</b><small>OPEN THE LETTER</small></span>
+              <span class="click-note click-note--control" aria-hidden="true">小心拆开呀~ ♡</span>
             </button>
             <div class="letter-envelope__shine" aria-hidden="true"></div>
           </div>
@@ -644,6 +652,7 @@
             <div class="letter-inside-meta mono" lang="ja">あなたへ / 2026.08.07</div>
             <button class="letter-reveal-all" id="letterRevealAll" type="button" aria-label="直接展开完整信件" hidden>
               <span>展开全文</span><small lang="ja">全文をひらく</small>
+              <span class="click-note click-note--control" aria-hidden="true">等不及就点我~</span>
             </button>
           </div>
           <h2 id="letterTitle">亲爱的华紫蝶小姐：</h2>
@@ -673,6 +682,7 @@
             <span class="mono" lang="ja">これからを灯す / 点亮未来星图</span>
             <span class="mono" id="constellationCount">00 / 05</span>
           </div>
+          <span class="click-note click-note--group click-note--constellation" aria-hidden="true">星星会自己连起来哦~ ✦</span>
           <div class="constellation-stage" id="constellationStage">
             <canvas id="constellationCanvas" aria-hidden="true"></canvas>
             <button class="constellation-node node-one" type="button" data-word="美食" aria-label="点亮星星：美食"><span>✦</span><em>美食</em></button>
@@ -683,7 +693,7 @@
           </div>
           <p class="constellation-message" id="constellationMessage" aria-live="polite">让未来自己连成一线，流星随后抵达。</p>
         </div>
-        <button class="future-button" id="futureButton" type="button"><span class="button-seal">✦</span><span id="futureButtonText">拆开这份预告</span><b>↗</b></button>
+        <button class="future-button" id="futureButton" type="button"><span class="button-seal">✦</span><span id="futureButtonText">拆开这份预告</span><b>↗</b><span class="click-note click-note--control" aria-hidden="true">这里还有惊喜~</span></button>
         <div class="future-note" id="futureNote" hidden>
           <div class="future-note-top mono" lang="ja">次の一枚 / まだ撮られていない</div>
           <p>我想成为你将来的专属摄影师，<br /><em>当你笑着回头，</em><br />我刚好在按下快门。</p>
@@ -701,6 +711,7 @@
             <button class="finale-wish-button" id="finaleWishButton" type="button" aria-label="再许一个生日愿望">
               <i aria-hidden="true">✦</i>
               <span><b id="finaleWishText">再许一个愿望</b><small lang="ja">もう一度、願いを</small></span>
+              <span class="click-note click-note--control" aria-hidden="true">再点一下许愿吧~ ♡</span>
             </button>
           </div>
           <figure class="finale-visual" id="finaleVisual">
